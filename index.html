@@ -3278,7 +3278,7 @@ function resolveMoment(p,i){
 
 /* ---------- 업데이트 노트 (최신이 위, 버전마다 누적) ---------- */
 const UPDATES=[
-  {d:'2026.10.07 00:21',t:'평점 기준 조정 · 골키퍼 선방',l:['평점이 실제 축구처럼 바뀌었어요: 무난한 경기 6.6~6.8, 무실점이나 1골·1도움이면 7.1~7.4, 공격 포인트·결정적 수비·선방이 쌓일수록 더 올라가요','골키퍼는 경기마다 선방 수가 기록되고 평점에 반영돼요 (지난 경기 목록에 🧤 선방 표시)','평점이 올라간 만큼 재계약 제안 등 평점 기준도 함께 올렸어요 (구단 재계약 제안은 최근 평점 7.4 이상)','이적·상무 결과 카운트다운 중에는 뒤 화면이 가려져서 결과가 미리 보이지 않아요']},  {d:'2026.10.07 00:09',t:'대륙대회 · 다양한 기사 · 큰 순간 연출',l:['UCL·UEL·UECL·ACLE·ACL2를 실제로 치러요. 조 추첨(포트·같은 리그 회피) → 조별리그 6경기 → 16강(AFC는 8강)부터 홈·원정 토너먼트 → 결승','대륙대회 경기는 주중에 리그 사이사이 열리고, 시즌 기록과 피로에 더해져요. 조별 탈락·토너먼트 결과가 소식에 떠요','순위 탭에 대륙대회 탭이 생겼어요: 조별 순위표 · 토너먼트 추첨 결과와 합계 스코어','순위표에 승·무·패가 보여요 (게임 안에서 실제로 치른 경기 기록)','2군 리그 순위표에 대륙대회·강등 구역이 잘못 표시되던 문제를 고쳤어요','언론·라이벌 기사가 훨씬 다양해졌어요: 멀티골·결승골·연속골·골 가뭄·인터뷰·칼럼·순위 기사 등, 가상의 매체 이름과 함께','결정적 순간이 포지션마다 여러 상황으로 나오고, 선택지 4개가 매번 다른 조합으로 나와요','해트트릭은 축구공이 날아오고 세레머니가 보이고, 결정적 골·선방, 승격·강등에도 연출이 생겼어요','이적·상무 지원·재계약·임대 요청은 3·2·1 카운트다운 뒤 결과를 알려 줘요','구단이 이적을 막을 때 이유를 알려 줘요 (이적료 부족, 감독의 잔류 요청, 시즌 중 전력 공백 등)','활약이 좋으면 가끔 소속팀이 먼저 주급·계약 기간을 올린 재계약을 제안해요','골키퍼 평점은 무실점·실점, 수비수 평점은 수비 경기력·무실점에 더 크게 움직이고, 골·도움 비중은 조금 줄었어요','중간 난이도 업적 23개가 추가됐어요']},  {d:'2026.10.06 23:13',t:'짧은 부상 · 직접 만든 학교',l:['부상이 이번 묶음 안에 끝나면 넘어가기만 뜨지 않고 평소처럼 경기 방식을 고를 수 있어요 (복귀 후 경기에 반영)','연승·연패 때 배경색이 바뀌던 효과를 없앴어요 (화면 안 표시는 그대로)','출신 고교에서 ✏️ 직접 입력을 고르면 원하는 이름의 일반고로 시작해요 (모구단·우선지명 없음)','유스 고교 이름은 원래대로 고정돼요']},
+  {d:'2026.10.07 00:34',t:'은퇴·새 인생은 시즌 결산에서',l:['은퇴하기 · 새 인생 시작 버튼은 시즌 결산 화면에서만 보여요. 시즌 도중에는 끝까지 뛰어야 해요','진행 중인 선수가 있으면 주간 챌린지도 시즌 결산 화면이나 은퇴한 뒤에 시작할 수 있어요']},  {d:'2026.10.07 00:21',t:'평점 기준 조정 · 골키퍼 선방',l:['평점이 실제 축구처럼 바뀌었어요: 무난한 경기 6.6~6.8, 무실점이나 1골·1도움이면 7.1~7.4, 공격 포인트·결정적 수비·선방이 쌓일수록 더 올라가요','골키퍼는 경기마다 선방 수가 기록되고 평점에 반영돼요 (지난 경기 목록에 🧤 선방 표시)','평점이 올라간 만큼 재계약 제안 등 평점 기준도 함께 올렸어요 (구단 재계약 제안은 최근 평점 7.4 이상)','이적·상무 결과 카운트다운 중에는 뒤 화면이 가려져서 결과가 미리 보이지 않아요']},  {d:'2026.10.07 00:09',t:'대륙대회 · 다양한 기사 · 큰 순간 연출',l:['UCL·UEL·UECL·ACLE·ACL2를 실제로 치러요. 조 추첨(포트·같은 리그 회피) → 조별리그 6경기 → 16강(AFC는 8강)부터 홈·원정 토너먼트 → 결승','대륙대회 경기는 주중에 리그 사이사이 열리고, 시즌 기록과 피로에 더해져요. 조별 탈락·토너먼트 결과가 소식에 떠요','순위 탭에 대륙대회 탭이 생겼어요: 조별 순위표 · 토너먼트 추첨 결과와 합계 스코어','순위표에 승·무·패가 보여요 (게임 안에서 실제로 치른 경기 기록)','2군 리그 순위표에 대륙대회·강등 구역이 잘못 표시되던 문제를 고쳤어요','언론·라이벌 기사가 훨씬 다양해졌어요: 멀티골·결승골·연속골·골 가뭄·인터뷰·칼럼·순위 기사 등, 가상의 매체 이름과 함께','결정적 순간이 포지션마다 여러 상황으로 나오고, 선택지 4개가 매번 다른 조합으로 나와요','해트트릭은 축구공이 날아오고 세레머니가 보이고, 결정적 골·선방, 승격·강등에도 연출이 생겼어요','이적·상무 지원·재계약·임대 요청은 3·2·1 카운트다운 뒤 결과를 알려 줘요','구단이 이적을 막을 때 이유를 알려 줘요 (이적료 부족, 감독의 잔류 요청, 시즌 중 전력 공백 등)','활약이 좋으면 가끔 소속팀이 먼저 주급·계약 기간을 올린 재계약을 제안해요','골키퍼 평점은 무실점·실점, 수비수 평점은 수비 경기력·무실점에 더 크게 움직이고, 골·도움 비중은 조금 줄었어요','중간 난이도 업적 23개가 추가됐어요']},  {d:'2026.10.06 23:13',t:'짧은 부상 · 직접 만든 학교',l:['부상이 이번 묶음 안에 끝나면 넘어가기만 뜨지 않고 평소처럼 경기 방식을 고를 수 있어요 (복귀 후 경기에 반영)','연승·연패 때 배경색이 바뀌던 효과를 없앴어요 (화면 안 표시는 그대로)','출신 고교에서 ✏️ 직접 입력을 고르면 원하는 이름의 일반고로 시작해요 (모구단·우선지명 없음)','유스 고교 이름은 원래대로 고정돼요']},
   {d:'2026.10.06 23:08',t:'유스 고교 추가 · 더 촘촘한 화면',l:['부산(개성고)·전남(광양제철고)·대구(현풍고)·대전(충남기계공고)·광주(금호고)·강원(강릉제일고)·경남(진주고)·안양(안양공고) 유스 고교가 생겼어요','유스가 없는 일반 고교는 없어졌어요','출신 고교 이름을 직접 정할 수 있어요 (비우면 원래 이름)','글자와 여백을 한 번 더 줄여 시즌 화면이 한 화면에 들어와요','새 인생 시작 · 은퇴하기 버튼을 작게 정리했어요']},
   {d:'2026.10.06 22:50',t:'결정적 순간',l:['빅매치(접전)와 결승전에 출전하면 경기 막판 결정적 순간을 직접 골라요','공격수는 슈팅 방향, 미드필더는 패스할 동료, 수비수는 막는 방법, 골키퍼는 페널티킥 방향을 골라요','성공 확률은 보이지 않고 장면마다 달라요. 상대 골키퍼·수비의 대응과 내 능력치에 따라 정해져요','성공하면 골·도움·선방이 실제 스코어와 평점에 반영되고, 결승 우승에도 영향을 줘요']},
   {d:'2026.10.06 22:40',t:'유럽대항전 · 구단 대표 색 · 촘촘한 화면',l:['UCL·UEL·UECL이 생겼어요. 지난 시즌 리그 순위로 출전권이 정해져요 (잉글랜드·스페인·독일·이탈리아 1~4위 UCL, 5~6위 UEL, 7위 UECL / 프랑스 1~4위 UCL, 5위 UEL, 6위 UECL)','K리그1은 1~2위 ACLE, 3위 ACL2에 나가요','대륙대회 결승은 실제로 출전 중인 대회에서만 오를 수 있어요','오퍼 카드에 그 팀이 나가는 대륙대회와 순위가 보여요','대륙대회에 나가는 시즌에는 시즌 시작 전에 알려 줘요','순위표에 대륙대회 출전권 구역이 표시돼요','구단 엠블럼이 실제 대표 색을 쓰고, 모양도 구단마다 다양해졌어요','팀 배경이 구단 대표 색으로 은은하게 바뀌어요','화면 전체를 더 촘촘하게 정리해 스크롤을 줄였어요']},
@@ -3371,6 +3371,7 @@ function homeView(){
   let h=`<section class="panel hero compact-hero"><span class="eyebrow">NEW FOOTBALL LIFE</span><h1>열여덟 살, 다시 공을 찬다</h1>
     <p class="small">고교 3학년에서 시작해 K리그, 유럽, 국가대표, 은퇴까지.</p>
     ${live?'':'<button class="btn" data-act="new">새로운 인생 시작 <span class="arr">→</span></button>'}</section>`;
+  if(G.flash){h+=`<div class="note small">${esc(G.flash)}</div>`;G.flash=null}
   if(G.confirmNew)h+=`<section class="panel"><div class="warn small">진행 중인 <b>${esc(p.name)}</b> 선수의 기록이 지워집니다. 은퇴하지 않은 선수는 명예의 전당에 남지 않아요.</div>
     <div class="grid2"><button class="btn danger" data-act="${G.confirmNew==='ch'?'challenge-force':'new-force'}">지우고 ${G.confirmNew==='ch'?'챌린지 ':''}시작</button><button class="btn alt" data-act="cancel-new">취소</button></div></section>`;
   if(p)h+=`<section class="panel compact"><div class="strip"><div class="jersey">${p.num}</div><div class="who"><b>${esc(p.name)}</b><span class="muted small">${p.year}년 · ${p.age}세 · ${p.fa?'무소속':esc(teamName(p.club,p.u21))}</span></div>
@@ -3599,8 +3600,8 @@ function gameView(){
     <div class="ovr"><div class="v">${ovr(p)}</div><div class="k">OVR</div></div></div></section>
     <nav class="tabs" role="tablist">${[['season','시즌'],['table','순위'],['career','커리어'],['player','선수'],['trophy','트로피']].map(([k,n])=>`<button role="tab" data-act="tab" data-v="${k}" aria-selected="${G.tab===k}">${n}</button>`).join('')}</nav>`;
   h+={season:seasonTab,table:tableTab,career:careerTab,player:playerTab,trophy:trophyTab}[G.tab](p);
-  // 진행 중 언제든: 새 인생 시작 · 은퇴 (맨 아래 한 줄)
-  if(p.phase!=='retired'){
+  // 새 인생 시작 · 은퇴는 시즌 결산 화면에서만 (시즌 도중에 쉽게 그만두지 않도록)
+  if(p.phase==='summary'){
     h+=G.retireAsk?`<section class="panel"><div class="warn small"><b>지금 은퇴할까요?</b><br>${p.phase==='round'?'진행 중인 이번 시즌 기록은 반영되지 않고, ':''}지금까지의 기록으로 커리어 등급이 매겨져요.</div>
       <div class="grid2"><button class="btn danger" data-act="retire-now">은퇴한다</button><button class="btn alt" data-act="retire-cancel">계속 뛴다</button></div></section>`
       :`<div class="endbar"><button class="btn alt" data-act="new">새 인생 시작</button><button class="btn alt" data-act="retire-ask">은퇴하기</button></div>`;
@@ -4024,7 +4025,8 @@ const detOpen=(k,def)=>G.det&&k in G.det?G.det[k]:def;function act(a,v){
   const p=G.p,c=G.create;
   switch(a){
     case 'home':G.screen='home';G.confirmNew=false;break;
-    case 'new':if(p&&p.phase!=='retired'&&!G.confirmNew){G.screen='home';G.confirmNew=true;break}
+    case 'new':if(p&&p.phase!=='retired'&&p.phase!=='summary'){G.screen='home';G.flash='새 인생은 시즌 결산 화면에서 시작할 수 있어요.';break}
+      if(p&&p.phase!=='retired'&&!G.confirmNew){G.screen='home';G.confirmNew=true;break}
     // falls through
     case 'new-force':G.confirmNew=false;G.screen='create';c.cands=null;c.heir=null;if(c.challenge){c.challenge=null;c.used=true}freshLuck(c);break;
     case 'school':c.school=+v;break;
@@ -4099,7 +4101,8 @@ const detOpen=(k,def)=>G.det&&k in G.det?G.det[k]:def;function act(a,v){
     case 'fb-del':fbDelete(v);break;
     case 'pw-go':changePw();break;
     case 'after':if(p&&p.final&&!p.final.after){p.final.after=v;p.final.afterTxt=afterText(p,v)}break;
-    case 'challenge':if(p&&p.phase!=='retired'&&!G.confirmNew){G.screen='home';G.confirmNew='ch';break}
+    case 'challenge':if(p&&p.phase!=='retired'&&p.phase!=='summary'){G.screen='home';G.flash='주간 챌린지는 지금 선수의 시즌 결산 화면이나 은퇴한 뒤에 시작할 수 있어요.';break}
+      if(p&&p.phase!=='retired'&&!G.confirmNew){G.screen='home';G.confirmNew='ch';break}
     // falls through
     case 'challenge-force':G.confirmNew=false;G.screen='create';c.heir=null;challengeSetup(c);G.toTop=true;break;
     case 'event':{const e=EVENTS[p.event];p.note=`${e.t} · ${e.o[+v][1](p)}`;p.fatigue=Math.max(0,p.fatigue);p.event=null;break}
