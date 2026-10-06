@@ -226,7 +226,8 @@ body.glory .bar{background:color-mix(in srgb,#f2c14e 40%,var(--bg))}
 .rain{position:absolute;inset:0;overflow:hidden;pointer-events:none}
 .rain i{position:absolute;top:-40px;width:2px;height:34px;background:linear-gradient(transparent,rgba(170,185,210,.7));animation:rainfall linear infinite}
 @keyframes rainfall{to{transform:translate(-30px,110vh)}}
-/* 결과 발표 카운트다운 */
+/* 결과 발표 카운트다운: 뒤 화면(이미 바뀐 결과)이 비치지 않게 배경을 완전히 가린다 */
+.achov.rv{background:#0b1222;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 .rvbox{min-height:230px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;overflow:hidden}
 .cd{position:relative;width:100%;height:150px}
 .cd span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--f-num);font-weight:900;font-size:96px;color:var(--pitch);opacity:0;animation:cdPop 1s ease-out both}
@@ -1599,20 +1600,22 @@ function simMatch(p,s,ap,no,f){
   // 수비 역할은 그날 경기력이 실점에 직접 영향을 준다 (공격수가 득점으로 경기를 바꾸듯)
   const dw=play?(DEF_W[dposOf(p)]||0)*pm/90:0;
   const gf=poisson(clamp(1.35+diff*.07,.3,3.5)),ga=poisson(clamp(1.25-diff*.07,.25,3.2)*(dw?clamp(1-(perf-6.6)*dw,.55,1.5):1));
-  let g=0,a=0,r=null,dk=0,clutch=false;
+  let g=0,a=0,r=null,dk=0,clutch=false,sv=0;
   if(play){
     const dp=DPOS[dposOf(p)],mins=sub?.4:1,sg=clamp(dp.goal*(1+(perf-6.5)*.35),0,.7)*mins,sa=clamp(dp.ast*(1+(perf-6.5)*.3),0,.5)*mins;
     for(let i=0;i<gf;i++){const u=Math.random();if(u<sg)g++;else if(u<sg+sa)a++}
     const def=p.pos==='GK'||p.pos==='DF';
     // 포지션 보정: 공격 포인트 기회가 적은 역할은 경기 기여도로 채워 평점 기대값을 맞춘다. 팀 승패도 모두에게 반영
     const gk=p.pos==='GK',dfr=p.pos==='DF';
-    const comp=clamp(.75-(dp.goal*.45+dp.ast*.3)*2.2-(dfr?.2:0),0,.65)+(gk?.07:dfr?.17:0);
+    const comp=clamp(.75-(dp.goal*.45+dp.ast*.3)*2.2-(dfr?.2:0),0,.65)+(gk?.13:dfr?.17:0);
     // 골키퍼·수비수는 공격 포인트 대신 그날의 수비 경기력·무실점·실점으로 평점이 크게 움직인다
-    const defSwing=gk?(perf-6.5)*.2+(ga===0?.42:0)-ga*.16:dfr?(perf-6.5)*.16+(ga===0?.38:0)-ga*.08:(ga===0&&def?.3:0);
+    // 골키퍼 선방 수: 상대가 강할수록 슈팅을 많이 받아 선방 기회가 늘고, 그날 경기력이 좋을수록 많이 막는다
+    sv=gk?poisson(clamp((2.7-diff*.12)*(1+(perf-6.5)*.15),.6,6.5)*pm/90):0;
+    const defSwing=gk?(perf-6.5)*.12+(ga===0?.3:0)-ga*.16+(sv-2.7)*.13:dfr?(perf-6.5)*.16+(ga===0?.3:0)-ga*.08:(ga===0&&def?.3:0);
     // 수비 성공(태클·가로채기·클리어링·블록)과 실점을 막아 낸 결정적 수비
     const dBase=DEF_ACT[dposOf(p)]||0;
     if(dBase){dk=poisson(dBase*clamp(1+(perf-6.5)*.25,.4,1.8)*pm/90);clutch=!sub&&Math.random()<.045*clamp(1+(perf-6.5),.3,2.5)}
-    r=clamp(perf+comp+g*.45+a*.3+(gf>ga?.15:gf<ga?-.15:0)+defSwing+(dBase?clamp((dk-dBase*pm/90)*.05,-.2,.3):0)+(clutch?.25:0),4,10);
+    r=clamp(perf+comp+g*.45+a*.35+(gf>ga?.15:gf<ga?-.15:0)+defSwing+(dBase?clamp((dk-dBase*pm/90)*.05,-.2,.3):0)+(clutch?.25:0),4,10);
     if(sub)r=6.4+(r-6.4)*.6;   // 교체 출전은 평점 변동 폭이 작다
     r=Math.round(r*10)/10;
     // 경고 누적 5장이면 1경기, 퇴장이면 2경기 출장 정지
@@ -1624,7 +1627,7 @@ function simMatch(p,s,ap,no,f){
     p.goalRun=g>0?(p.goalRun||0)+1:0;p.bestRun=Math.max(p.bestRun||0,p.goalRun);
     if(cc&&g)s.ccG=(s.ccG||0)+g;
     s.apps++;s.goals+=g;s.assists+=a;s.ratingSum+=r;if(ga===0&&def)s.cs++;if(r>=8.3)s.motm++;
-    s.dk=(s.dk||0)+dk;if(clutch)s.clutch=(s.clutch||0)+1;s.conc=(s.conc||0)+ga;
+    s.dk=(s.dk||0)+dk;if(clutch)s.clutch=(s.clutch||0)+1;s.conc=(s.conc||0)+ga;s.saves=(s.saves||0)+sv;
     p.fatigue+=(sub?ap.fat*.4:ap.fat*Math.max(.75,pm/90))*(s.mult||1)+(tg.includes('cup')?3:0);   // 선발은 많이, 교체는 조금
     if(tg.includes('big')&&!sub){if(r>=7.5){p.rep=clamp(p.rep+1,0,100);p.morale=clamp(p.morale+3,0,100)}else if(r<6){p.rep=clamp(p.rep-1,0,100);p.morale=clamp(p.morale-3,0,100)}}
     if(tg.includes('scout')&&f.sc!=null&&r>=7.6){p.scouted={ci:f.sc,y:p.year};if(isEuro(f.sc))addEuroWatch(p,1,`${teamName(f.sc,false)} 스카우트 관전`);addNews(p,`[스카우트] ${teamName(f.sc,false)} 스카우트가 vs ${teamName(oi,p.u21)}전 활약을 인상 깊게 지켜봤다`,'good')}
@@ -1641,7 +1644,7 @@ function simMatch(p,s,ap,no,f){
   if(s.tab)tabMatch(s,ci,oi,gf,ga);
   if(tg.includes('six'))p.morale=clamp(p.morale+(gf>ga?3:gf<ga?-3:0),0,100);   // 강등권 맞대결은 결과가 크게 와닿는다
   }
-  return {no,opp:cc?cc.n:teamName(oi,p.u21),oi,cc:cc?cc.s:null,tags:tg,min:pm,dk,clutch,gf,ga,play,g,a,r,inj,injName:inj?p.injName:null,out:!play&&p.injury>0,susp,sub,forced,card,strike:!!p.strike&&!play};
+  return {no,opp:cc?cc.n:teamName(oi,p.u21),oi,cc:cc?cc.s:null,sv,tags:tg,min:pm,dk,clutch,gf,ga,play,g,a,r,inj,injName:inj?p.injName:null,out:!play&&p.injury>0,susp,sub,forced,card,strike:!!p.strike&&!play};
 }
 /* ---------- injuries ---------- */
 function injuryRisk(p,ap){
@@ -2233,11 +2236,11 @@ function genOffers(p){
       offs.push({kind:'stay',label:`${teamName(p.club,p.u21)} 잔류 (계약 ${p.contract.years}년 남음)`});
       // 활약이 좋으면 가끔 구단이 먼저 주급·계약 기간을 늘린 재계약을 내민다 (이때는 직접 인상 요청 대신)
       let ext=false;
-      if(!p.struck&&!p.u21&&!p.loan&&!p.wantsOut&&p.mil.st!=='serving'&&recentAvg(p)>=7.1&&p.contract.years<=3&&Math.random()<.45){
+      if(!p.struck&&!p.u21&&!p.loan&&!p.wantsOut&&p.mil.st!=='serving'&&recentAvg(p)>=rawR(7.4)&&p.contract.years<=3&&Math.random()<.45){
         const o=mkOffer(p,p.club,false,'구단의 재계약 제안');o.block=0;o.fee=0;o.clubExt=true;
         o.salary=Math.round(Math.max(o.salary,p.contract.salary)*rand(1.2,1.45)/100)*100;o.years=Math.min(5,p.contract.years+ri(2,3));o.clause=makeClause(p.club,o.salary,o.years);
         offs.splice(1,0,o);ext=true}
-      if(!ext&&!p.struck&&!p.u21&&recentAvg(p)>=6.9)offs.push({kind:'raise'});
+      if(!ext&&!p.struck&&!p.u21&&recentAvg(p)>=rawR(7.25))offs.push({kind:'raise'});
       offs.push(...devLoan(p));
       if(!longInj(p)&&!offs.some(o=>o.kind==='loan')&&(p.u21||p.role!=='주전'))offs.push({kind:'loanreq'});
     }
@@ -2827,13 +2830,13 @@ const ACH=[
   /* ---- 중간 난이도 ---- */
   {id:'s15',m:1,i:'⚽',n:'시즌 15골',d:'한 시즌 15골',c:p=>p.phase==='summary'&&p.summary&&p.summary.goals>=15},
   {id:'a10',m:1,i:'🅰️',n:'시즌 10도움',d:'한 시즌 10도움',c:p=>p.phase==='summary'&&p.summary&&p.summary.assists>=10},
-  {id:'avg72',m:1,i:'📈',n:'평점 7.2',d:'한 시즌 평균 평점 7.2 이상 (20경기 이상)',c:p=>p.phase==='summary'&&p.summary&&p.summary.apps>=20&&p.summary.avg>=7.2},
-  {id:'motm8',m:1,i:'🌟',n:'경기 MVP 단골',d:'한 시즌 평점 8.3 이상 경기 8번',c:p=>p.phase==='summary'&&p.summary&&(p.summary.motm||0)>=8},
+  {id:'avg72',m:1,i:'📈',n:'평점 7.3',d:'한 시즌 평균 평점 7.3 이상 (20경기 이상)',c:p=>p.phase==='summary'&&p.summary&&p.summary.apps>=20&&p.summary.avg>=rawR(7.3)},
+  {id:'motm8',m:1,i:'🌟',n:'경기 MVP 단골',d:'한 시즌 평점 8.1 이상 경기 8번',c:p=>p.phase==='summary'&&p.summary&&(p.summary.motm||0)>=8},
   {id:'run5',m:1,i:'🔥',n:'5경기 연속골',d:'5경기 연속으로 골을 넣었다',c:p=>(p.bestRun||0)>=5},
   {id:'brace10',m:1,i:'✌️',n:'멀티골 10회',d:'한 경기 2골 이상을 통산 10번',c:p=>(p.braces||0)>=10},
   {id:'ht3',m:1,i:'🎩',n:'해트트릭 3회',d:'통산 해트트릭 3회',c:p=>(p.hattricks||0)>=3},
   {id:'g10x3',m:1,i:'📅',n:'꾸준한 골잡이',d:'3시즌 연속 두 자릿수 골',c:p=>runOf(p,h=>h.goals>=10)>=3},
-  {id:'r7x3',m:1,i:'📊',n:'믿고 쓰는 선수',d:'1부 리그에서 3시즌 연속 평균 평점 7.0 이상 (15경기 이상)',c:p=>runOf(p,h=>T1N.includes(h.lg)&&h.apps>=15&&h.avg>=7)>=3},
+  {id:'r7x3',m:1,i:'📊',n:'믿고 쓰는 선수',d:'1부 리그에서 3시즌 연속 평균 평점 7.1 이상 (15경기 이상)',c:p=>runOf(p,h=>T1N.includes(h.lg)&&h.apps>=15&&h.avg>=rawR(7.1))>=3},
   {id:'cs50',m:1,i:'🧤',n:'클린시트 50',d:'통산 무실점 50경기 (수비수·골키퍼)',c:p=>(p.pos==='GK'||p.pos==='DF')&&p.history.reduce((a,h)=>a+(h.pro?h.cs||0:0),0)>=50},
   {id:'award',m:1,i:'🏅',n:'포지션 최고',d:'올해의 수비수·미드필더·골키퍼 중 하나를 수상',c:p=>hasTrophy(p,/올해의 (수비수|미드필더|골키퍼)/)},
   {id:'young10',m:1,i:'🌱',n:'영건',d:'21세 이하에 1부 리그 시즌 10골',c:p=>p.phase==='summary'&&p.summary&&p.age<=21&&T1N.includes(p.summary.lg)&&p.summary.goals>=10},
@@ -3275,7 +3278,7 @@ function resolveMoment(p,i){
 
 /* ---------- 업데이트 노트 (최신이 위, 버전마다 누적) ---------- */
 const UPDATES=[
-  {d:'2026.10.07 00:09',t:'대륙대회 · 다양한 기사 · 큰 순간 연출',l:['UCL·UEL·UECL·ACLE·ACL2를 실제로 치러요. 조 추첨(포트·같은 리그 회피) → 조별리그 6경기 → 16강(AFC는 8강)부터 홈·원정 토너먼트 → 결승','대륙대회 경기는 주중에 리그 사이사이 열리고, 시즌 기록과 피로에 더해져요. 조별 탈락·토너먼트 결과가 소식에 떠요','순위 탭에 대륙대회 탭이 생겼어요: 조별 순위표 · 토너먼트 추첨 결과와 합계 스코어','순위표에 승·무·패가 보여요 (게임 안에서 실제로 치른 경기 기록)','2군 리그 순위표에 대륙대회·강등 구역이 잘못 표시되던 문제를 고쳤어요','언론·라이벌 기사가 훨씬 다양해졌어요: 멀티골·결승골·연속골·골 가뭄·인터뷰·칼럼·순위 기사 등, 가상의 매체 이름과 함께','결정적 순간이 포지션마다 여러 상황으로 나오고, 선택지 4개가 매번 다른 조합으로 나와요','해트트릭은 축구공이 날아오고 세레머니가 보이고, 결정적 골·선방, 승격·강등에도 연출이 생겼어요','이적·상무 지원·재계약·임대 요청은 3·2·1 카운트다운 뒤 결과를 알려 줘요','구단이 이적을 막을 때 이유를 알려 줘요 (이적료 부족, 감독의 잔류 요청, 시즌 중 전력 공백 등)','활약이 좋으면 가끔 소속팀이 먼저 주급·계약 기간을 올린 재계약을 제안해요','골키퍼 평점은 무실점·실점, 수비수 평점은 수비 경기력·무실점에 더 크게 움직이고, 골·도움 비중은 조금 줄었어요','중간 난이도 업적 23개가 추가됐어요']},  {d:'2026.10.06 23:13',t:'짧은 부상 · 직접 만든 학교',l:['부상이 이번 묶음 안에 끝나면 넘어가기만 뜨지 않고 평소처럼 경기 방식을 고를 수 있어요 (복귀 후 경기에 반영)','연승·연패 때 배경색이 바뀌던 효과를 없앴어요 (화면 안 표시는 그대로)','출신 고교에서 ✏️ 직접 입력을 고르면 원하는 이름의 일반고로 시작해요 (모구단·우선지명 없음)','유스 고교 이름은 원래대로 고정돼요']},
+  {d:'2026.10.07 00:21',t:'평점 기준 조정 · 골키퍼 선방',l:['평점이 실제 축구처럼 바뀌었어요: 무난한 경기 6.6~6.8, 무실점이나 1골·1도움이면 7.1~7.4, 공격 포인트·결정적 수비·선방이 쌓일수록 더 올라가요','골키퍼는 경기마다 선방 수가 기록되고 평점에 반영돼요 (지난 경기 목록에 🧤 선방 표시)','평점이 올라간 만큼 재계약 제안 등 평점 기준도 함께 올렸어요 (구단 재계약 제안은 최근 평점 7.4 이상)','이적·상무 결과 카운트다운 중에는 뒤 화면이 가려져서 결과가 미리 보이지 않아요']},  {d:'2026.10.07 00:09',t:'대륙대회 · 다양한 기사 · 큰 순간 연출',l:['UCL·UEL·UECL·ACLE·ACL2를 실제로 치러요. 조 추첨(포트·같은 리그 회피) → 조별리그 6경기 → 16강(AFC는 8강)부터 홈·원정 토너먼트 → 결승','대륙대회 경기는 주중에 리그 사이사이 열리고, 시즌 기록과 피로에 더해져요. 조별 탈락·토너먼트 결과가 소식에 떠요','순위 탭에 대륙대회 탭이 생겼어요: 조별 순위표 · 토너먼트 추첨 결과와 합계 스코어','순위표에 승·무·패가 보여요 (게임 안에서 실제로 치른 경기 기록)','2군 리그 순위표에 대륙대회·강등 구역이 잘못 표시되던 문제를 고쳤어요','언론·라이벌 기사가 훨씬 다양해졌어요: 멀티골·결승골·연속골·골 가뭄·인터뷰·칼럼·순위 기사 등, 가상의 매체 이름과 함께','결정적 순간이 포지션마다 여러 상황으로 나오고, 선택지 4개가 매번 다른 조합으로 나와요','해트트릭은 축구공이 날아오고 세레머니가 보이고, 결정적 골·선방, 승격·강등에도 연출이 생겼어요','이적·상무 지원·재계약·임대 요청은 3·2·1 카운트다운 뒤 결과를 알려 줘요','구단이 이적을 막을 때 이유를 알려 줘요 (이적료 부족, 감독의 잔류 요청, 시즌 중 전력 공백 등)','활약이 좋으면 가끔 소속팀이 먼저 주급·계약 기간을 올린 재계약을 제안해요','골키퍼 평점은 무실점·실점, 수비수 평점은 수비 경기력·무실점에 더 크게 움직이고, 골·도움 비중은 조금 줄었어요','중간 난이도 업적 23개가 추가됐어요']},  {d:'2026.10.06 23:13',t:'짧은 부상 · 직접 만든 학교',l:['부상이 이번 묶음 안에 끝나면 넘어가기만 뜨지 않고 평소처럼 경기 방식을 고를 수 있어요 (복귀 후 경기에 반영)','연승·연패 때 배경색이 바뀌던 효과를 없앴어요 (화면 안 표시는 그대로)','출신 고교에서 ✏️ 직접 입력을 고르면 원하는 이름의 일반고로 시작해요 (모구단·우선지명 없음)','유스 고교 이름은 원래대로 고정돼요']},
   {d:'2026.10.06 23:08',t:'유스 고교 추가 · 더 촘촘한 화면',l:['부산(개성고)·전남(광양제철고)·대구(현풍고)·대전(충남기계공고)·광주(금호고)·강원(강릉제일고)·경남(진주고)·안양(안양공고) 유스 고교가 생겼어요','유스가 없는 일반 고교는 없어졌어요','출신 고교 이름을 직접 정할 수 있어요 (비우면 원래 이름)','글자와 여백을 한 번 더 줄여 시즌 화면이 한 화면에 들어와요','새 인생 시작 · 은퇴하기 버튼을 작게 정리했어요']},
   {d:'2026.10.06 22:50',t:'결정적 순간',l:['빅매치(접전)와 결승전에 출전하면 경기 막판 결정적 순간을 직접 골라요','공격수는 슈팅 방향, 미드필더는 패스할 동료, 수비수는 막는 방법, 골키퍼는 페널티킥 방향을 골라요','성공 확률은 보이지 않고 장면마다 달라요. 상대 골키퍼·수비의 대응과 내 능력치에 따라 정해져요','성공하면 골·도움·선방이 실제 스코어와 평점에 반영되고, 결승 우승에도 영향을 줘요']},
   {d:'2026.10.06 22:40',t:'유럽대항전 · 구단 대표 색 · 촘촘한 화면',l:['UCL·UEL·UECL이 생겼어요. 지난 시즌 리그 순위로 출전권이 정해져요 (잉글랜드·스페인·독일·이탈리아 1~4위 UCL, 5~6위 UEL, 7위 UECL / 프랑스 1~4위 UCL, 5위 UEL, 6위 UECL)','K리그1은 1~2위 ACLE, 3위 ACL2에 나가요','대륙대회 결승은 실제로 출전 중인 대회에서만 오를 수 있어요','오퍼 카드에 그 팀이 나가는 대륙대회와 순위가 보여요','대륙대회에 나가는 시즌에는 시즌 시작 전에 알려 줘요','순위표에 대륙대회 출전권 구역이 표시돼요','구단 엠블럼이 실제 대표 색을 쓰고, 모양도 구단마다 다양해졌어요','팀 배경이 구단 대표 색으로 은은하게 바뀌어요','화면 전체를 더 촘촘하게 정리해 스크롤을 줄였어요']},
@@ -3656,8 +3659,10 @@ function condMini(p){
 }
 const oddWord=x=>x>=.7?'높음':x>=.45?'보통':x>=.25?'낮음':'매우 낮음';
 /* 표시 평점: 내부 경기력 점수를 실제 축구 평점처럼 바꿔 보여준다.
-   보통 6.7~6.8, 한 시즌 내내 잘하면 7.3~7.4, 한 경기 맹활약은 8~9점대 */
-const drv=x=>x<=7.5?6.65+.45*(x-6.4):7.145+(x-7.5)*.75;
+   무난한 경기 6.6~6.7, 무실점이나 1골·1도움이면 7.0 안팎, 공격 포인트·결정적 수비·선방이 쌓일수록 더 오른다 */
+const drv=x=>clamp(6.98+(x-6.5)*.7,3,10);
+// 화면에 보이는 평점 기준 → 내부 점수 (업적·기준값을 화면 평점으로 적기 위해)
+const rawR=d=>6.5+(d-6.98)/.7;
 const dr=x=>x==null||isNaN(x)?'-':drv(x).toFixed(1);
 const noteBox=t=>t?`<div class="note${/무산|탈락|결렬|철회|막았|거부/.test(t)?' bad':''}">${esc(t)}</div>`:'';
 const fatArrow=dl=>dl>=25?'피로 ▲▲':dl>=6?'피로 ▲':dl>-6?'피로 유지':dl>-25?'피로 ▼':'피로 ▼▼';
@@ -3762,8 +3767,8 @@ function seasonTab(p){
         // 모든 줄을 같은 양식으로: ①상대 ②출전 형태·평점·기록 칩 ③특이사항(있을 때만)
         const st=m.play?(m.sub?`<span class="mst sub">교체 ${m.min?90-m.min+"'":''}</span>`:`<span class="mst start">선발${m.min&&m.min<90?` ${m.min}'`:''}</span>`)
           :`<span class="mst off">${m.out?'부상 결장':m.susp?'출장 정지':m.forced?'강제 휴식':m.strike?'태업':'벤치'}</span>`;
-        const rt=m.play?`<span class="mrt${m.r>=8?' top':dr(m.r)>=7?' good':dr(m.r)<6.3?' bad':''}">${dr(m.r)}</span>`:'';
-        const ev=[m.g?`<span class="mev">⚽ ${m.g}</span>`:'',m.a?`<span class="mev">🅰️ ${m.a}</span>`:'',m.play&&(p.pos==='DF'||p.pos==='GK')&&m.ga===0?'<span class="mev">🧱 무실점</span>':''].join('');
+        const rt=m.play?`<span class="mrt${dr(m.r)>=8?' top':dr(m.r)>=7.3?' good':dr(m.r)<6.4?' bad':''}">${dr(m.r)}</span>`:'';
+        const ev=[m.g?`<span class="mev">⚽ ${m.g}</span>`:'',m.a?`<span class="mev">🅰️ ${m.a}</span>`:'',m.play&&(p.pos==='DF'||p.pos==='GK')&&m.ga===0?'<span class="mev">🧱 무실점</span>':'',m.play&&p.pos==='GK'&&m.sv?`<span class="mev">🧤 선방 ${m.sv}</span>`:''].join('');
         const notes=[...(m.tags||[]).filter(t=>t!=='strong'&&t!=='weak').map(t=>`<em class="fxt ${FX[t].c}">${FX[t].t}</em>`),
           m.g>=3?'<b class="mnote good">해트트릭!</b>':'',m.clutch?'<b class="mnote good">결정적 수비!</b>':'',
           m.card?(m.card==='red'?'<span class="card red">퇴장</span><span class="mnote">2경기 정지</span>':m.card==='ban'?'<span class="card">경고</span><span class="mnote">누적 정지</span>':'<span class="card">경고</span>'):'',
