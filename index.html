@@ -594,14 +594,18 @@ const CLUBS=[
   ['만토바','serieb',-1],['유베 스타비아','serieb',-1],['아벨리노','serieb',-2],['파도바','serieb',-2],['카라레세','serieb',-2],['살레르니타나','serieb',0],
   ['브레스트','ligue1',0],['툴루즈','ligue1',0],['오세르','ligue1',-2],['앙제','ligue1',-2],['르아브르','ligue1',-2],['로리앙','ligue1',-2],['메스','ligue1',-3],['파리 FC','ligue1',-2],
   ['클레르몽','ligue2',0],['됭케르크','ligue2',-1],['파우 FC','ligue2',-1],['안시','ligue2',-1],['낭시','ligue2',-1],['트루아','ligue2',0],['르 망','ligue2',-1],['레드 스타','ligue2',-2],['불로뉴','ligue2',-2],['아작시오','ligue2',-2],
-  ['금호고 (광주 U18)','hs',1,0,'광주 FC'],['강릉제일고 (강원 U18)','hs',1,0,'강원 FC'],['진주고 (경남 U18)','hs',0,0,'경남 FC'],['안양공고 (안양 U18)','hs',0,0,'FC 안양']
-].map(([name,lg,str,noOffer,parentName])=>({name,lg,str,noOffer:!!noOffer,parentName}));
+  ['금호고 (광주 U18)','hs',1,0,'광주 FC'],['강릉제일고 (강원 U18)','hs',1,0,'강원 FC'],['진주고 (경남 U18)','hs',0,0,'경남 FC'],['안양공고 (안양 U18)','hs',0,0,'FC 안양'],
+  // 이름을 직접 정한 일반고 (모구단 없음). 그 학교로 시작한 선수에게만 보인다
+  ['일반고','hs',0,0,null,1]
+].map(([name,lg,str,noOffer,parentName,custom])=>({name,lg,str,noOffer:!!noOffer,parentName,custom:!!custom,hidden:!!custom}));
+const CUSTOM_HS=CLUBS.findIndex(c=>c.custom);
 // 승강과 전력 변화는 선수마다 따로 기록되는 '세계'에 저장된다
 const CLUB_DEF=CLUBS.map(c=>({lg:c.lg,str:c.str,name:c.name}));
 // 선수가 직접 바꾼 출신 고교 이름 (구단 번호 → 이름)
 let ALIAS={};
 function applyWorld(w){const ok=w&&w.lg;CLUBS.forEach((c,i)=>{const has=ok&&i<w.lg.length;c.lg=has?w.lg[i]:CLUB_DEF[i].lg;c.str=has?w.str[i]:CLUB_DEF[i].str;c.name=CLUB_DEF[i].name});
   ALIAS=(w&&w.alias)||{};Object.keys(ALIAS).forEach(i=>{if(CLUBS[i])CLUBS[i].name=ALIAS[i]});
+  CLUBS.forEach((c,i)=>{c.hidden=c.custom&&ALIAS[i]==null});
   // 대륙대회 출전권·지난 시즌 순위 (예전 저장에는 없으면 전력 순으로 정한다)
   if(ok&&w.comp){CLUBS.forEach((c,i)=>{c.comp=w.comp[i]||null;c.lastRank=w.rank?w.rank[i]||null:null})}else defaultComps()}
 function snapWorld(p){p.world={lg:CLUBS.map(c=>c.lg),str:CLUBS.map(c=>c.str),comp:CLUBS.map(c=>c.comp||null),rank:CLUBS.map(c=>c.lastRank||null),alias:ALIAS}}
@@ -841,7 +845,8 @@ function addStat(p,k,g){
   if(g<=0){p.stats[k]=clamp(p.stats[k]+g,10,STAT_MAX);return}
   for(let i=0;i<g;i++){const v=p.stats[k];if(v>=STAT_MAX)break;const ch=v<90?1:v<110?.5:v<130?.25:.1;if(Math.random()<ch)p.stats[k]=v+1}
 }
-const clubsIn=lg=>CLUBS.map((c,i)=>i).filter(i=>CLUBS[i].lg===lg);
+const clubsIn=lg=>CLUBS.map((c,i)=>i).filter(i=>CLUBS[i].lg===lg&&!CLUBS[i].hidden);
+const youthHs=()=>clubsIn('hs').filter(i=>!CLUBS[i].custom);
 
 // 후보의 '운'은 시드에서 나온다. 조건(포지션·유형)을 바꿔도 같은 시드면 같은 운이고, 새 운은 '다시 돌리기'로만 생긴다
 function seededRng(seed){let a=seed>>>0;return ()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
@@ -915,14 +920,14 @@ if(G.p){applyWorld(G.p.world);G.p.evHist=G.p.evHist||[];if(G.p.rep==null)G.p.rep
 
 function newPlayer(c,cand){
   const p={name:c.name.trim()||'무명 선수',num:c.num,pos:c.pos,type:c.type,foot:c.foot,stats:{...cand.stats},pot:cand.pot,gtype:cand.gtype||'normal',ageless:Math.random()<.1,dpos:cand.dpos,dposAuto:true,peakStats:{...cand.stats},
-    age:18,year:2026,stage:'hs',club:c.school>=0?c.school:pick(clubsIn('hs')),u21:false,contract:{years:0,salary:0},money:0,fatigue:0,morale:65,injury:0,
+    age:18,year:2026,stage:'hs',club:c.school>=0?c.school:pick(youthHs()),u21:false,contract:{years:0,salary:0},money:0,fatigue:0,morale:65,injury:0,
     caps:0,intlGoals:0,history:[],trophies:[],phase:'prep',season:null,event:null,winter:null,note:null,offers:null,summary:null,peak:0,earned:0,
     mil:{st:'none'},injuries:[],injName:null,rehab:null,fragile:0,milestones:[],evHist:[],susp:0,captain:false,agent:false,wantsOut:false,
     heir:c.heir||null,rep:c.heir?35:20,strike:false};
   if(c.heir)p.morale=75;
   applyWorld(null);
-  const sn=(c.schoolName||'').trim().slice(0,12);
-  if(sn){const nm=sn+(CLUB_DEF[p.club].name.match(/ \(.+\)$/)||[''])[0];ALIAS={[p.club]:nm};CLUBS[p.club].name=nm}
+  // 직접 이름을 정한 일반고: 모구단 없이 시작한다
+  if(p.club===CUSTOM_HS){const nm=(c.schoolName||'').trim().slice(0,12)||'우리고';ALIAS={[CUSTOM_HS]:nm};CLUBS[CUSTOM_HS].name=nm;CLUBS[CUSTOM_HS].hidden=false}
   snapWorld(p);
   p.peak=ovr(p);p.role=roleFor(p,p.club,false);return p;
 }
@@ -2910,6 +2915,7 @@ function resolveMoment(p,i){
 
 /* ---------- 업데이트 노트 (최신이 위, 버전마다 누적) ---------- */
 const UPDATES=[
+  {d:'2026.10.06 23:13',t:'짧은 부상 · 직접 만든 학교',l:['부상이 이번 묶음 안에 끝나면 넘어가기만 뜨지 않고 평소처럼 경기 방식을 고를 수 있어요 (복귀 후 경기에 반영)','연승·연패 때 배경색이 바뀌던 효과를 없앴어요 (화면 안 표시는 그대로)','출신 고교에서 ✏️ 직접 입력을 고르면 원하는 이름의 일반고로 시작해요 (모구단·우선지명 없음)','유스 고교 이름은 원래대로 고정돼요']},
   {d:'2026.10.06 23:08',t:'유스 고교 추가 · 더 촘촘한 화면',l:['부산(개성고)·전남(광양제철고)·대구(현풍고)·대전(충남기계공고)·광주(금호고)·강원(강릉제일고)·경남(진주고)·안양(안양공고) 유스 고교가 생겼어요','유스가 없는 일반 고교는 없어졌어요','출신 고교 이름을 직접 정할 수 있어요 (비우면 원래 이름)','글자와 여백을 한 번 더 줄여 시즌 화면이 한 화면에 들어와요','새 인생 시작 · 은퇴하기 버튼을 작게 정리했어요']},
   {d:'2026.10.06 22:50',t:'결정적 순간',l:['빅매치(접전)와 결승전에 출전하면 경기 막판 결정적 순간을 직접 골라요','공격수는 슈팅 방향, 미드필더는 패스할 동료, 수비수는 막는 방법, 골키퍼는 페널티킥 방향을 골라요','성공 확률은 보이지 않고 장면마다 달라요. 상대 골키퍼·수비의 대응과 내 능력치에 따라 정해져요','성공하면 골·도움·선방이 실제 스코어와 평점에 반영되고, 결승 우승에도 영향을 줘요']},
   {d:'2026.10.06 22:40',t:'유럽대항전 · 구단 대표 색 · 촘촘한 화면',l:['UCL·UEL·UECL이 생겼어요. 지난 시즌 리그 순위로 출전권이 정해져요 (잉글랜드·스페인·독일·이탈리아 1~4위 UCL, 5~6위 UEL, 7위 UECL / 프랑스 1~4위 UCL, 5위 UEL, 6위 UECL)','K리그1은 1~2위 ACLE, 3위 ACL2에 나가요','대륙대회 결승은 실제로 출전 중인 대회에서만 오를 수 있어요','오퍼 카드에 그 팀이 나가는 대륙대회와 순위가 보여요','대륙대회에 나가는 시즌에는 시즌 시작 전에 알려 줘요','순위표에 대륙대회 출전권 구역이 표시돼요','구단 엠블럼이 실제 대표 색을 쓰고, 모양도 구단마다 다양해졌어요','팀 배경이 구단 대표 색으로 은은하게 바뀌어요','화면 전체를 더 촘촘하게 정리해 스크롤을 줄였어요']},
@@ -3034,8 +3040,8 @@ function homeView(){
     <div class="f small muted">선수 유형</div><div class="seg">${types.map(k=>`<button data-act="type" data-v="${k}" aria-pressed="${c.type===k}">${k} <span class="small" style="opacity:.7">${DPOS[TYPE_ROLE[k]].n}</span></button>`).join('')}</div>
     <div class="f small muted">주발 <span class="small">· 양발은 좌우를 모두 뛰는 멀티 자원으로 쳐주는 대신 시작 능력치 총합이 10 적어요</span></div><div class="seg">${['오른발','왼발','양발'].map(k=>`<button data-act="foot" data-v="${k}" aria-pressed="${c.foot===k}">${k}</button>`).join('')}</div>
     <div class="f small muted">출신 고교 <span class="small">· K리그 유스(U18)는 모구단 우선지명으로 프로 직행이 쉽지만, 다른 K리그 구단으로 가려면 모구단이 막을 수 있어요</span></div>
-    <div class="seg"><button data-act="school" data-v="-1" aria-pressed="${c.school===-1}">무작위</button>${clubsIn('hs').map(i=>`<button data-act="school" data-v="${i}" aria-pressed="${c.school===i}">${esc(CLUB_DEF[i].name)}</button>`).join('')}</div>
-    <label class="f" for="cschool">학교 이름 직접 정하기 <span class="small muted">· 선택 · 비우면 원래 이름</span><input id="cschool" type="text" maxlength="12" placeholder="${c.school>=0?esc(CLUB_DEF[c.school].name.replace(/ \(.+\)$/,'')):'예: 우리고'}" value="${esc(c.schoolName||'')}"></label>
+    <div class="seg"><button data-act="school" data-v="-1" aria-pressed="${c.school===-1}">무작위</button>${youthHs().map(i=>`<button data-act="school" data-v="${i}" aria-pressed="${c.school===i}">${esc(CLUB_DEF[i].name)}</button>`).join('')}<button data-act="school" data-v="${CUSTOM_HS}" aria-pressed="${c.school===CUSTOM_HS}">✏️ 직접 입력</button></div>
+    ${c.school===CUSTOM_HS?`<label class="f" for="cschool">학교 이름 <span class="small muted">· 모구단이 없는 일반고로 시작해요 (우선지명 없음, 어느 구단으로든 자유롭게)</span><input id="cschool" type="text" maxlength="12" placeholder="예: 우리고" value="${esc(c.schoolName||'')}"></label>`:''}
     <button class="btn" data-act="gen" ${c.cands?'hidden':''}>${'후보 선수 보기'} <span class="arr">→</span></button></section>`;
   if(c.cands){
     const lb=LABELS[c.pos==='GK'?'gk':'field'];
@@ -3364,8 +3370,9 @@ function seasonTab(p){
       const e=EVENTS[p.event];
       G.dock=`<div class="dock-h"><span class="eyebrow">이벤트</span><b>${e.t}</b></div><p class="small">${e.d}</p>
         <div class="grid2">${e.o.map((o,i)=>`<button class="dbtn ${i?'':'pri'}" data-act="event" data-v="${i}"><b>${o[0]}</b></button>`).join('')}</div>`;
-    }else if(!s.done&&(p.injury>0||p.strike)){
-      // 부상·태업 중에는 고를 게 없다: 넘어가기만 (스카우트·빅매치 알림도 띄우지 않는다)
+    }else if(!s.done&&(p.injury>=Math.min(PER,s.games-s.mi)||p.strike)){
+      // 이번 묶음 내내 부상·태업이면 고를 게 없다: 넘어가기만 (스카우트·빅매치 알림도 띄우지 않는다)
+      // 묶음 안에서 복귀하는 짧은 부상은 아래의 평소 선택지를 그대로 보여 준다
       const left=Math.min(PER,s.games-s.mi);
       G.dock=`<div class="dock-h"><b>${p.injury>0?`🩹 ${esc(p.injName||'부상')} 회복 중`:'태업 중'}</b><span class="small muted">${p.injury>0?`복귀까지 ${p.injury}경기`:'경기에 나서지 않아요'}</span></div>
         <button class="btn alt" data-act="round" data-v="normal">다음 ${left}경기 넘어가기 <span class="arr">→</span></button>`;
@@ -3380,7 +3387,7 @@ function seasonTab(p){
       const ban=scF?['blue','🔭',`스카우트 옴! <b>${esc(teamName(scF.sc,false))}</b>`,`vs ${esc(teamName(scF.oi,p.u21))}전 관전 · 잘하면 영입 관심`]
         :bgF?['gold','🔥','빅매치 있음!',`vs ${esc(teamName(bgF.oi,p.u21))} · 입지·인지도가 크게 걸린 경기`]
         :sxF?['red','⚠️','강등권 맞대결!',`vs ${esc(teamName(sxF.oi,p.u21))} · 결과에 따라 사기가 크게 흔들림`]:null;
-      G.dock=`<div class="dock-h"><b>${from}–${to}경기</b><span class="small muted">이번 경기들을 어떻게 치를까요?</span></div>
+      G.dock=`<div class="dock-h"><b>${from}–${to}경기</b><span class="small muted">${p.injury>0?`🩹 ${p.injury}경기 결장 후 복귀`:'이번 경기들을 어떻게 치를까요?'}</span></div>
         ${ban?`<div class="fxban ${ban[0]}"><span class="fxi">${ban[1]}</span><span><b>${ban[2]}</b><br><span class="small">${ban[3]}</span></span></div>`:''}
         <div class="grid3 appr">${Object.entries(APPR).map(([k,a])=>{const dl=fatigueAfter(p.fatigue,a,s.streak)-p.fatigue,no=k==='attack'&&p.fatigue>=FAT_NOPUSH;
           if(no)return `<button class="dbtn" disabled><b>${a.short}</b><span>지쳐서 강도를 올릴 수 없어요</span></button>`;
@@ -3616,8 +3623,8 @@ function render(){
    if(inGame){b.style.setProperty('--team',teamCol(p.club)[0])}
    const s=p&&p.season,mv=p&&p.phase==='summary'&&p.summary&&p.summary.mv;
    b.classList.toggle('teamed',!!inGame);
-   b.classList.toggle('onfire',!!(inGame&&p.phase==='round'&&s&&(s.ws||0)>=3));
-   b.classList.toggle('cold',!!(inGame&&p.phase==='round'&&s&&(s.ls||0)>=3));
+   // 연승·연패는 화면 안 표시만 남기고 배경색은 바꾸지 않는다
+   b.classList.remove('onfire','cold');
    b.classList.toggle('gloom',!!(inGame&&mv&&mv.my==='down'));
    b.classList.toggle('glory',!!(inGame&&mv&&mv.my==='up'))}
   // 업적 축하 팝업은 하단 도크보다 위에 뜨도록 별도 층에 그린다
@@ -3692,7 +3699,7 @@ const detOpen=(k,def)=>G.det&&k in G.det?G.det[k]:def;function act(a,v){
     case 'rand-name':c.name=c.heir?c.name.slice(0,1)+randomName().slice(1):randomName();break;
     case 'heir':{const sur=p.name.slice(0,1);c.heir=p.name;c.pos=pick(Object.keys(POS));c.type=pick(Object.keys(POS[c.pos].types));c.foot=p.foot;c.school=-1;c.name=sur+randomName().slice(1);c.num=p.num;c.cands=null;freshLuck(c);G.screen='create';G.toTop=true;break}
     case 'rand-num':c.num=randomNum(c.pos);break;
-    case 'rand-all':if(c.challenge){c.name=randomName();break}c.pos=pick(G.unlock);c.type=pick(Object.keys(POS[c.pos].types));c.foot=pick(['오른발','오른발','왼발','양발']);c.school=pick([-1,...clubsIn('hs')]);c.name=c.heir?c.name.slice(0,1)+randomName().slice(1):randomName();c.num=randomNum(c.pos);if(c.cands)makeCands(c);break;
+    case 'rand-all':if(c.challenge){c.name=randomName();break}c.pos=pick(G.unlock);c.type=pick(Object.keys(POS[c.pos].types));c.foot=pick(['오른발','오른발','왼발','양발']);c.school=pick([-1,...youthHs()]);c.name=c.heir?c.name.slice(0,1)+randomName().slice(1):randomName();c.num=randomNum(c.pos);if(c.cands)makeCands(c);break;
     case 'pos':if(!isUnlocked(v)||c.challenge)break;c.pos=v;c.type=Object.keys(POS[v].types)[0];if(c.cands)makeCands(c);break;
     case 'type':if(c.challenge)break;c.type=v;if(c.cands)makeCands(c);break;
     case 'foot':if(c.challenge)break;c.foot=v;if(c.cands)makeCands(c);break;
