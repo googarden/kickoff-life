@@ -1315,7 +1315,10 @@ function scoutEye(p,am){const o=ovr(p);return p.age<=23?o+clamp((p.pot-o)*(am?.2
 /* 유럽 구단 체급: 빅클럽(전력 최상위) · 중상위 · 중하위. 빅클럽은 유럽에서 검증된 스타만 데려가고,
    한국 선수는 보통 중하위·중상위 구단이나 2부를 거쳐 올라간다 */
 // 유럽 구단 위상: 5대 리그는 빅클럽·중상위·중하위, 그 밖의 유럽 리그(UEFA 6~10위)는 한 단계 낮게 본다
-const prestige=ci=>{const c=CLUBS[ci],l=LG[c.lg];if(!l.euro||l.tier!==1)return '';if(l.mid)return c.str>=5?'중상위':c.str>=3?'중하위':'변방';return c.str>=5?'빅클럽':c.str>=2?'중상위':'중하위'};
+const prestigeC=c=>{const l=c&&LG[c.lg];if(!l||!l.euro||l.tier!==1)return '';if(l.mid)return c.str>=5?'중상위':c.str>=3?'중하위':'변방';return c.str>=5?'빅클럽':c.str>=2?'중상위':'중하위'};
+const prestige=ci=>prestigeC(CLUBS[ci]);
+// 저장된 기록을 다시 계산할 때는 보는 사람의 게임 세계(승강·전력 변화)가 아니라 기본 구단 데이터로 본다 → 누구에게나 같은 점수
+const prestigeDef=ci=>prestigeC(CLUB_DEF[ci]);
 // 유럽 스카우트는 한 시즌 반짝이 아니라 최근 두 시즌의 꾸준함을 본다
 function steadyAvg(p){const h=p.history.filter(x=>x.pro&&x.apps>=15).slice(-2),cur=recentAvg(p);if(!h.length)return cur-.15;return Math.min(cur,...h.map(x=>x.avg))}
 function euroOk(p,ci,e,first,am,cand){
@@ -2838,7 +2841,7 @@ function scoreCore(C){
   const big5Ind=tr.filter(t=>/(득점왕|MVP)$/.test(t.n)&&EURO_LG.some(l=>t.n.startsWith(l+' '))).length,world=tr.some(t=>/^(발롱도르|야신상)$/.test(t.n))||(C.bigS>=1&&tr.some(t=>t.n==='UEFA 챔피언스리그 우승'))||big5Ind>=3;
   // 최상위는 곡선으로 압축한다: 85점 위로는 100점에 가까워질 뿐 닿지 않는다 (엄청난 커리어만 99점대)
   s=topCurve(s);
-  if(s>=88&&C.bigS<3&&!world)s=87.9;
+  if(s>=90&&C.bigS<3&&!world)s=89.9;   // S+ 조건을 못 채우면 S 최고점에서 멈춘다
   return Math.min(99.9,Math.round(clamp(s,0,100)*10)/10);   // 반올림해도 100이 되지 않게
 }
 function careerScore(p){
@@ -2851,7 +2854,7 @@ function rescoreRec(x,j){
   const tl=j?j.tl:x.tl,d=j?j.d:x.detail,sts=(d&&d.stints)||[];
   if(!tl||!tl.length)return null;   // 트로피 목록이 없는 예전 기록은 저장된 점수 그대로 (트로피 0개로 잘못 깎이지 않게)
   let bigS=0,upS=0,euroS=0;
-  sts.forEach(s=>{if(s.ci==null||!CLUBS[s.ci])return;const yrs=s.y2-s.y1+1,good=Math.min(yrs,Math.floor((s.a||0)/15)),pr=prestige(s.ci),L=LG[CLUBS[s.ci].lg];
+  sts.forEach(s=>{if(s.ci==null||!CLUB_DEF[s.ci])return;const yrs=s.y2-s.y1+1,good=Math.min(yrs,Math.floor((s.a||0)/15)),pr=prestigeDef(s.ci),L=LG[CLUB_DEF[s.ci].lg];
     if(EURO_LG.includes(L.name))euroS+=yrs;if(pr==='빅클럽')bigS+=good;else if(pr==='중상위'&&!L.mid)upS+=good});
   return scoreCore({pos:x.pos,peak:x.peak||0,apps:x.apps||0,goals:x.goals||0,assists:x.assists||0,cs:(j?j.cs:x.cs)||0,dk:0,caps:x.caps||0,intlGoals:(j?j.intlGoals:x.intlGoals)||0,
     trophies:(tl||[]).map(t=>({n:t.n,k:t.i?'indiv':'team'})),euroS,bigS,upS});
@@ -2861,7 +2864,9 @@ const squash=s=>Math.min(99.9,Math.round(topCurve(s)*10)/10);
 const rescored=(x,j)=>{let ns=rescoreRec(x,j);if(ns==null)ns=squash(+x.score||0);return {...x,score:ns,grade:gradeOf(ns)}};
 // 예전 버전 기록처럼 세부 기록이 없을 때 쓰는 근사치
 function careerScoreLite(h){return Math.round(clamp(Math.max(0,h.peak-55)*1.1+Math.min(h.apps/600,1)*10+Math.min(h.caps/100,1)*8+Math.min(h.trophies*1.2,25),0,100)*10)/10}
-const gradeOf=s=>s>=88?'S+':s>=78?'S':s>=65?'A':s>=50?'B':s>=35?'C':'D';
+// 등급 기준 (2026.10.07 상향: S+ 90 · S 80 · A 67 · B 52 · C 37)
+const GRADE_CUT={'S+':90,S:80,A:67,B:52,C:37};
+const gradeOf=s=>s>=GRADE_CUT['S+']?'S+':s>=GRADE_CUT.S?'S':s>=GRADE_CUT.A?'A':s>=GRADE_CUT.B?'B':s>=GRADE_CUT.C?'C':'D';
 const GRADE_TXT={'S+':'월드 레전드','S':'레전드','A':'국가대표급 커리어','B':'훌륭한 프로','C':'꾸준한 프로','D':'저니맨'};
 function mainClub(p){const c={};p.history.filter(h=>h.pro).forEach(h=>{const n=h.club.split(' → ').pop();c[n]=(c[n]||0)+1});
   const top=Object.entries(c).sort((a,b)=>b[1]-a[1])[0];return top?{name:top[0],seasons:top[1]}:{name:teamName(p.club,p.u21),seasons:0}}
@@ -3256,7 +3261,7 @@ function friendly(i){
 /* ---------- 포지션 해금 ----------
    공격수부터 시작. 그 포지션으로 S등급(78점 이상) 커리어를 한 번 만들면 다음 포지션이 열린다
    (공격수 → 미드필더 → 수비수 → 골키퍼). 명예의 전당에 저장하지 않아도 은퇴할 때 S등급이면 열린다 */
-const UNLOCK_ORDER=['FW','MF','DF','GK'],UNLOCK_SCORE=78,UNLOCKKEY='kickoff-life-unlock';
+const UNLOCK_ORDER=['FW','MF','DF','GK'],UNLOCK_SCORE=80,UNLOCKKEY='kickoff-life-unlock';
 G.unlock=load(UNLOCKKEY,null);
 function syncUnlock(){
   const first=G.unlock==null,u=new Set(G.unlock||[]);u.add('FW');
@@ -3514,8 +3519,8 @@ const ACH=[
   {id:'comeback',i:'🦵',n:'불굴의 복귀',d:'6개월 이상 장기 부상을 이겨내고 다시 뛰었다',c:p=>p.injuries.some(x=>x.g>=24)&&p.injury<=0&&p.season&&p.season.apps>=5},
   {id:'veteran',i:'🧓',n:'불혹을 향해',d:'37세까지 현역으로 뛰었다',c:p=>p.stage==='pro'&&p.age>=37},
   {id:'oneclub',i:'❤️',n:'원클럽맨',d:'한 구단에서만 뛰고 은퇴했다 (10시즌 이상)',c:p=>p.phase==='retired'&&proClubs(p).length===1&&p.history.filter(h=>h.pro).length>=10},
-  {id:'gradeA',i:'🅰️',n:'A등급 커리어',d:'커리어 평가 A등급 이상',c:p=>p.phase==='retired'&&p.final&&p.final.score>=65},
-  {id:'gradeS',i:'🆂',n:'S등급 커리어',d:'커리어 평가 S등급 이상',c:p=>p.phase==='retired'&&p.final&&p.final.score>=78},
+  {id:'gradeA',i:'🅰️',n:'A등급 커리어',d:'커리어 평가 A등급 이상',c:p=>p.phase==='retired'&&p.final&&p.final.score>=GRADE_CUT.A},
+  {id:'gradeS',i:'🆂',n:'S등급 커리어',d:'커리어 평가 S등급 이상',c:p=>p.phase==='retired'&&p.final&&p.final.score>=GRADE_CUT.S},
   {id:'challenge',i:'🗓️',n:'챌린저',d:'주간 챌린지 커리어를 끝까지 마쳤다',c:p=>p.phase==='retired'&&!!p.challenge},
   /* ---- 추가 업적 ---- */
   {id:'promo',i:'⬆️',n:'승격의 주역',d:'소속팀을 승격시켰다',c:p=>p.phase==='summary'&&p.stage==='pro'&&p.summary&&p.summary.mv&&p.summary.mv.my==='up'},
@@ -3571,9 +3576,9 @@ const ACH=[
   {id:'fee100',h:1,i:'🚀',n:'초대형 이적',d:'이적료 300억원 이상으로 이적했다',c:p=>!!(p.maxFee&&p.maxFee.v>=3000000)},
   {id:'age40',h:1,i:'🦕',n:'마흔의 현역',d:'40세까지 현역으로 뛰었다',c:p=>p.stage==='pro'&&p.age>=40},
   {id:'legend15',h:1,i:'🏛️',n:'살아있는 전설',d:'한 구단에서만 15시즌 이상 뛰고 은퇴했다',c:p=>p.phase==='retired'&&proClubs(p).length===1&&p.history.filter(h=>h.pro).length>=15},
-  {id:'gradeSP',h:1,i:'💠',n:'S+ 커리어',d:'커리어 평가 S+ 등급',c:p=>p.phase==='retired'&&p.final&&p.final.score>=88},
+  {id:'gradeSP',h:1,i:'💠',n:'S+ 커리어',d:'커리어 평가 S+ 등급',c:p=>p.phase==='retired'&&p.final&&p.final.score>=GRADE_CUT['S+']},
   {id:'allpos',h:1,i:'🔓',n:'올라운더',d:'모든 포지션을 해금했다',c:()=>G.unlock&&G.unlock.length>=4},
-  {id:'chalS',h:1,i:'🥇',n:'챌린지 마스터',d:'주간 챌린지에서 S등급 커리어를 만들었다',c:p=>p.phase==='retired'&&!!p.challenge&&p.final&&p.final.score>=78},
+  {id:'chalS',h:1,i:'🥇',n:'챌린지 마스터',d:'주간 챌린지에서 S등급 커리어를 만들었다',c:p=>p.phase==='retired'&&!!p.challenge&&p.final&&p.final.score>=GRADE_CUT.S},
   {id:'notrophy',h:1,i:'🥲',n:'무관의 제왕',d:'트로피 없이 300경기 넘게 뛰고 은퇴했다',c:p=>p.phase==='retired'&&p.trophies.length===0&&totals(p).apps>=300}
 ];
 // 연도별 트로피 묶음: 리그 우승·컵 우승·대륙대회 우승이 같은 해에 있었는지
@@ -3625,7 +3630,7 @@ const SKINS={
     {k:'club',n:'클럽 컬러',c:40,d:'가장 오래 뛴 구단의 대표 색 테두리'},
     {k:'fire',n:'불꽃',c:60,d:'일렁이는 불꽃 테두리'},
     {k:'holo',n:'홀로그램',c:90,d:'빛에 따라 색이 바뀌는 홀로그램 테두리'},
-    {k:'diamond',n:'레전드 다이아',c:150,d:'내 선수 중 S+ 등급 커리어가 있어야 살 수 있어요',req:()=>G.hof.some(r=>r.score>=88)}
+    {k:'diamond',n:'레전드 다이아',c:150,d:'내 선수 중 S+ 등급 커리어가 있어야 살 수 있어요',req:()=>G.hof.some(r=>r.score>=GRADE_CUT['S+'])}
   ],
   cer:[
     {k:'petals',n:'꽃가루',c:40,d:'은퇴식에 꽃잎이 흩날린다'},
@@ -3765,7 +3770,7 @@ function afterText(p,k){
    대부분은 축구 관련 길(지도자·해설·방송·행정 등), 가끔 다른 직업(인플루언서·사업 등),
    아주 드물게 안 좋은 일(도박·사기·이혼 등)이 생긴다. 등급이 높을수록 화려한 이야기가 나온다 */
 function retirementStory(p,score){
-  const n=p.name,g=score>=88?'S+':score>=78?'S':score>=65?'A':score>=50?'B':score>=35?'C':'D',top=score>=78,good=score>=65;
+  const n=p.name,g=gradeOf(score),top=score>=GRADE_CUT.S,good=score>=GRADE_CUT.A;
   const best=(careerHighlights(p).find(x=>x.k==='최고의 팀')||{}).v||teamName(p.club,p.u21),pk=a=>a[Math.floor(Math.random()*a.length)];
   const rich=(p.earned||0)>=200000,out=[];
   const r=Math.random();
@@ -4125,6 +4130,7 @@ function resolveMoment(p,i){
 
 /* ---------- 업데이트 노트 (최신이 위, 버전마다 누적) ---------- */
 const UPDATES=[
+  {d:'2026.10.07 18:29',t:'등급 기준 상향 · 랭킹 점수 통일',l:['등급 기준을 조금 올렸어요: S+ 90 · S 80 · A 67 · B 52 · C 37 (다음 포지션 해금도 S 80점)','랭킹 점수가 보는 사람마다 조금씩 다르게 계산되던 문제를 고쳤어요. 이제 누가 봐도 같은 점수·순위예요']},
   {d:'2026.10.07 16:30',t:'랭킹 시즌제 · 커리어 점수 재조정 · 선발(교체)',l:['모두의 랭킹은 3일마다 새 시즌. 1위는 금빛 왕관 테두리, 시즌 1위 기록을 올린 사람은 닉네임에 👑 휘장이 붙어요 (역대 랭킹도 볼 수 있어요)','커리어 점수: 개인상은 상 종류와 리그 수준에 따라 다르게, 같은 상을 반복하면 점점 덜 쳐줘요. 최상위는 압축돼서 100점은 나오지 않아요. 이미 올라간 기록도 새 기준으로 다시 계산해서 보여 줘요','2부 리그 팀은 컵대회 결승에 가기 어렵고, 결승 상대는 1부 팀이에요','출장 수를 선발(교체)로 표시해요 · 예) 12(4)','친구 베스트 11 대결이 문자 중계로 바뀌었어요: 전반 장면 → 하프타임에 공격적·균형·수비적 전술 선택 → 후반. 양쪽 선수 이름으로 골·선방·골대 장면이 나와요','커리어 점수는 85점 위로 곡선처럼 완만해져서 정말 엄청난 커리어만 99점대예요 (100점은 없음)']},
   {d:'2026.10.07 14:32',t:'현실성 점검 · 피로 · 유럽 진출 · 인지도',l:['피로: 노랑(50~69)은 가끔 몸이 무거운 날만 오고, 빨강(70+)은 모든 능력치가 일시적으로 2~5 떨어져요. 평점이 크게 깎이던 방식은 없앴어요','K리그에서 꾸준히 잘하면(평점 7.6+) 변방 유럽·유럽 2부 오퍼가 훨씬 자주 와요. K리그 구단도 유럽행은 대체로 보내 줘요','인지도는 리그 수준을 넘기 어려워요 (K리그는 스타급까지, 월드 스타는 유럽에서). A매치와 유럽에서 쌓은 명성은 일부 인정','잔류하면 팀 내 입지(벤치·로테이션·주전)가 그대로 이어지고, 프리시즌마다 한 단계씩만 바뀌어요','고정한 목표 역할은 포지션 변경 이벤트에서도 바뀌지 않아요 · 소화 가능 역할 수는 어떤 역할을 골라도 같아요','명예의 전당 카드 테두리가 랭킹과 친구 화면에서도 보여요. 친구 명예의 전당 선수를 누르면 카드가 열려요','업적 LP: 일반 0 · 중간 1 · 어려움 2','커리어 등급에 개인 수상이 따로 반영돼요 (팀 트로피 최대 20 + 개인 수상 최대 15). S+는 빅클럽 3시즌 외에도 발롱도르·야신상, 빅클럽 챔스 우승, 5대 리그 득점왕·MVP 3회로도 가능해요','베스트 11에 주발 표시 · 같은 팀에 두 번 따로 임대 가면 경력에 따로 표시 · 무소속일 때 입지 표시 숨김']},
   {d:'2026.10.07 13:37',t:'경력에 나라·리그 등급 · 역할 능력치 비중 조정',l:['커리어 › 경력에 팀마다 나라와 리그 등급이 보여요 (예: 한국 · K리그2(2부) → K리그1(1부))','이적시장 화면 아래에도 새 인생 시작 · 은퇴하기 버튼이 보이고, 버튼 배경을 진하게 바꿨어요','한 능력치에 50% 넘게 몰려 있던 역할(스트라이커·레지스타·센터백 등)의 비중을 최대 35%로 고르게 나눴어요. 이제 모든 역할에 중요한 능력치가 2개 이상 표시돼요']},
@@ -4466,7 +4472,7 @@ function hofView(){
   const tab=sharedOn()?G.rank.tab:'mine';
   let h=`<section class="panel"><span class="eyebrow">HALL OF FAME</span><h2 class="sectionh">명예의 전당 · 랭킹</h2>
     ${sharedOn()?`<div class="tabs" style="grid-template-columns:1fr 1fr 1fr"><button data-act="rank-tab" data-v="shared" aria-selected="${tab==='shared'}">모두의 랭킹</button><button data-act="rank-tab" data-v="chal" aria-selected="${tab==='chal'}">주간 챌린지</button><button data-act="rank-tab" data-v="mine" aria-selected="${tab==='mine'}">내 선수들</button></div>`:''}
-    <p class="small muted">커리어 평점(100점 만점) 순서입니다. S+ 88점 · S 78 · A 65 · B 50 · C 35</p></section>`;
+    <p class="small muted">커리어 평점(100점 만점) 순서입니다. S+ 90점 · S 80 · A 67 · B 52 · C 37</p></section>`;
   if(tab==='shared'){
     const R=G.rank;
     if(R.loading)return h+'<section class="panel"><p class="muted">랭킹을 불러오는 중…</p></section>';
