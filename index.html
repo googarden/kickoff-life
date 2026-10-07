@@ -150,6 +150,7 @@ input[type=text],input[type=number]{width:100%;padding:11px 12px;border-radius:1
 @keyframes fireGlow{0%,100%{box-shadow:0 0 6px rgba(255,106,0,.45)}50%{box-shadow:0 0 18px rgba(255,170,0,.85)}}
 .frame-holo{border:2px solid transparent!important;background:linear-gradient(var(--surface),var(--surface)) padding-box,linear-gradient(120deg,#7df9ff,#c084fc,#f472b6,#facc15,#7df9ff) border-box!important;background-size:100% 100%,300% 300%!important;animation:holo 4s linear infinite}
 @keyframes holo{to{background-position:0 0,300% 0}}
+.frame-pink{border:2px solid #f472b6!important;box-shadow:0 0 0 3px rgba(244,114,182,.22),0 0 12px rgba(244,114,182,.35)}
 .frame-diamond{border:2px solid #8fe3ff!important;box-shadow:0 0 14px rgba(143,227,255,.7),inset 0 0 10px rgba(143,227,255,.25)}
 /* 골·선방 연출 변형 */
 .flashfx{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;animation:flashb 1.6s ease-out 3}
@@ -522,6 +523,7 @@ details.panel summary .res{margin-left:0}
 .slot .sd{font-family:var(--f-num);font-weight:700;font-size:11px;letter-spacing:.06em;color:var(--muted)}
 .slot .sr{font-weight:800;font-size:16px}
 .crown{font-size:12px;white-space:nowrap}
+.cardbtn{margin-bottom:10px;background:linear-gradient(90deg,#2f6fd6,#7c3aed)!important;color:#fff!important}
 .attbtn{background:linear-gradient(90deg,#f2c14e,#f7d77a)!important;color:#3a2a00!important;margin-top:8px}
 .earng{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .earnc{display:flex;flex-direction:column;gap:2px;padding:8px 10px;border-radius:10px;background:var(--surface-2);font-size:12px;line-height:1.4}
@@ -1694,17 +1696,25 @@ function addNews(p,txt,kind,ci){const s=p.season;if(!s)return;
   if((s.news||[]).some(n=>key.endsWith(n.t.replace(/ <span class="muted">· [^<]*<\/span>$/,'').replace(/<[^>]+>/g,'').replace(/vs [^ ]+( [^ ]+)?전/g,'').replace(/[0-9.]+/g,'#'))))return;   // 화면에 보이는 소식과 같은 기사는 다시 내지 않는다
   s.nh[key]=s.mi;
   const m=/^\[(.+?)\]\s*/.exec(txt);s.news=s.news||[];s.newsSeq=(s.newsSeq||0)+1;s.news.unshift({tag:m?m[1]:'소식',t:m?txt.slice(m[0].length):txt,k:kind||'',ci:ci==null?null:ci,mi:s.mi,seq:s.newsSeq});s.news=s.news.slice(0,3)}
+// 이적 루머: 진짜로 관심 있는 구단은 시즌 동안 이야기가 한 단계씩 진전된다
+// 1단계 영입 검토 → 2단계 스카우트 파견·관심 구체화 → 3단계 구단 간 접촉·계약 임박 (단계가 높을수록 실제 오퍼로 이어질 확률↑)
 function maybeRumor(p){
   if(p.stage!=='pro'||p.loan||p.mil.st==='serving')return;
   if(!(recentAvg(p)>=7||(p.rep||0)>=55)||Math.random()>.18)return;
-  const L=clubLv(p),pool=CLUBS.map((c,i)=>i).filter(i=>i!==p.club&&!CLUBS[i].noOffer&&!LG[CLUBS[i].lg].am&&teamLv(i,false)>=L-1&&teamLv(i,false)<=L+7);
-  if(!pool.length)return;const ci=pick(pool);
-  p.rumors=(p.rumors||[]).filter(x=>x.year>=p.year).concat({ci,year:p.year,real:Math.random()<.5}).slice(-3);
-  if(isEuro(ci))addEuroWatch(p,.5,'유럽 언론 이적 루머');
-  const real=p.rumors[p.rumors.length-1].real,src=Math.random()<(real?.7:.3)?'유력 매체':'현지 타블로이드';
-  addNews(p,`[이적 루머] <b>${esc(teamName(ci,false))}</b>${isEuro(ci)?` <span class=\"muted\">${LG[CLUBS[ci].lg].name}</span>`:''} 영입 검토 · 출처: ${src}`,'rumor',ci);
+  p.rumors=(p.rumors||[]).filter(x=>x.year>=p.year);
+  const cont=p.rumors.filter(x=>x.real&&(x.lv||1)<3);let R;
+  if(cont.length&&Math.random()<.55){R=pick(cont);R.lv=(R.lv||1)+1}
+  else{const L=clubLv(p),pool=CLUBS.map((c,i)=>i).filter(i=>i!==p.club&&!CLUBS[i].noOffer&&!LG[CLUBS[i].lg].am&&teamLv(i,false)>=L-1&&teamLv(i,false)<=L+7&&!p.rumors.some(x=>x.ci===i));
+    if(!pool.length)return;R={ci:pick(pool),year:p.year,real:Math.random()<.5,lv:1};p.rumors=p.rumors.concat(R).slice(-3)}
+  const ci=R.ci,lv=R.lv||1,dest=`<b>${esc(teamName(ci,false))}</b>`,lgS=isEuro(ci)?` <span class="muted">(${LG[CLUBS[ci].lg].name})</span>`:'';
+  if(isEuro(ci))addEuroWatch(p,.5*lv,'유럽 언론 이적 루머');
+  const src=Math.random()<(R.real?.7:.3)?pick(['유력 매체','이적 전문 기자','구단 소식통']):pick(['현지 타블로이드','팬 커뮤니티','SNS 루머 계정']);
+  const T={1:[`${dest} 영입 검토`,`${dest}, 영입 후보 리스트에 이름 올렸다`,`${dest} 스카우트가 경기장에 나타났다`,`${dest}, 영상 분석팀이 집중 관찰`],
+    2:[`${dest}, 스카우트 파견 · 관심 구체화`,`${dest} 단장 "좋은 선수다" 직접 언급`,`${dest}, 에이전트와 첫 만남`,`${dest}, 영입 리스트 상위권으로`],
+    3:[`🔥 ${dest}, 구단 간 공식 접촉 · 계약 임박?!`,`🔥 ${dest}행 임박설 · 이적료 협상 시작`,`🔥 "${dest}, 이번 이적시장 최우선 타깃" · 계약 임박`,`🔥 ${dest}, 개인 조건 합의 단계 진입설`]}[lv];
+  addNews(p,`[이적 루머] ${pick(T)}${lgS} · 출처: ${src}`,'rumor',ci);
 }
-const rumorBoost=(p,ci)=>(p.rumors||[]).some(x=>x.ci===ci&&x.real&&x.year>=p.year-1)?.25:0;
+const rumorBoost=(p,ci)=>{const x=(p.rumors||[]).find(r=>r.ci===ci&&r.real&&r.year>=p.year-1);return x?.15+.1*(x.lv||1):0};
 // 경기 결과를 보고 기자들이 기사를 쓴다. 기사는 인지도와 사기에 조금씩 영향을 준다
 // 언론 기사는 라운드마다 최대 하나
 const s0=p=>p.season&&p.season.newsSeq||0;
@@ -3099,7 +3109,8 @@ function retire(p){
   if(p.final.chalLp==='got')celebrate('🎁','주간 챌린지 보상 +20 LP!',`B등급 이상 커리어 달성 · 오늘의 보상 지급 (보유 ${lpBal()} LP)`,'goal');
   if(p.final.sRoll)celebrate(p.final.sRoll>=20?'🎰':'⭐',`S등급 보상 뽑기 +${p.final.sRoll} LP${p.final.sRoll>=30?' 대박!':p.final.sRoll>=20?'!':''}`,'S등급 커리어는 10~30 LP 중 하나 (10 · 15 · 20 · 30)',p.final.sRoll>=20?'goal':undefined);
 }
-function saveCareer(p,yes){const f=p.final;if(!f||f.saved!=null)return;f.saved=!!yes;if(yes){G.hof.unshift(f.rec);G.hof=G.hof.slice(0,60)}delete f.rec}
+// 내 선수(명예의 전당)에 저장하면 모두의 랭킹에도 자동으로 올린다 (로그인 안 했으면 '(비로그인)'으로 올라간다)
+function saveCareer(p,yes){const f=p.final;if(!f||f.saved!=null)return;f.saved=!!yes;if(yes){const id=f.rec.id;G.hof.unshift(f.rec);G.hof=G.hof.slice(0,60);if(sharedOn())setTimeout(()=>shareRecord(id),300)}delete f.rec}
 
 /* ---------- shared ranking (Supabase REST) ---------- */
 const sharedOn=()=>!!(SUPABASE_URL&&SUPABASE_KEY);
@@ -3142,7 +3153,7 @@ async function fetchChal(){
 const awTier=n=>/발롱도르|야신상|게르트 뮐러|코파 트로피|^FIFA 월드컵 /.test(n)?'world':/^(UEFA|AFC|아시안게임|올림픽) /.test(n)?'cont':'league';
 const trophyIcon=n=>/발롱도르/.test(n)?'🏵️':/득점왕$|게르트 뮐러/.test(n)?'🥾':/도움왕$/.test(n)?'🎯':/야신상|골키퍼/.test(n)?'🧤':/코파 트로피|영플레이어/.test(n)?'🌱':/MVP|골든볼/.test(n)?'⭐':/올해의/.test(n)?'🎖️':/챔피언스리그|유로파|컨퍼런스|월드컵|아시안컵/.test(n)?'🌍':/우승$/.test(n)?'🏆':'🏅';
 function trophyListHtml(tl){
-  if(!tl||!tl.length)return '<p class="small muted">트로피 기록이 없어요.</p>';
+  if(!tl||!tl.length)return '<p class="small muted">트로피 기록 없음</p>';
   // 같은 대회·상은 한 줄로 묶어 횟수와 연도를 보여 준다 (FotMob 트로피 화면처럼)
   const group=list=>{const m={};list.forEach(x=>{(m[x.n]=m[x.n]||[]).push(x.y)});return Object.entries(m).map(([n,ys])=>({n,ys:ys.sort((a,b)=>a-b)})).sort((a,b)=>b.ys.length-a.ys.length||trophyPts(b.n)-trophyPts(a.n))};
   const ic=trophyIcon;
@@ -3349,13 +3360,13 @@ function acctView(){
     <div class="rcode num">${a.newCode}</div>
     <button class="btn" data-act="acct-done">저장했어요 <span class="arr">→</span></button></section>`;
   if(a.conflict)return `<section class="panel"><span class="eyebrow">기록 선택</span><h2 class="sectionh">어느 기록을 쓸까요?</h2>
-    <p class="small">이 아이디로 서버에 저장된 기록과, 이 기기에 있는 기록이 서로 달라요.</p>
+    <p class="small">서버 기록과 이 기기 기록이 서로 다름</p>
     <div class="list small"><div class="li"><span class="muted">서버 기록</span><b>${a.conflict.data.p?esc(a.conflict.data.p.name)+' · '+a.conflict.data.p.age+'세':'진행 중인 선수 없음'}</b></div>
     <div class="li"><span class="muted">이 기기 기록</span><b>${G.p?esc(G.p.name)+' · '+G.p.age+'세':'진행 중인 선수 없음'}</b></div></div>
     <div class="grid2"><button class="btn" data-act="acct-pick" data-v="cloud">서버 기록 불러오기</button><button class="btn alt" data-act="acct-pick" data-v="local">이 기기 기록으로 덮어쓰기</button></div></section>`;
   // 닉네임 정하기 (친구 기능용, 중복 불가)
   if(G.auth&&m==='nick')return `<section class="panel"><span class="eyebrow">NICKNAME</span><h2 class="sectionh">닉네임 정하기</h2>
-    <p class="small">친구들에게 보일 이름이에요. 다른 사람과 겹칠 수 없어요.</p>
+    <p class="small">친구들에게 보이는 이름 · 다른 사람과 중복 불가</p>
     <div class="aform">${inp('a-nick','닉네임 (한글·영문·숫자·_ 2~10자)','text',a.nick||'')}</div>
     ${a.err||a.nickMsg?`<div class="warn small">${esc(a.err||a.nickMsg)}</div>`:''}
     <button class="btn" data-act="nick-go" ${a.busy?'disabled':''}>${a.busy?'잠시만요…':'이 닉네임 쓰기'} <span class="arr">→</span></button></section>
@@ -3368,9 +3379,9 @@ function acctView(){
     <button class="btn alt" data-act="acct" data-v="me">취소 <span class="arr">←</span></button>`;
   // 로그인한 상태: 계정 정보와 로그아웃
   if(G.auth&&!a.conflict)return `${a.msg?`<div class="note small" style="margin-bottom:10px">${esc(a.msg)}</div>`:''}<section class="panel"><span class="eyebrow">ACCOUNT</span><h2 class="sectionh">☁️ ${esc(G.auth.nick||G.auth.name)}</h2>
-    <p class="small muted">아이디 ${esc(G.auth.name)}${G.fr.off?'':` · ${G.auth.nick?`닉네임 <b>${esc(G.auth.nick)}</b> <button class="linkb" data-act="acct" data-v="nick">바꾸기</button>`:'<button class="linkb" data-act="acct" data-v="nick">닉네임 정하기 ›</button>'}`}</p>
+    <p class="small muted">아이디 ${esc(G.auth.name)}${G.fr.off?'':` · ${G.auth.nick?`닉네임 ${nickTag(G.auth.nick,myNb())} <button class="linkb" data-act="acct" data-v="nick">바꾸기</button>`:'<button class="linkb" data-act="acct" data-v="nick">닉네임 정하기 ›</button>'}`}</p>
     <p class="small">${a.saveErr?`<span style="color:var(--red)">서버 저장에 실패했어요 (${esc(String(a.saveErr))}). 인터넷 연결을 확인해 주세요. 다음 진행 때 다시 시도해요.</span>`:a.saved?`마지막 자동 저장 ${new Date(a.saved).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})}`:'자동 저장이 켜져 있어요. 진행할 때마다 서버에 저장돼요.'}</p>
-    <p class="small muted">다른 기기에서 같은 아이디로 로그인하면 이어서 할 수 있어요. 명예의 전당·업적·해금은 기기끼리 자동으로 합쳐져요.</p>
+    <p class="small muted">다른 기기에서 같은 아이디로 로그인 → 이어서 플레이 · 명예의 전당·업적·해금 자동 합침</p>
     ${otherPsHtml()}
     <div class="grid2"><button class="btn alt" data-act="acct-save">지금 저장 · 동기화</button><button class="btn danger" data-act="acct-logout">로그아웃</button></div>
     <div class="grid2" style="margin-top:8px"><button class="btn alt" data-act="acct" data-v="pw">비밀번호 변경</button><button class="btn alt" data-act="feedback">${isAdmin()?'📥 받은 피드백':'💬 피드백'}</button></div></section>
@@ -3386,7 +3397,7 @@ function acctView(){
       ${m==='signup'?inp('a-pw2','한 번 더 입력','password','','비밀번호 확인'):''}
     </div>
     ${a.err?`<div class="warn small">${esc(a.err)}</div>`:''}
-    ${m==='signup'?'<p class="small muted"><b>아이디</b>는 로그인할 때만 쓰고, <b>닉네임</b>은 친구 검색과 랭킹에 보여요. 닉네임은 나중에 바꿀 수 있어요. 아이디는 기기마다 하나만 만들 수 있고, 가입하면 지금 이 기기의 기록이 그대로 서버에 올라가요.</p>':m==='login'?'<p class="small muted">다른 기기에서 만든 아이디로도 로그인할 수 있어요. 로그인하면 기록을 이어서 할 수 있어요.</p>':'<p class="small muted">가입할 때 받은 복구 코드가 있어야 해요.</p>'}
+    ${m==='signup'?'<p class="small muted"><b>아이디</b>는 로그인할 때만 쓰고, <b>닉네임</b>은 친구 검색과 랭킹에 보여요. 닉네임은 나중에 바꿀 수 있어요. 아이디는 기기마다 하나만 만들 수 있고, 가입하면 지금 이 기기의 기록이 그대로 서버에 올라가요.</p>':m==='login'?'<p class="small muted">다른 기기에서 만든 아이디로도 로그인 가능 · 로그인하면 기록 이어서 플레이</p>':'<p class="small muted">가입 때 받은 복구 코드 필요</p>'}
     <button class="btn" data-act="acct-go" data-v="${m}" ${a.busy?'disabled':''}>${a.busy?'잠시만요…':m==='signup'?'가입하기':m==='reset'?'비밀번호 바꾸고 로그인':'로그인'} <span class="arr">→</span></button></section>
     <button class="btn alt" data-act="home">홈으로 <span class="arr">←</span></button>`;
 }
@@ -3435,7 +3446,7 @@ function friendly(i){
 }
 
 /* ---------- 포지션 해금 ----------
-   공격수부터 시작. 그 포지션으로 S등급(78점 이상) 커리어를 한 번 만들면 다음 포지션이 열린다
+   공격수부터 시작. 그 포지션으로 S등급(80점 이상) 커리어를 한 번 만들면 다음 포지션이 열린다
    (공격수 → 미드필더 → 수비수 → 골키퍼). 명예의 전당에 저장하지 않아도 은퇴할 때 S등급이면 열린다 */
 const UNLOCK_ORDER=['FW','MF','DF','GK'],UNLOCK_SCORE=80,UNLOCKKEY='kickoff-life-unlock';
 G.unlock=load(UNLOCKKEY,null);
@@ -3606,7 +3617,7 @@ function liveView(L){
   return `<div class="live"><div class="lsb"><b>나</b><span class="num">${a}</span><span class="muted">:</span><span class="num">${b}</span><b>${esc(L.nick)}</b></div>
     <div class="lsub">${L.stage==='h1'?'전반전 진행 중':L.stage==='ht'?'하프타임':L.stage==='h2'?'후반전 진행 중':'경기 종료'}</div>
     <div class="lev">${evs.map(e=>`<div class="le ${e.side} ${e.k}">${e.m?`<span class="lm">${e.m}'</span>`:''}${e.side?`<span class="lt">${e.side==='me'?'나':esc(L.nick)}</span>`:''}${e.txt}</div>`).join('')}</div>
-    ${L.stage==='ht'?`<p class="hint">후반 전술을 고르세요</p><div class="tacs">${Object.entries(TAC).map(([k,t])=>`<button class="dbtn${k==='bal'?' pri':''}" data-act="fr-tac" data-v="${k}"><b>${t.n}</b><span>${t.d}</span></button>`).join('')}</div>`:''}
+    ${L.stage==='ht'?`<p class="hint">후반 전술 선택</p><div class="tacs">${Object.entries(TAC).map(([k,t])=>`<button class="dbtn${k==='bal'?' pri':''}" data-act="fr-tac" data-v="${k}"><b>${t.n}</b><span>${t.d}</span></button>`).join('')}</div>`:''}
     ${L.stage==='h1'||L.stage==='h2'?'<button class="linkb" data-act="fr-skip">결과 바로 보기 ›</button>':''}
     ${L.stage==='ft'?`<button class="btn" data-act="fr-match" data-v="${L.uid}">다시 대결하기 <span class="arr">↻</span></button>`:''}</div>`;
 }
@@ -3616,9 +3627,9 @@ function fieldView(f,line){
 }
 function friendsView(){
   const F=G.fr,back='<button class="btn alt" data-act="home">홈으로 <span class="arr">←</span></button>';
-  if(!G.auth)return `<section class="panel"><span class="eyebrow">FRIENDS</span><h2 class="sectionh">친구</h2><p class="small muted">로그인하면 닉네임으로 친구를 맺고, 서로의 명예의 전당과 베스트 11을 보고 가상 대결을 할 수 있어요.</p><button class="btn" data-act="acct" data-v="login">로그인 <span class="arr">→</span></button></section>`+back;
-  if(F.off)return `<section class="panel"><span class="eyebrow">FRIENDS</span><h2 class="sectionh">친구</h2><div class="warn small">친구 기능이 아직 준비되지 않았어요. 관리자가 Supabase에서 친구용 SQL을 실행해야 해요.</div></section>`+back;
-  if(!G.auth.nick)return `<section class="panel"><span class="eyebrow">FRIENDS</span><h2 class="sectionh">친구</h2><p class="small">먼저 다른 사람에게 보일 닉네임을 정해 주세요.</p><button class="btn" data-act="acct" data-v="nick">닉네임 정하기 <span class="arr">→</span></button></section>`+back;
+  if(!G.auth)return `<section class="panel"><span class="eyebrow">FRIENDS</span><h2 class="sectionh">친구</h2><p class="small muted">로그인하면 닉네임으로 친구 맺기 · 서로의 명예의 전당·베스트 11 보기 · 가상 대결</p><button class="btn" data-act="acct" data-v="login">로그인 <span class="arr">→</span></button></section>`+back;
+  if(F.off)return `<section class="panel"><span class="eyebrow">FRIENDS</span><h2 class="sectionh">친구</h2><div class="warn small">친구 기능 준비 전 · 관리자가 Supabase 친구용 SQL 실행 필요</div></section>`+back;
+  if(!G.auth.nick)return `<section class="panel"><span class="eyebrow">FRIENDS</span><h2 class="sectionh">친구</h2><p class="small">먼저 다른 사람에게 보일 닉네임 정하기</p><button class="btn" data-act="acct" data-v="nick">닉네임 정하기 <span class="arr">→</span></button></section>`+back;
   // 친구 한 명 자세히 보기
   if(F.view){
     const f=(F.list||[]).find(x=>x.uid===F.view),sc=F.show[F.view]||{},hof=(sc.hof||[]).map(x=>rescored(x)).sort((a,b)=>b.score-a.score),b=sc.b11;
@@ -3632,21 +3643,21 @@ function friendsView(){
       ${G.fr.live&&G.fr.live.uid===F.view?liveView(G.fr.live):`<button class="btn" data-act="fr-match" data-v="${F.view}">베스트 11끼리 대결하기 <span class="arr">→</span></button>`}
       ${M&&!(G.fr.live&&G.fr.live.uid===F.view)?`<div class="note"><b>나 ${M.gf} : ${M.ga} ${esc(M.nick)}</b> · ${M.gf>M.ga?'승리!':M.gf===M.ga?'무승부':'패배'} <span class="small muted">· 점유율 ${M.sh}:${100-M.sh}</span>${M.sc.length?`<div class="small" style="margin-top:4px">${M.sc.map(x=>`${x.m}' ${esc(x.n)} <span class="muted">(${x.me?'나':esc(M.nick)})</span>`).join('<br>')}</div>`:''}</div>`:''}
       <p class="hint">전반 중계 → 하프타임 전술 선택 → 후반 중계 · 공격·중원·수비 능력치와 전술로 장면이 정해져요 · 빈자리는 유스 선수(40)</p>`
-      :'<p class="small muted">친구가 아직 베스트 11을 짜지 않았어요.</p>'}</section>
+      :'<p class="small muted">친구가 아직 베스트 11을 짜지 않음</p>'}</section>
     ${b&&b.line?`<section class="panel"><span class="eyebrow">${esc(f?f.nick:'')}의 베스트 11 · ${b.f}</span>${fieldView(b.f,b.line)}</section>`:''}
-    <section class="panel"><span class="eyebrow">명예의 전당 · 눌러서 카드 보기</span>${hof.length?`<div class="list">${hof.map((x,i)=>`<div class="li" data-act="fr-pview" data-v="${i}" role="button" style="cursor:pointer"><span><b>${i+1}. ${esc(x.name)}</b> <span class="muted small">#${x.num} ${posLabel(x)}</span><br><span class="muted small">${esc(x.club||'')} · ${x.year} 은퇴 · 출장 ${x.apps} · ${x.pos==='GK'?'무실점 '+(x.cs||0):'골 '+x.goals+' · 도움 '+x.assists} · A매치 ${x.caps}</span></span><span class="chip gold" style="flex:none">${esc(x.grade)} ${x.score}</span></div>`).join('')}</div>`:'<p class="small muted">아직 은퇴한 선수가 없어요.</p>'}</section>
+    <section class="panel"><span class="eyebrow">명예의 전당 · 눌러서 카드 보기</span>${hof.length?`<div class="list">${hof.map((x,i)=>`<div class="li" data-act="fr-pview" data-v="${i}" role="button" style="cursor:pointer"><span><b>${i+1}. ${esc(x.name)}</b> <span class="muted small">#${x.num} ${posLabel(x)}</span><br><span class="muted small">${esc(x.club||'')} · ${x.year} 은퇴 · 출장 ${x.apps} · ${x.pos==='GK'?'무실점 '+(x.cs||0):'골 '+x.goals+' · 도움 '+x.assists} · A매치 ${x.caps}</span></span><span class="chip gold" style="flex:none">${esc(x.grade)} ${x.score}</span></div>`).join('')}</div>`:'<p class="small muted">아직 은퇴한 선수 없음</p>'}</section>
     ${f?`<button class="btn danger" data-act="fr-del" data-v="${f.id}">친구 끊기</button>`:''}`;
   }
   if(F.loading&&!F.list)return `<section class="panel"><p class="muted">친구 정보를 불러오는 중…</p></section>`;
   const L=F.list||[],inc=L.filter(x=>x.status==='pending'&&!x.out),outg=L.filter(x=>x.status==='pending'&&x.out),fr=L.filter(x=>x.status==='accepted');
   const myBest=G.hof.reduce((a,x)=>Math.max(a,x.score||0),0);
   const rank=[{uid:G.auth.uid,nick:G.auth.nick,me:true,best:myBest,n:G.hof.length},...fr.map(x=>{const s=F.show[x.uid]||{};return {uid:x.uid,nick:x.nick,best:+s.best_score||0,n:(s.hof||[]).length}})].sort((a,b)=>b.best-a.best);
-  return `<section class="panel"><span class="eyebrow">FRIENDS</span><h2 class="sectionh">친구</h2><p class="small muted">내 닉네임 <b>${esc(G.auth.nick)}</b> · 친구는 서로의 명예의 전당, 베스트 11, 커리어 점수를 볼 수 있어요.</p>
+  return `<section class="panel"><span class="eyebrow">FRIENDS</span><h2 class="sectionh">친구</h2><p class="small muted">내 닉네임 ${nickTag(G.auth.nick,myNb())} · 친구는 서로의 명예의 전당, 베스트 11, 커리어 점수를 볼 수 있어요.</p>
       <div class="frq"><input id="f-q" class="ainp" placeholder="친구 닉네임" value="${esc(F.q)}" autocomplete="off" autocapitalize="off" spellcheck="false"><button class="btn" data-act="fr-req" style="width:auto">요청</button></div>
       ${F.msg?`<p class="small" style="margin:6px 0 0">${esc(F.msg)}</p>`:''}${F.err?`<div class="warn small">${esc(F.err)}</div>`:''}</section>
     ${inc.length?`<section class="panel"><span class="eyebrow">받은 친구 요청 ${inc.length}</span><div class="list">${inc.map(x=>`<div class="li"><b>${esc(x.nick)}</b><span class="row" style="gap:6px;flex-wrap:nowrap"><button class="ghost" data-act="fr-acc" data-v="${x.id}">수락</button><button class="ghost" data-act="fr-del" data-v="${x.id}">거절</button></span></div>`).join('')}</div></section>`:''}
     <section class="panel"><span class="eyebrow">친구 랭킹 · 최고 커리어 점수</span><div class="list">${rank.map((r,i)=>`<div class="li"${r.me?'':` data-act="fr-view" data-v="${r.uid}" role="button" style="cursor:pointer"`}><span style="display:flex;gap:10px;align-items:center"><b class="num" style="width:22px;${i<3?'color:var(--pitch)':''}">${i+1}</b><span><b>${esc(r.nick)}</b>${r.me?' <span class="chip">나</span>':''}<br><span class="muted small">은퇴 선수 ${r.n}명</span></span></span><span class="row" style="gap:6px;flex-wrap:nowrap"><span class="chip gold">${r.best}점</span>${r.me?'':'<span class="muted">›</span>'}</span></div>`).join('')}</div>
-      ${fr.length?'<p class="small muted">친구를 누르면 명예의 전당과 베스트 11을 보고 가상 대결을 할 수 있어요.</p>':'<p class="small muted">아직 친구가 없어요. 위에서 닉네임으로 요청을 보내 보세요.</p>'}</section>
+      ${fr.length?'<p class="small muted">친구를 누르면 명예의 전당·베스트 11 보기 · 가상 대결</p>':'<p class="small muted">아직 친구 없음 · 위에서 닉네임으로 친구 요청</p>'}</section>
     ${(()=>{const wk=weekKey(),rows=[{nick:G.auth.nick,me:true,sc:G.chal[wk]},...fr.map(x=>{const b=(F.show[x.uid]||{}).b11;return {nick:x.nick,sc:b&&b.ch?b.ch[wk]:null,rec:G.frRec[x.uid]}})].filter(r=>r.sc!=null).sort((a,b)=>b.sc-a.sc);
       return `<section class="panel"><span class="eyebrow">🗓️ 이번 주 챌린지 · ${wk}</span>${rows.length?`<div class="list">${rows.map((r,i)=>`<div class="li"><span><b class="num" style="display:inline-block;width:22px">${i+1}</b><b>${esc(r.nick)}</b>${r.me?' <span class="chip">나</span>':''}</span><span class="chip gold">${r.sc}점</span></div>`).join('')}</div>`:'<p class="small muted">아직 이번 주 챌린지를 끝낸 사람이 없어요. 홈 화면의 <b>주간 챌린지</b>로 도전해 보세요.</p>'}</section>`})()}
     ${fr.length?`<section class="panel"><span class="eyebrow">베스트 11 대결 전적</span><div class="list">${fr.map(x=>`<div class="li" data-act="fr-view" data-v="${x.uid}" role="button" style="cursor:pointer">${nickTag(x.nick,((G.fr.show[x.uid]||{}).b11||{}).nb)}<span class="small">${recTxt(G.frRec[x.uid])} <span class="muted">›</span></span></div>`).join('')}</div></section>`:''}
@@ -3826,7 +3837,7 @@ function attendView(){
     return `<div class="attd${at?' on':''}${d===today?' now':''}${fut?' fut':''}"><span class="attn">${names[i]}</span><b>${+d.slice(8)}</b><span class="atti">${at?'✅':fut?'':'·'}</span>${ch?'<span class="attc">🎁</span>':''}${bn?'<span class="attb">+10</span>':''}</div>`};
   return `<section class="panel"><span class="eyebrow">DAILY · 출석 · 보상</span><h2 class="sectionh">출석 체크</h2>
     <div class="attw">${days.map(cell).join('')}</div>
-    ${attToday()?'<div class="note small">✅ 오늘 출석 완료 · 내일 또 와서 출석 체크하세요</div>':`<button class="btn attbtn" data-act="attend-claim">📅 출석 체크하기 · +${ATT_LP} LP${(st+1)%7===0?` (+${ATT_BONUS} 보너스)`:''} <span class="arr">→</span></button>`}
+    ${attToday()?'<div class="note small">✅ 오늘 출석 완료 · 내일 다시 출석 체크</div>':`<button class="btn attbtn" data-act="attend-claim">📅 출석 체크하기 · +${ATT_LP} LP${(st+1)%7===0?` (+${ATT_BONUS} 보너스)`:''} <span class="arr">→</span></button>`}
     <div class="grid3"><div class="tile"><div class="v">${st}일</div><div class="k">연속 출석</div></div><div class="tile"><div class="v">${toBonus}일</div><div class="k">+10 보너스까지</div></div><div class="tile"><div class="v">${mCnt}일</div><div class="k">이번 달 출석</div></div></div>
     <p class="hint">하루 한 번 출석 체크 3 LP · 7일 연속마다 +10 LP · ✅ 출석 · 🎁 챌린지 보상 받은 날</p></section>
   <section class="panel"><div class="row" style="justify-content:space-between;align-items:center"><span class="eyebrow">🗓️ 주간 챌린지 · ${weekKey()}</span><span class="chip${chalLpToday()?' good':' gold'}">${chalLpToday()?'오늘 보상 받음':'오늘 보상 대기'}</span></div>
@@ -3870,19 +3881,19 @@ const dexLg=lgs=>ci=>lgs.includes(CLUB_DEF[ci].lg);
 const DEX_LGS=[['한국',['k1','k2']],['잉글랜드',['epl','efl']],['스페인',['laliga','segunda']],['독일',['bundes','bundes2']],['이탈리아',['seriea','serieb']],['프랑스',['ligue1','ligue2']],['유럽 변방',['ned','por','bel','tur','sco']]];
 // 휘장: 닉네임 테두리 스타일(nb-키)
 const DEX_BADGES=[
-  {k:'trav',i:'🧳',n:'여행자',d:'프로 구단 5곳에서 뛰기',c:()=>dexCount()>=5},
-  {k:'kcol',i:'🇰🇷',n:'K리그 수집가',d:'K리그 구단 10곳',c:()=>dexCount(dexLg(['k1','k2']))>=10},
-  {k:'euro',i:'🌍',n:'유럽 원정대',d:'유럽 구단 5곳',c:()=>dexCount(ci=>LG[CLUB_DEF[ci].lg].euro)>=5},
-  {k:'big5',i:'⭐',n:'5대 리그 순례',d:'5대 리그 다섯 곳 모두에서 뛰기',c:()=>['epl','laliga','bundes','seriea','ligue1'].every(l=>dexCount(dexLg([l]))>0)},
-  {k:'edge',i:'🧭',n:'변방 탐험가',d:'유럽 변방 리그 3개 리그에서 뛰기',c:()=>['ned','por','bel','tur','sco'].filter(l=>dexCount(dexLg([l]))>0).length>=3},
-  {k:'jour',i:'🗺️',n:'저니맨 마스터',d:'프로 구단 20곳',c:()=>dexCount()>=20},
-  {k:'world',i:'👑',n:'세계 정복',d:'프로 구단 40곳',c:()=>dexCount()>=40}];
+  {k:'trav',i:'🧳',n:'여행자',d:'프로 구단 10곳에서 뛰기',c:()=>dexCount()>=10},
+  {k:'kcol',i:'🇰🇷',n:'K리그 수집가',d:'K리그 구단 18곳 (K리그1·2 합쳐서)',c:()=>dexCount(dexLg(['k1','k2']))>=18},
+  {k:'euro',i:'🌍',n:'유럽 원정대',d:'유럽 구단 15곳',c:()=>dexCount(ci=>LG[CLUB_DEF[ci].lg].euro)>=15},
+  {k:'big5',i:'⭐',n:'5대 리그 순례',d:'5대 리그 다섯 곳 모두에서 각각 2개 구단 이상',c:()=>['epl','laliga','bundes','seriea','ligue1'].every(l=>dexCount(dexLg([l]))>=2)},
+  {k:'edge',i:'🧭',n:'변방 탐험가',d:'유럽 변방 리그 5개 모두에서 뛰기',c:()=>['ned','por','bel','tur','sco'].every(l=>dexCount(dexLg([l]))>0)},
+  {k:'jour',i:'🗺️',n:'저니맨 마스터',d:'프로 구단 40곳',c:()=>dexCount()>=40},
+  {k:'world',i:'👑',n:'세계 정복',d:'프로 구단 80곳',c:()=>dexCount()>=80}];
 const nbOk=k=>k&&DEX_BADGES.some(b=>b.k===k);
 // 닉네임 + 휘장 테두리 (내 것은 지금 장착, 남의 것은 기록에 담긴 값)
 const nickTag=(nick,nb)=>{const B=nbOk(nb)&&DEX_BADGES.find(b=>b.k===nb);return B?`<b class="nb nb-${nb}" title="${esc(B.n)}">${B.i} ${esc(nick)}</b>`:`<b>${esc(nick)}</b>`};
 const myNb=()=>{const k=G.dex.eq;return nbOk(k)&&DEX_BADGES.find(b=>b.k===k).c()?k:null};
 function dexView(){const total=CLUB_DEF.filter(c=>!LG[c.lg].am).length;
-  let h=`<section class="panel"><span class="eyebrow">CLUB DEX</span><h2 class="sectionh">구단 도감</h2><p class="hint">모든 커리어에서 프로로 뛰어 본 구단이 모여요 · ${dexCount()} / ${total}곳 · 휘장을 끼면 랭킹·친구 화면의 닉네임 테두리가 바뀌어요</p></section>`;
+  let h=`<section class="panel"><span class="eyebrow">CLUB DEX</span><h2 class="sectionh">구단 도감</h2><p class="hint">모든 커리어에서 프로로 뛰어 본 구단 수집 · ${dexCount()} / ${total}곳 · 휘장 장착 → 랭킹·친구 화면 닉네임 테두리 변경</p></section>`;
   h+=`<section class="panel"><span class="eyebrow">휘장</span><div class="list">${DEX_BADGES.map(b=>{const ok=b.c(),on=G.dex.eq===b.k;return `<div class="li"><span><span class="nb nb-${b.k}${ok?'':' off'}">${b.i} ${esc(b.n)}</span><br><span class="hint">${esc(b.d)}</span></span>${ok?`<button class="sbtn${on?'':' alt'}" style="flex:none" data-act="dex-eq" data-v="${on?'':b.k}">${on?'장착 중':'장착'}</button>`:'<span class="chip">잠김</span>'}</div>`}).join('')}</div></section>`;
   DEX_LGS.forEach(([nm,lgs])=>{const ids=CLUB_DEF.map((c,i)=>i).filter(i=>lgs.includes(CLUB_DEF[i].lg)&&!CLUBS[i].hidden),got=ids.filter(i=>G.dex.c[i]).length;
     h+=`<section class="panel"><div class="row" style="justify-content:space-between"><span class="eyebrow">${nm}</span><span class="chip${got?' gold':''}">${got} / ${ids.length}</span></div><div class="dexg">${ids.map(i=>`<div class="dexc${G.dex.c[i]?' on':''}" title="${esc(CLUB_DEF[i].name)}">${crest(i,30)}<span>${esc(CLUB_DEF[i].name)}</span></div>`).join('')}</div></section>`});
@@ -3898,15 +3909,19 @@ const SHOP_ITEMS=[
 const SKINS={
   frame:[
     {k:'gold',n:'골드 테두리',c:60,d:'명예의 전당 카드에 금빛 테두리'},
-    {k:'club',n:'클럽 컬러',c:80,d:'가장 오래 뛴 구단의 대표 색 테두리'},
-    {k:'fire',n:'불꽃',c:120,d:'일렁이는 불꽃 테두리'},
-    {k:'holo',n:'홀로그램',c:180,d:'빛에 따라 색이 바뀌는 홀로그램 테두리'},
+    {k:'pink',n:'핑크 블라썸',c:70,d:'벚꽃처럼 은은한 분홍빛 테두리'},
+    {k:'fire',n:'불꽃',c:80,d:'일렁이는 불꽃 테두리'},
+    {k:'holo',n:'홀로그램',c:120,d:'빛에 따라 색이 바뀌는 홀로그램 테두리'},
+    {k:'club',n:'클럽 컬러',c:180,d:'가장 오래 뛴 구단의 대표 색 테두리'},
     {k:'diamond',n:'레전드 다이아',c:300,d:'내 선수 중 S+ 등급 커리어가 있어야 살 수 있어요',req:()=>G.hof.some(r=>r.score>=GRADE_CUT['S+'])}
   ],
   cer:[
     {k:'petals',n:'꽃가루',c:70,d:'은퇴식에 꽃잎이 흩날린다'},
+    {k:'stars',n:'별빛 축제',c:90,d:'반짝이는 별빛이 하늘로 올라간다'},
     {k:'clap',n:'기립박수',c:100,d:'관중석 전체가 일어나 박수를 보낸다'},
+    {k:'scarf',n:'머플러 응원',c:120,d:'관중석에서 머플러가 물결친다'},
     {k:'fireworks',n:'불꽃놀이',c:140,d:'경기장 위로 불꽃이 터진다'},
+    {k:'trophyrain',n:'트로피 비',c:170,d:'커리어 내내 들어 올린 트로피가 쏟아진다'},
     {k:'jersey',n:'영구결번',c:200,d:'등번호가 하늘로 올라가 영구결번된다'}
   ]
 };
@@ -3918,7 +3933,7 @@ function shopView(){
   const buyBtn=(k,c,dis,label)=>`<button class="sbtn" data-act="lp-buy" data-v="${k}" ${dis||bal<c?'disabled':''}>${label||`${c} LP`}</button>`;
   const item=x=>`<div class="shop-i"><span class="shop-ic">${x.i}</span><span class="shop-t"><b>${x.n}</b><span class="small muted">${x.d}</span><span class="small">보유 <b>${lpItem(x.k)}</b></span></span>${buyBtn(x.k,x.c)}</div>`;
   const skin=(grp,x)=>{const key=`skin:${grp}:${x.k}`,own=lpOwns(key),on=eq[grp]===x.k,lock=x.req&&!x.req();
-    return `<div class="shop-i"><span class="shop-ic">${grp==='frame'?`<span class="fprev frame-${x.k}"></span>`:{petals:'🌸',clap:'👏',fireworks:'🎆',jersey:'🎽'}[x.k]}</span><span class="shop-t"><b>${x.n}</b><span class="small muted">${x.d}</span></span>
+    return `<div class="shop-i"><span class="shop-ic">${grp==='frame'?`<span class="fprev frame-${x.k}"></span>`:{petals:'🌸',clap:'👏',fireworks:'🎆',jersey:'🎽',stars:'✨',scarf:'🧣',trophyrain:'🏆'}[x.k]}</span><span class="shop-t"><b>${x.n}</b><span class="small muted">${x.d}</span></span>
       ${own?`<button class="sbtn${on?'':' alt'}" data-act="lp-eq" data-v="${grp}:${on?'':x.k}">${on?'장착 중':'장착'}</button>`:buyBtn(key,x.c,lock,lock?'잠김':`${x.c} LP`)}</div>`};
   return `<section class="panel"><span class="eyebrow">LP SHOP</span><h2 class="sectionh">LP 상점</h2>
       <div class="lpbal"><span>보유</span><b>${bal}</b><span>LP</span></div>
@@ -3943,7 +3958,7 @@ const clubColOf=n=>{const ci=CLUBS.findIndex(c=>c.name===n);return ci>=0?teamCol
    명예의 전당 기록 한 명을 1080×1350 카드 한 장으로 그린다: 등급 · 점수 · 이름 · 통산 기록 · 대표 트로피 · 장착한 테두리.
    미리보기에서 저장하거나(다운로드) 휴대폰 공유 시트로 바로 보낼 수 있다 */
 const GRADE_COL={'S+':'#8fe3ff','S':'#f2c14e','A':'#d7dce6','B':'#e0a96d','C':'#9aa6b8','D':'#7a869a'};
-const FRAME_COL={gold:['#e3b23c','#f7d77a'],club:null,fire:['#ff6a00','#ffb347'],holo:['#7df9ff','#c084fc','#f472b6','#facc15'],diamond:['#8fe3ff','#ffffff']};
+const FRAME_COL={pink:['#f472b6','#fbcfe8'],gold:['#e3b23c','#f7d77a'],club:null,fire:['#ff6a00','#ffb347'],holo:['#7df9ff','#c084fc','#f472b6','#facc15'],diamond:['#8fe3ff','#ffffff']};
 async function cardImage(x){
   const W=1080,H=1350,cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d');
   try{await Promise.all(['900 120px "Saira Condensed"','96px "Black Han Sans"','700 40px "IBM Plex Sans KR"','400 32px "IBM Plex Sans KR"'].map(f=>document.fonts.load(f)))}catch(e){}
@@ -3994,7 +4009,7 @@ async function cardShare(){const C=G.cardImg;if(!C||!C.cv)return;
   cardSave()}
 function cardSave(){const C=G.cardImg;if(!C||!C.url)return;const a=document.createElement('a');a.href=C.url;a.download=C.name;document.body.appendChild(a);a.click();a.remove();toast('카드 이미지를 저장했어요')}
 function cardOverlay(){const C=G.cardImg;if(!C)return '';
-  if(C.busy)return `<div class="achov"><div class="achbox"><p class="small">카드를 그리는 중…</p></div></div>`;
+  if(C.busy)return `<div class="achov"><div class="achbox"><p class="small">카드 그리는 중…</p></div></div>`;
   return `<div class="achov cardov"><div class="achbox cardbox"><img src="${C.url}" alt="커리어 카드"><div class="grid3"><button class="btn" data-act="card-share">공유</button><button class="btn alt" data-act="card-save">저장</button><button class="btn alt" data-act="card-close">닫기</button></div></div></div>`}
 const frameCls=()=>G.lp.eq.frame?` frame-${G.lp.eq.frame}`:'';
 // 다른 사람의 테두리 (공유된 기록·친구 쇼케이스에 담긴 값) · 알려진 테두리 이름만 쓴다
@@ -4023,11 +4038,17 @@ function toast(t){let el=document.getElementById('toast');if(!el){el=document.cr
 // 결과 발표 연출: 3 · 2 · 1 카운트다운 뒤 결과 (이적·상무 지원·재계약·임대 요청)
 G.reveal=null;let revealSeq=0;
 function reveal(h,ok,title,msg,steps){G.reveal={h,ok,title,msg,steps:steps||null,n:++revealSeq}}
-// 이적 드라마: 루머 기사 → 구단 간 협상 → 마지막 관문(서류·승인 등 구단 사이의 일) 순서로 한 줄씩 뜬 뒤 결과
-const XFER_FIN=['국제이적동의서(ITC) 발급','등록 마감 직전 서류 제출','셀온 조항·분할 지급 조건 최종 조율','양 구단 이사회 승인','등번호·초상권 조건 최종 합의'];
-function xferSteps(p,o,ok){const dest=teamName(o.club,o.u21);return [`📰 [루머] ${pick(['현지 언론','이적 전문 기자','구단 소식통'])} "${esc(dest)}, ${esc(p.name)} 영입에 근접"`,
-  ok?`🤝 구단 간 협상 · ${o.fee?`이적료 ${money(o.fee)}원`:'자유 이적 조건'}에 합의`:`🤝 구단 간 협상 · ${pick(['이적료를 두고 줄다리기가 이어진다','협상이 길어지고 있다','원소속팀이 난색을 표했다'])}…`,
-  ok?`✍️ ${pick(XFER_FIN)} 완료`:'❌ 마지막 단계에서 협상이 깨졌다']}
+const XFER_FIN=['국제이적동의서(ITC) 발급 완료','등록 마감 10분 전, 서류 제출 완료','셀온 조항·분할 지급 조건 최종 조율 완료','양 구단 이사회 승인 완료','등번호·초상권 조건 최종 합의','연맹 선수 등록 승인 완료','구단 공식 SNS에 "Here we go" 예고 영상 업로드','에이전트가 서명된 계약서 사진을 보내 왔다'];
+const XFER_SRC=['현지 언론','이적 전문 기자','구단 소식통','유력 매체','현지 라디오','팬 커뮤니티'];
+// 이적 드라마: 루머 → 구단 간 협상 → 마지막 관문. 시즌 중 같은 구단 루머가 있었으면 그 이야기를 이어 간다
+function xferSteps(p,o,ok){const dest=esc(teamName(o.club,o.u21)),nm=esc(p.name),fee=o.fee?`이적료 ${money(o.fee)}원`:'자유 이적 조건',
+  rm=(p.rumors||[]).find(x=>x.ci===o.club&&x.year>=p.year-1);
+  const s1=rm?pick([`📰 시즌 내내 돌던 ${dest}행 루머, 마침내 현실로?`,`📰 "${dest}, 오래 지켜본 ${nm} 영입 결단" · ${pick(XFER_SRC)}`,`📰 소문만 무성하던 ${dest} 이적설, 구단이 공식 움직임`])
+    :pick([`📰 [루머] ${pick(XFER_SRC)} "${dest}, ${nm} 영입에 근접"`,`📰 ${dest} 스카우트 단장, ${nm} 경기 직관 포착`,`📰 [단독] "${dest}, ${nm}에게 공식 제안서 발송"`,`📰 ${nm} 에이전트, ${dest} 연고지에서 목격`,`📰 "${nm}, ${dest} 이적 원한다" · ${pick(XFER_SRC)}`]);
+  const s2=ok?pick([`🤝 구단 간 협상 · ${fee}에 합의`,`🤝 줄다리기 끝에 ${fee}에 최종 합의`,`🤝 원소속팀이 한 발 물러섰다 · ${fee}`,`🤝 옵션 포함 ${fee} · 양측 악수`,`🤝 ${dest} 회장이 직접 나서 협상 타결`])
+    :pick(['🤝 구단 간 협상 · 이적료를 두고 줄다리기가 이어진다…','🤝 원소속팀이 난색을 표했다…','🤝 협상이 길어지고 있다…','🤝 분할 지급 조건에서 이견…','🤝 원소속팀 감독이 "절대 못 보낸다"…']);
+  const s3=ok?`✍️ ${pick(XFER_FIN)}`:pick(['❌ 마지막 단계에서 협상이 깨졌다','❌ 등록 마감 직전, 서류가 반려됐다','❌ 원소속팀 이사회가 최종 승인을 거부했다','❌ 막판 조건 변경에 협상이 결렬됐다']);
+  return [s1,s2,s3]}
 function achOverlay(){
   // 마감일 깜짝 오퍼 팝업
   if(G.dlPop&&G.p){const p=G.p,o=G.dlPop==='winter'?p.dlWinter:p.dlOffer;if(o){const L=LG[CLUBS[o.club].lg];
@@ -4051,6 +4072,9 @@ function achOverlay(){
     const cerBg=ck==='petals'?`<div class="cerp fall">${Array.from({length:22},(_,i)=>`<i style="left:${(i*43)%100}%;animation-delay:${(i%8)*.3}s;animation-duration:${3+(i%5)*.6}s">${['🌸','🌷','🌼'][i%3]}</i>`).join('')}</div>`
       :ck==='clap'?`<div class="cerp rise">${Array.from({length:20},(_,i)=>`<i style="left:${(i*37)%100}%;animation-delay:${(i%7)*.35}s;animation-duration:${2.6+(i%4)*.5}s">👏</i>`).join('')}</div>`
       :ck==='fireworks'?`<div class="cerp">${Array.from({length:6},(_,i)=>{const col=['#f2c14e','#ef4444','#60a5fa','#a78bfa','#34d399','#f472b6'][i];const sh=Array.from({length:12},(_,k)=>{const a=k/12*Math.PI*2;return `${Math.round(Math.cos(a)*70)}px ${Math.round(Math.sin(a)*70)}px 0 1px ${col}`}).join(',');return `<span class="fw" style="left:${15+(i*29)%70}%;top:${12+(i*23)%45}%;box-shadow:${sh};animation-delay:${i*.35}s"></span>`}).join('')}</div>`
+      :ck==='stars'?`<div class="cerp rise">${Array.from({length:24},(_,i)=>`<i style="left:${(i*41)%100}%;animation-delay:${(i%8)*.3}s;animation-duration:${2.4+(i%5)*.5}s;font-size:${14+(i%4)*5}px">${['✨','⭐','🌟'][i%3]}</i>`).join('')}</div>`
+      :ck==='scarf'?`<div class="cerp rise">${Array.from({length:18},(_,i)=>`<i style="left:${(i*53)%100}%;animation-delay:${(i%6)*.4}s;animation-duration:${3+(i%4)*.5}s;font-size:${24+(i%3)*6}px">🧣</i>`).join('')}</div>`
+      :ck==='trophyrain'?`<div class="cerp fall">${Array.from({length:22},(_,i)=>`<i style="left:${(i*47)%100}%;animation-delay:${(i%8)*.28}s;animation-duration:${2.6+(i%5)*.5}s;font-size:${20+(i%3)*6}px">${['🏆','🥇','🏅','🏆'][i%4]}</i>`).join('')}</div>`
       :ck==='jersey'?`<div class="conf">${conf}</div>`:'';
     const balls=fx==='hat'?'<span class="fxball b1">⚽</span><span class="fxball b2">⚽</span><span class="fxball b3">⚽</span>':fx==='goal'?'<span class="fxball b4">⚽</span>':'';
     const FXV=fx==='goal'?FX_GOAL[(c.v||0)%10]:fx==='save'?FX_SAVE[(c.v||0)%10]:null;
@@ -4070,7 +4094,7 @@ function achView(){
   const got=ACH.filter(a=>G.ach[a.id]).length;
   return `<section class="panel"><span class="eyebrow">ACHIEVEMENTS</span><h2 class="sectionh">업적 ${got}/${ACH.length}</h2>
     <div class="track" style="margin:6px 0 4px"><div class="fill hi" style="width:${got/ACH.length*100}%"></div></div>
-    <p class="small muted">모든 커리어에 걸쳐 쌓여요. 로그인하면 다른 기기에서도 이어져요.</p></section>
+    <p class="small muted">모든 커리어에 걸쳐 누적 · 로그인하면 다른 기기에서도 이어짐</p></section>
     ${[['일반',ACH.filter(a=>!a.h&&!a.m)],['◆ 중간',ACH.filter(a=>a.m)],['★ 어려움',ACH.filter(a=>a.h)]].map(([t,list])=>`<section class="panel"><span class="eyebrow">${t} · ${list.filter(a=>G.ach[a.id]).length}/${list.length}</span><div class="achlist">${list.map(a=>{const g=G.ach[a.id];return `<div class="achrow${g?'':' locked'}"><span class="achi">${g?a.i:'🔒'}</span><span><b>${a.n}${a.h?' <span class="chip gold" style="font-size:10px">어려움</span>':''}</b><span class="small muted">${a.d}${g?` · ${g.y} ${esc(g.who||'')}`:''}</span></span></div>`}).join('')}</div></section>`).join('')}
     <button class="btn alt" data-act="home">홈으로 <span class="arr">←</span></button>`;
 }
@@ -4466,8 +4490,9 @@ function resolveMoment(p,i){
 
 /* ---------- 업데이트 노트 (최신이 위, 버전마다 누적) ---------- */
 const UPDATES=[
+  {d:'2026.10.08 01:01',t:'꾸미기 추가',l:['카드 테두리: 핑크 블라썸 추가 · 가격 정리 (골드 60 · 핑크 70 · 불꽃 80 · 홀로그램 120 · 클럽 컬러 180 · 레전드 다이아 300)','은퇴식 연출 3종 추가: 별빛 축제 · 머플러 응원 · 트로피 비','커리어를 명예의 전당에 저장하면 모두의 랭킹에도 자동 등록 · 로그인 없이 올린 기록은 (비로그인)으로 표시','설명 문구를 짧은 개조식으로 정리 · 게임 방법 최신 내용으로 다시 씀','이적 연출 문구 다양화 · 시즌 중 이적 루머가 검토 → 스카우트 파견 → 계약 임박 단계로 진전 (단계가 높을수록 실제 오퍼 확률↑)','휘장 조건 강화 (여행자 10곳 · K리그 18곳 · 유럽 15곳 · 5대 리그 각 2곳 · 변방 5개 리그 · 40곳 · 80곳) · 장착한 휘장이 내 화면 닉네임에도 보여요','내 선수 카드 맨 위에 커리어 카드 이미지 저장 버튼']},
   {d:'2026.10.08 00:09',t:'버그 수정 · 다음 상대 표시',l:['하단에 이번 4경기에서 만날 상대 팀이 보여요 (한 묶음 안에서는 같은 팀을 두 번 만나지 않아요)','LP 상점 소모품 가격 인하: 리롤권 2 · 스카우트권 3 · 특성 선택권 5 · 이중국적 10 · 유럽 유스 시작권 25 LP','주간 챌린지 보상: 챌린지 선수를 B등급 이상으로 은퇴시키면 하루 한 번 20 LP (받으면 알림이 떠요)','출석 체크: 홈 › 출석·보상에서 버튼을 누르면 하루 한 번 3 LP · 7일 연속마다 보너스 10 LP · 이번 주 출석 도장과 챌린지 보상 받은 날도 볼 수 있어요','운영자 공지에 포지션 해금 선물을 담을 수 있어요','S등급으로 은퇴하면 LP 뽑기: 10 · 15 · 20 · 30 LP 중 하나 (S+는 30 LP)','업적 25개 추가 (일반 6 · 중간 10 · 어려움 9) · 어려움 업적 LP 2 → 3 (이미 받은 것도 3으로)','카드 테두리·은퇴식 같은 영구 꾸미기는 가격을 올렸어요 (테두리 60~300 · 은퇴식 70~200 LP)','등번호 랜덤이 포지션 대표 번호만 나오던 문제 수정 (이제 1~99 골고루)','무소속일 때 지난 소속팀이 우승해도 트로피를 받던 버그 수정','2군·무소속이어도 시즌 결산 주요 수상에 1군 리그 MVP·득점왕·도움왕이 보여요','예전 명예의 전당 기록도 커리어 카드에 대표 트로피가 보여요']},
-  {d:'2026.10.07 19:00',t:'국가대표 대회 · 커리어 카드 · 구단 도감',l:['월드컵·아시안컵·아시안게임·올림픽을 경기마다 직접 뛰어요: 조별리그 → 토너먼트, 접전엔 결정적 순간, 비기면 승부차기. 아시안게임 3·4위전은 결과만 바로 봐요. 대회 득점왕·MVP(월드컵 골든볼)도 있어요','발롱도르에 월드컵 성적이 조금 반영돼요 (발롱도르는 정말 압도적인 시즌이어야 받을 수 있어요). 시즌 결산에 올해의 주요 수상(발롱도르·리그 MVP·득점왕·도움왕 수상자)이 나와요','은퇴 화면·내 선수 카드에서 커리어 카드 이미지를 저장·공유할 수 있어요','30대에 몸이 예전 같지 않으면 감독이 포지션 전환을 제안해요 (윙어 → 측면 미드·윙백, 공미 → 레지스타, 수미 → 센터백 …)','이적은 루머 기사 → 구단 간 협상 → 서류·이사회 승인 순서로 진행돼요','LP 상점: 이중국적(유럽 워크퍼밋 불필요) · 유럽 유스 시작권(유럽 전체 구단 유스 중 뽑기 · 빅클럽 대박부터 변방 꽝까지)','유럽 리그 수준 조정: 변방 1부(에레디비시·포르투갈 67, 벨기에·튀르키예 65)를 챔피언십(66) 근처로 올리고, 다른 2부(2. 분데스 63 · 세군다 62 · 세리에 B · 리그 2 61)는 조금 낮췄어요','구단 도감: 뛰어 본 구단을 모으고, 휘장을 끼면 랭킹·친구 화면의 닉네임 테두리가 바뀌어요','S+ 조건: 빅클럽 주전 5시즌 이상으로 강화 · 5대 리그 개인상에 도움왕·올해의 포지션상도 포함 · 5대 리그 안에서도 위상 차(EPL > 세리에 A > 라리가 > 분데스 > 리그 1)']},
+  {d:'2026.10.07 19:00',t:'국가대표 대회 · 커리어 카드 · 구단 도감',l:['월드컵·아시안컵·아시안게임·올림픽을 경기마다 직접 뛰어요: 조별리그 → 토너먼트, 접전엔 결정적 순간, 비기면 승부차기. 아시안게임 3·4위전은 결과만 바로 봐요. 대회 득점왕·MVP(월드컵 골든볼)도 있어요','발롱도르에 월드컵 성적이 조금 반영돼요 (발롱도르는 정말 압도적인 시즌이어야 받을 수 있어요). 시즌 결산에 올해의 주요 수상(발롱도르·리그 MVP·득점왕·도움왕 수상자)이 나와요','은퇴 화면·내 선수 카드에서 커리어 카드 이미지를 저장·공유할 수 있어요','30대에 몸이 예전 같지 않으면 감독이 포지션 전환을 제안해요 (윙어 → 측면 미드·윙백, 공미 → 레지스타, 수미 → 센터백 …)','이적은 루머 기사 → 구단 간 협상 → 서류·이사회 승인 순서로 진행돼요','LP 상점: 이중국적(유럽 워크퍼밋 불필요) · 유럽 유스 시작권(유럽 전체 구단 유스 중 뽑기 · 빅클럽 대박부터 변방 꽝까지)','유럽 리그 수준 조정: 변방 1부(에레디비시·포르투갈 67, 벨기에·튀르키예 65)를 챔피언십(66) 근처로 올리고, 다른 2부(2. 분데스 63 · 세군다 62 · 세리에 B · 리그 2 61)는 조금 낮췄어요','구단 도감: 뛰어 본 구단을 모으고, 휘장 장착 → 랭킹·친구 화면 닉네임 테두리 변경','S+ 조건: 빅클럽 주전 5시즌 이상으로 강화 · 5대 리그 개인상에 도움왕·올해의 포지션상도 포함 · 5대 리그 안에서도 위상 차(EPL > 세리에 A > 라리가 > 분데스 > 리그 1)']},
   {d:'2026.10.07 18:29',t:'등급 기준 상향 · 랭킹 점수 통일',l:['등급 기준을 조금 올렸어요: S+ 90 · S 80 · A 67 · B 52 · C 37 (다음 포지션 해금도 S 80점)','S+ 조건의 5대 리그 개인상에 도움왕·올해의 공격수·미드필더·수비수·골키퍼·최소실점 골키퍼도 들어가요 (합계 3회 이상)','랭킹 점수가 보는 사람마다 조금씩 다르게 계산되던 문제를 고쳤어요. 이제 누가 봐도 같은 점수·순위예요']},
   {d:'2026.10.07 16:30',t:'랭킹 시즌제 · 커리어 점수 재조정 · 선발(교체)',l:['모두의 랭킹은 3일마다 새 시즌. 1위는 금빛 왕관 테두리, 시즌 1위 기록을 올린 사람은 닉네임에 👑 휘장이 붙어요 (역대 랭킹도 볼 수 있어요)','커리어 점수: 개인상은 상 종류와 리그 수준에 따라 다르게, 같은 상을 반복하면 점점 덜 쳐줘요. 최상위는 압축돼서 100점은 나오지 않아요. 이미 올라간 기록도 새 기준으로 다시 계산해서 보여 줘요','2부 리그 팀은 컵대회 결승에 가기 어렵고, 결승 상대는 1부 팀이에요','출장 수를 선발(교체)로 표시해요 · 예) 12(4)','친구 베스트 11 대결이 문자 중계로 바뀌었어요: 전반 장면 → 하프타임에 공격적·균형·수비적 전술 선택 → 후반. 양쪽 선수 이름으로 골·선방·골대 장면이 나와요','커리어 점수는 85점 위로 곡선처럼 완만해져서 정말 엄청난 커리어만 99점대예요 (100점은 없음)']},
   {d:'2026.10.07 14:32',t:'현실성 점검 · 피로 · 유럽 진출 · 인지도',l:['피로: 노랑(50~69)은 가끔 몸이 무거운 날만 오고, 빨강(70+)은 모든 능력치가 일시적으로 2~5 떨어져요. 평점이 크게 깎이던 방식은 없앴어요','K리그에서 꾸준히 잘하면(평점 7.6+) 변방 유럽·유럽 2부 오퍼가 훨씬 자주 와요. K리그 구단도 유럽행은 대체로 보내 줘요','인지도는 리그 수준을 넘기 어려워요 (K리그는 스타급까지, 월드 스타는 유럽에서). A매치와 유럽에서 쌓은 명성은 일부 인정','잔류하면 팀 내 입지(벤치·로테이션·주전)가 그대로 이어지고, 프리시즌마다 한 단계씩만 바뀌어요','고정한 목표 역할은 포지션 변경 이벤트에서도 바뀌지 않아요 · 소화 가능 역할 수는 어떤 역할을 골라도 같아요','명예의 전당 카드 테두리가 랭킹과 친구 화면에서도 보여요. 친구 명예의 전당 선수를 누르면 카드가 열려요','업적 LP: 일반 0 · 중간 1 · 어려움 2','커리어 등급에 개인 수상이 따로 반영돼요 (팀 트로피 최대 20 + 개인 수상 최대 15). S+는 빅클럽 3시즌 외에도 발롱도르·야신상, 빅클럽 챔스 우승, 5대 리그 득점왕·MVP 3회로도 가능해요','베스트 11에 주발 표시 · 같은 팀에 두 번 따로 임대 가면 경력에 따로 표시 · 무소속일 때 입지 표시 숨김']},
@@ -4484,7 +4509,7 @@ const UPDATES=[
   {d:'2026.10.06 16:13',v:'53',t:'첫 공지 · 은퇴 후 이야기',l:['은퇴하면 등급과 함께 은퇴 후 이야기가 자동으로 펼쳐져요','대부분은 지도자·해설위원·아나운서·스카우트 같은 축구 관련 길이고, 가끔 인플루언서나 다른 직업을 갖기도 해요','아주 드물게 도박·사기·이혼 같은 안 좋은 일도 생겨요','등급이 높으면 명예의 전당 헌액, 축구장 기부, 자서전 출간 같은 이야기가 더해져요','포지션 해금 기준은 S등급이에요 (공격수 → 미드필더 → 수비수 → 골키퍼)']}
 ];
 function updatesView(){
-  return `<section class="panel"><span class="eyebrow">UPDATES</span><h2 class="sectionh">업데이트 노트</h2><p class="small muted">무엇이 달라졌는지 공지로 모아 뒀어요. 최신이 위에 있어요.</p>
+  return `<section class="panel"><span class="eyebrow">UPDATES</span><h2 class="sectionh">업데이트 노트</h2><p class="small muted">바뀐 점 모음 · 최신이 위</p>
     <button class="btn alt" data-act="feedback" style="margin-top:6px">💬 피드백 보내기 <span class="arr">→</span></button></section>
     ${UPDATES.map((u,i)=>`<details class="panel guide" data-k="up-${u.d}"${detOpen('up-'+u.d,i===0)?' open':''}><summary><b><span class="chip gold">${u.d}</span>${u.v?` <span class="chip">v${u.v}</span>`:''} ${esc(u.t)}</b></summary><div class="gbody"><ul>${u.l.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div></details>`).join('')}
     <button class="btn alt" data-act="home">홈으로 <span class="arr">←</span></button>`;
@@ -4568,12 +4593,12 @@ async function noticeDel(id){try{await rest(`notices?id=eq.${+id}`,{method:'DELE
 function noticeAdminView(){
   const N=G.nt;
   return `<section class="panel"><div class="row" style="justify-content:space-between;align-items:center"><span class="eyebrow">📣 공지·선물 보내기 (관리자)</span><button class="linkb" data-act="nt-reload">새로고침</button></div>
-    <p class="hint">닉네임을 비우면 전체 공지 · 받는 사람이 확인하면 목록에서 사라져요</p>
+    <p class="hint">닉네임 비우면 전체 공지 · 받는 사람이 확인하면 목록에서 사라짐</p>
     <div class="aform"><input id="nt-nick" class="ainp" placeholder="받는 사람 닉네임 (비우면 전체)" value="${esc(N.nick)}" autocomplete="off">
       <input id="nt-title" class="ainp" placeholder="제목 (선택)" maxlength="40" value="${esc(N.title)}">
       <textarea id="nt-body" class="ainp" rows="3" maxlength="500" placeholder="내용">${esc(N.body)}</textarea>
       <input id="nt-lp" class="ainp" type="number" min="0" max="200" placeholder="선물 LP (0~200, 선택)" value="${esc(N.lp)}"></div>
-    <div class="f small muted">포지션 해금 선물 <span class="hint">· 고른 포지션까지 순서대로 열려요</span></div><div class="seg">${[[null,'없음'],['MF','미드필더까지'],['DF','수비수까지'],['GK','골키퍼까지']].map(([k,t])=>`<button data-act="nt-ul" data-v="${k||''}" aria-pressed="${(N.ul||null)===k}">${t}</button>`).join('')}</div>
+    <div class="f small muted">포지션 해금 선물 <span class="hint">· 고른 포지션까지 순서대로 해금</span></div><div class="seg">${[[null,'없음'],['MF','미드필더까지'],['DF','수비수까지'],['GK','골키퍼까지']].map(([k,t])=>`<button data-act="nt-ul" data-v="${k||''}" aria-pressed="${(N.ul||null)===k}">${t}</button>`).join('')}</div>
     ${N.err?`<div class="warn small">${esc(N.err)}</div>`:''}${N.msg?`<div class="note small">${esc(N.msg)}</div>`:''}
     <button class="btn" data-act="nt-send" ${N.busy?'disabled':''}>${N.busy?'보내는 중…':'보내기'} <span class="arr">→</span></button>
     ${N.list&&N.list.length?`<div class="list small" style="margin-top:8px">${N.list.map(x=>`<div class="li"><span><b>${esc(x.target_nick||'전체')}</b>${x.lp?` · 🎁 ${x.lp} LP`:''} <span class="muted">${fbTime(x.created_at)}</span><br>${ntUnlock(x)?` · 🔓 ${POS[ntUnlock(x)].name}까지`:''}${x.title?`<b>${esc(x.title)}</b> · `:''}${esc(ntBody(x))}</span><button class="ghost" data-act="nt-del" data-v="${x.id}">삭제</button></div>`).join('')}</div>`:''}</section>`;
@@ -4609,7 +4634,7 @@ function feedbackView(){
     <button class="btn" data-act="fb-send" ${F.busy?'disabled':''} style="margin-top:8px">${F.busy?'보내는 중…':'보내기'} <span class="arr">→</span></button></section>`;
   if(G.auth&&F.mine&&F.mine.length)h+=`<section class="panel"><span class="eyebrow">내가 보낸 피드백</span><div class="list small">${F.mine.map(x=>`<div class="li"><span><span class="chip">${FB_CAT[x.category]||''}</span> ${esc(x.body)}</span><span class="muted" style="white-space:nowrap">${fbTime(x.created_at)}</span></div>`).join('')}</div></section>`;
   if(isAdmin())h+=`<section class="panel"><div class="row" style="justify-content:space-between;align-items:center"><span class="eyebrow">📥 받은 피드백 (관리자)</span><button class="linkb" data-act="fb-reload">새로고침</button></div>
-    ${F.all==null?'<p class="small muted">불러오는 중…</p>':F.all.length?`<div class="list small">${F.all.map(x=>`<div class="li fbi"><span><span class="chip">${FB_CAT[x.category]||''}</span> <b>${esc(x.nickname||(x.user_id?'닉네임 없는 계정':'비로그인 (이전 기록)'))}</b> <span class="muted">${fbTime(x.created_at)}</span><br>${esc(x.body)}</span><button class="ghost" data-act="fb-del" data-v="${x.id}">삭제</button></div>`).join('')}</div>`:'<p class="small muted">아직 받은 피드백이 없어요.</p>'}</section>`;
+    ${F.all==null?'<p class="small muted">불러오는 중…</p>':F.all.length?`<div class="list small">${F.all.map(x=>`<div class="li fbi"><span><span class="chip">${FB_CAT[x.category]||''}</span> <b>${esc(x.nickname||(x.user_id?'닉네임 없는 계정':'비로그인 (이전 기록)'))}</b> <span class="muted">${fbTime(x.created_at)}</span><br>${esc(x.body)}</span><button class="ghost" data-act="fb-del" data-v="${x.id}">삭제</button></div>`).join('')}</div>`:'<p class="small muted">받은 피드백 없음</p>'}</section>`;
   if(isAdmin())h+=noticeAdminView();
   return h+'<button class="btn alt" data-act="home">홈으로 <span class="arr">←</span></button>';
 }
@@ -4639,7 +4664,7 @@ function challengeSetup(c){
 /* ---------- views ---------- */
 function header(){
   return `<header class="bar"><button class="logo" data-act="home" aria-label="홈으로"><span class="mark">KL</span><span><small>KICKOFF LIFE</small><b>킥오프 라이프</b></span></button>
-  <span class="bar-r">${sharedOn()&&G.screen!=='acct'?(G.auth?`${G.fbNew?`<button class="fbbadge" data-act="feedback" aria-label="새 피드백 ${G.fbNew}개">📥 <b>${G.fbNew>=99?"99+":G.fbNew}</b></button>`:""}<button class="ghost acctb" data-act="acct" data-v="me">☁️ ${esc(G.auth.nick||G.auth.name)}</button>`:'<button class="ghost acctb" data-act="acct" data-v="login">로그인</button>'):''}${G.screen==='game'?'<button class="ghost" data-act="home">홈</button>':''}</span></header>`;
+  <span class="bar-r">${sharedOn()&&G.screen!=='acct'?(G.auth?`${G.fbNew?`<button class="fbbadge" data-act="feedback" aria-label="새 피드백 ${G.fbNew}개">📥 <b>${G.fbNew>=99?"99+":G.fbNew}</b></button>`:""}<button class="ghost acctb" data-act="acct" data-v="me">${myNb()?nickTag(G.auth.nick||G.auth.name,myNb()):`☁️ ${esc(G.auth.nick||G.auth.name)}`}</button>`:'<button class="ghost acctb" data-act="acct" data-v="login">로그인</button>'):''}${G.screen==='game'?'<button class="ghost" data-act="home">홈</button>':''}</span></header>`;
 }
 function homeView(){
   const p=G.p,live=p&&p.phase!=='retired',best=G.hof.reduce((a,x)=>!a||x.score>a.score?x:a,null);
@@ -4688,19 +4713,19 @@ function homeView(){
     <div class="f small muted">시작 역할 <span class="hint">· 역할에 맞게 능력치가 나뉘어요 (나중에 선수 › 역할에서 변경)</span></div><div class="seg">${c.challenge?`<button aria-pressed="true">${esc(DPOS[c.type]?DPOS[c.type].n:c.type)}</button>`:rolesOf(c.pos).map(r=>`<button data-act="type" data-v="${r}" aria-pressed="${c.type===r||TYPE_ROLE[c.type]===r}">${DPOS[r].n}</button>`).join('')}</div>
     <div class="f small muted">주발 <span class="hint">· 양발은 멀티 자원 · 능력치 총합 −10</span></div><div class="seg">${['오른발','왼발','양발'].map(k=>`<button data-act="foot" data-v="${k}" aria-pressed="${c.foot===k}">${k}</button>`).join('')}</div>
     <div class="f small muted">출신 고교 <span class="hint">· 유스는 모구단 우선지명 (다른 K리그 구단 이적은 막힐 수 있음)</span></div>
-    ${c.useEuY?'<div class="note small">🇪🇺 유럽 유스 시작권 사용 중 · 고교 대신 유럽 구단 유스에서 시작해서 출신 고교는 고를 수 없어요</div>':`<div class="seg"><button data-act="school" data-v="-1" aria-pressed="${c.school===-1}">무작위</button>${youthHs().map(i=>`<button data-act="school" data-v="${i}" aria-pressed="${c.school===i}">${esc(CLUB_DEF[i].name)}</button>`).join('')}<button data-act="school" data-v="${CUSTOM_HS}" aria-pressed="${c.school===CUSTOM_HS}">✏️ 직접 입력</button></div>`}
+    ${c.useEuY?'<div class="note small">🇪🇺 유럽 유스 시작권 사용 중 · 고교 대신 유럽 구단 유스에서 시작 · 출신 고교 선택 불가</div>':`<div class="seg"><button data-act="school" data-v="-1" aria-pressed="${c.school===-1}">무작위</button>${youthHs().map(i=>`<button data-act="school" data-v="${i}" aria-pressed="${c.school===i}">${esc(CLUB_DEF[i].name)}</button>`).join('')}<button data-act="school" data-v="${CUSTOM_HS}" aria-pressed="${c.school===CUSTOM_HS}">✏️ 직접 입력</button></div>`}
     ${c.school===CUSTOM_HS&&!c.useEuY?`<label class="f" for="cschool">학교 이름 <span class="hint">· 모구단 없는 일반고</span><input id="cschool" type="text" maxlength="12" placeholder="예: 우리고" value="${esc(c.schoolName||'')}"></label>`:''}
     <button class="btn" data-act="gen" ${c.cands?'hidden':''}>${'후보 선수 보기'} <span class="arr">→</span></button></section>`;
   if(c.cands){
     const lb=LABELS[c.pos==='GK'?'gk':'field'];
     h+=`<section class="panel"><div class="row" style="justify-content:space-between;align-items:center"><div><span class="eyebrow">STEP 2 · SCOUTING</span><h2 class="sectionh">후보 선수</h2></div>
       <button class="ghost" data-act="reroll" ${c.rerolls<=0?'disabled':''}>능력치 다시 돌리기 ${c.rerolls}회</button></div>
-      <p class="hint">능력치 총합 ${footTotal(c.foot)}으로 같고 분배만 달라요 · 잠재력은 숨겨져 있어요</p>
+      <p class="hint">능력치 총합 ${footTotal(c.foot)}으로 같고 분배만 다름 · 잠재력은 숨김</p>
       ${c.challenge?'':(()=>{const R=lpItem('reroll'),S=lpItem('scout'),T=lpItem('trait');
         // 상점 아이템: 리롤권 · 스카우트권 · 특성 선택권
         const D=lpItem('dual'),E=lpItem('euy');
         return `<div class="useb">${R?`<button class="sbtn alt" data-act="use-reroll">🎲 리롤권 쓰기 · ${R}</button>`:''}${D?`<button class="sbtn${c.useDual?'':' alt'}" data-act="use-dual">🛂 이중국적 ${c.useDual?'적용 ✓':'쓰기 · '+D}</button>`:''}${E?`<button class="sbtn${c.useEuY?'':' alt'}" data-act="use-euy">🇪🇺 유럽 유스 ${c.useEuY?'시작 ✓':'시작권 쓰기 · '+E}</button>`:''}${S?`<span class="small muted">🔍 스카우트권 ${S}장 · 후보를 골라 최소 잠재력 확인</span>`:''}
-          ${c.traitPaid||T?`<button class="sbtn alt" data-act="trait-open">🎭 ${c.forceTrait?`특성: ${TRAITS[c.forceTrait].n} (바꾸기)`:`특성 선택권 쓰기 · ${T}`}</button>`:''}${!R&&!S&&!T&&!D&&!E?'<span class="small muted">🛒 LP 상점에서 리롤권·스카우트권·특성 선택권·이중국적·유럽 유스 시작권을 살 수 있어요</span>':''}</div>
+          ${c.traitPaid||T?`<button class="sbtn alt" data-act="trait-open">🎭 ${c.forceTrait?`특성: ${TRAITS[c.forceTrait].n} (바꾸기)`:`특성 선택권 쓰기 · ${T}`}</button>`:''}${!R&&!S&&!T&&!D&&!E?'<span class="small muted">🛒 LP 상점 · 리롤권·스카우트권·특성 선택권·이중국적·유럽 유스 시작권</span>':''}</div>
           ${c.traitOpen?`<div class="traitpick">${TRAIT_KEYS.map(k=>`<button class="dbtn${c.forceTrait===k?' pri':''}" data-act="trait-pick" data-v="${k}"><b>${TRAITS[k].i} ${TRAITS[k].n}</b><span>${TRAITS[k].s}</span></button>`).join('')}<p class="small muted">${c.traitPaid?'이미 선택권을 썼어요. 선수를 고르기 전까지 자유롭게 바꿀 수 있어요.':'고르면 선택권 1장을 써요.'}</p></div>`:''}`})()}
       ${c.cands.map((x,i)=>`<div class="cand"><div class="row" style="justify-content:space-between;align-items:center">
         <span><b>후보 ${i+1}</b> <span class="chip">${DPOS[x.dpos].n}</span></span>
@@ -4712,10 +4737,10 @@ function homeView(){
   return h;
 }
 function shareBtn(h){
-  if(!sharedOn())return '<p class="small muted">공유 랭킹이 아직 연결되지 않아 이 기기에만 저장됩니다.</p>';
+  if(!sharedOn())return '<p class="small muted">공유 랭킹 미연결 · 이 기기에만 저장</p>';
   if(h.shared)return '<p class="small"><span class="chip good">공유 랭킹 등록 완료</span></p>';
   return `${h.shareErr?`<div class="warn small">${esc(h.shareErr)}</div>`:''}<button class="btn" data-act="share" data-v="${h.id}" ${h.sharing?'disabled':''}>${h.sharing?'등록 중…':'공유 랭킹에 올리기'} <span class="arr">→</span></button>
-    <p class="small muted">이름, 포지션, 커리어 기록이 다른 플레이어에게 공개됩니다.</p>`;
+    <p class="small muted">이름 · 포지션 · 커리어 기록이 다른 플레이어에게 공개</p>`;
 }
 const posLabel=h=>DPOS[h.dpos]?DPOS[h.dpos].n:POS[h.pos]?POS[h.pos].name:'';
 /* 게임 방법: 섹션을 접어 두고 하나씩 펼쳐 읽는다 */
@@ -4724,75 +4749,87 @@ function guideView(){
   const ul=a=>`<ul>${a.map(x=>`<li>${x}</li>`).join('')}</ul>`;
   const sec=(k,t,items,tips,open)=>`<details class="panel guide" data-k="g-${k}"${detOpen('g-'+k,!!open)?' open':''}><summary><b>${t}</b></summary><div class="gbody">${ul(items)}${tips&&tips.length?`<div class="gtip"><span class="eyebrow">💡 꿀팁!</span>${ul(tips)}</div>`:''}</div></details>`;
   return `<section class="panel"><span class="eyebrow">HOW TO PLAY</span><h2 class="sectionh">게임 방법</h2>
-    <p class="small muted">고등학생 유망주로 시작해 은퇴할 때까지 한 선수의 커리어를 키워요. 항목을 눌러 펼치면 설명과 꿀팁이 나와요.</p></section>
+    <p class="hint">고교 유망주 → 은퇴까지 한 선수의 커리어 키우기 · 항목을 눌러 설명·꿀팁 보기</p></section>
   ${sec('flow','① 전체 흐름',[
-    '<b>선수 만들기</b> · 포지션, 유형, 주발, 출신고, 이름, 등번호를 정해요. 능력치는 두 번까지 다시 뽑을 수 있어요.',
-    '<b>포지션 해금</b> · 처음엔 <b>공격수</b>만 키울 수 있어요. 공격수로 <b>S등급</b>(78점 이상) 커리어를 만들면 미드필더, 미드필더 S등급이면 수비수, 수비수 S등급이면 골키퍼가 열려요.',
-    '<b>고교 → 대학 또는 프로</b> · 고교 시즌이 끝나면 들어온 제안 중에서 진로를 골라요. 실력이 모자라면 프로 구단의 2군(U21)에서 시작해요.',
-    '<b>K리그2 → K리그1 → 유럽</b> · 잘하면 더 큰 구단에서 오퍼가 와요. 유럽은 K리그1 주전으로 꾸준히 잘해야 겨우 열려요.',
-    '<b>은퇴</b> · 31세부터 은퇴를 고를 수 있어요. 커리어 등급과 은퇴 후 이야기, 빛났던 순간들이 나와요. 저장하면 명예의 전당과 베스트 11에 올라가요.',
-    '<b>업적</b> · 100골, 유럽 진출, 원클럽맨 같은 업적이 모든 커리어에 걸쳐 쌓여요. 홈 화면 <b>업적</b>에서 확인해요.',
-    '<b>주간 챌린지</b> · 매주 모두가 같은 후보 선수로 시작해요. 은퇴 점수로 친구들과 순위를 겨뤄요.'
+    '<b>선수 만들기</b> · 포지션 · 시작 역할 · 주발 · 출신고 · 이름 · 등번호 / 후보 3명 중 1명 선택',
+    '<b>포지션 해금</b> · 처음엔 공격수만 / 공격수 <b>S등급(80점+)</b> → 미드필더 → 수비수 → 골키퍼 순',
+    '<b>고교 → 대학·프로</b> · 시즌 후 들어온 제안 중 진로 선택 / 실력이 모자라면 2군(U21)부터',
+    '<b>K리그2 → K리그1 → 유럽</b> · 활약할수록 큰 구단 오퍼 / 첫 유럽은 주로 변방 1부·2부',
+    '<b>국가대표</b> · 월드컵·아시안컵·아시안게임·올림픽을 리그 뒤에 직접 플레이',
+    '<b>은퇴</b> · 31세부터 / 커리어 등급·은퇴 후 이야기·커리어 카드 / 저장하면 명예의 전당 + 모두의 랭킹 자동 등록',
+    '<b>업적 · 도감 · 출석</b> · 모든 커리어에 걸쳐 누적 / 홈에서 확인',
+    '<b>주간 챌린지</b> · 매주 모두 같은 후보 선수로 시작 / 은퇴 점수로 순위 경쟁'
   ],[
-    '유럽은 서두르지 마세요. K리그1에서 두 시즌 이상 주전으로 꾸준히 잘하고 인지도를 쌓아야 문이 열려요.',
-    '21세 이하 유망주라면 실력이 조금 모자라도 잠재력을 보고 유럽 2부나 빅클럽 2군에서 오퍼가 오기도 해요.'
+    '유럽 진출 · K리그1 주전으로 2시즌 이상 꾸준히(평점 7.6+) → 변방 1부·2부 오퍼가 자주 옴',
+    '21세 이하 유망주 · 잠재력만 보고 유럽 2부·빅클럽 2군 오퍼가 오기도 함'
   ],true)}
   ${sec('season','② 한 시즌 진행',[
-    '<b>동계 훈련</b> · 집중할 능력치 2개를 골라요. 어리고 사기가 높을수록 많이 올라요.',
-    '<b>4경기씩 진행</b> · 매번 <b>적극 어필 / 평소대로 / 휴식 요청</b> 중 하나를 골라요.',
-    '<b>경기 알림</b> · 가끔 <b>스카우트 옴!</b>, <b>빅매치 있음!</b>, <b>강등권 맞대결!</b> 알림이 떠요. 힘을 쏟을 타이밍이에요.',
-    '<b>중간 이벤트</b> · 부상(3경기 이상), 국가대표 소집, 겨울 이적시장이 생기면 선택지가 나와요. 같은 선택이라도 결과는 매번 달라요.',
-    '<b>결승전</b> · 시즌 막판 컵대회·대륙대회 결승에 오르면 직접 치러요. <b>총력전</b>은 경기력이 오르지만 많이 지쳐요. 이기면 트로피!',
-    '<b>시즌 결산</b> · 순위, 수상, 능력치 변화, 승강 결과가 나오고 바로 이적시장이 열려요.'
+    '<b>동계 훈련</b> · 능력치 2개 집중 / 어리고 사기가 높을수록 많이 오름',
+    '<b>4경기씩 진행</b> · 적극 어필 / 평소대로 / 휴식 요청 중 선택 / 하단에 다음 상대 표시',
+    '<b>경기 알림</b> · 스카우트 옴! · 빅매치 · 강등권 맞대결 → 힘을 쏟을 타이밍',
+    '<b>중간 이벤트</b> · 부상 · 대표팀 소집 · 겨울 이적시장 · 각종 이벤트 / 같은 선택도 결과는 매번 다름',
+    '<b>결승전</b> · 리그가 끝난 뒤 컵대회·대륙대회 결승 직접 플레이 / 총력전 = 경기력↑ 피로↑',
+    '<b>시즌 결산</b> · 순위 · 개인상(리그 스타 기록과 비교) · 올해의 주요 수상 · 능력치 변화 · 승강 → 이적시장'
   ],[
-    '<b>스카우트 옴!</b>이 뜨면 적극 어필로 활약해 보세요. 평점이 높으면 그 구단이 다음 이적시장에서 오퍼를 줄 가능성이 커요.',
-    '부상(3경기 이상)이 나면 <b>완벽 재활</b>이 길게 보면 이득일 때가 많아요. 조기 복귀는 재부상 위험이 커요.'
+    '스카우트 옴! → 적극 어필로 활약하면 다음 이적시장 오퍼 확률↑',
+    '장기 부상 · 완벽 재활이 길게 보면 이득 / 조기 복귀는 재부상 위험'
   ])}
-  ${sec('choice','③ 적극 어필 · 평소대로 · 휴식',[
-    '<b>적극 어필</b> · 평점, 입지, 시즌 성장이 오르지만 피로가 빨리 쌓이고 부상 위험이 커져요. 연속으로 쓰면 강행군이 되어 더 지쳐요.',
-    '<b>평소대로</b> · 무난해요. 다만 선발로 계속 뛰면 피로가 천천히 차올라요.',
-    '<b>휴식 요청</b> · 대부분 쉬면서 피로가 크게 풀려요. 대신 출전이 줄고 사기가 조금 떨어지며 <b>경기 감각</b>이 식어요. 빅매치 앞에서 쉬면 감독이 실망해요.',
-    '<b>피로 단계</b> · 피곤(평점↓) → 지침(적극 어필 불가) → 과부하(교체로만 출전) → 번아웃(4경기 강제 휴식) 순으로 나빠져요.'
+  ${sec('choice','③ 경기 방식 · 피로',[
+    '<b>적극 어필</b> · 평점·입지·성장↑ / 피로·부상 위험↑ / 연속으로 쓰면 강행군',
+    '<b>평소대로</b> · 무난 / 선발로 계속 뛰면 피로가 천천히 쌓임',
+    '<b>휴식 요청</b> · 피로 크게 회복 / 출전·사기·경기 감각↓ / 빅매치 앞 휴식은 감독 실망',
+    '<b>피로 노랑(50~69)</b> · 가끔 몸이 무거운 날',
+    '<b>피로 빨강(70+)</b> · 모든 능력치 일시적 −2~−5 / 75+ 교체로만 / 88+ 번아웃(4경기 강제 휴식)'
   ],[
-    '피로가 <b>피곤</b>(노란색)이 되면 알림이 없는 평범한 구간에서 <b>휴식 요청</b>으로 풀어 두세요. 아껴 둔 체력은 빅매치와 스카우트 경기에 쓰세요.',
-    '적극 어필은 <b>연속으로 쓰지 말고</b> 평소대로·휴식과 섞어 쓰는 게 가장 효율적이에요.'
+    '노랑이 되면 알림 없는 구간에서 휴식 → 체력은 빅매치·스카우트 경기에',
+    '적극 어필은 평소대로·휴식과 섞어서'
   ])}
-  ${sec('stat','④ 능력치 · 입지 · 컨디션',[
-    '<b>능력치 6개</b> · 필드: 속도, 슈팅, 패스, 드리블, 수비, 피지컬. 골키퍼: 반응, 다이빙, 킥, 핸들링, 위치선정, 피지컬.',
-    '<b>OVR</b> · 지금 역할(스트라이커, 센터백 등)에 중요한 능력치일수록 크게 반영돼요. 능력치 화면의 ● 표시가 중요한 능력치예요.',
-    '<b>잠재력·성장 유형</b> · 숨겨져 있어요. 일찍 피는 선수도 있고 늦게 피는 대기만성형도 있어요. 보통 32세 전후부터 하락이 시작돼요.',
-    '<b>입지</b> · 주전 / 로테이션 / 벤치. 몇 경기 연속으로 잘하거나 못해야 바뀌어요. 한 경기로는 안 바뀌어요.',
-    '<b>사기</b> · 높으면 평점과 훈련 효과가 오르고, 낮으면 떨어져요.',
-    '<b>경기 감각</b> · 수치는 숨겨져 있어요. 꾸준히 뛰면 능력치에 +보너스, 오래 쉬거나 벤치에 있으면 −가 붙어요. 선수 › 능력치에서 확인할 수 있어요.'
+  ${sec('stat','④ 능력치 · 역할 · 입지',[
+    '<b>능력치 6개</b> · 필드: 속도·슈팅·패스·드리블·수비·피지컬 / 골키퍼: 반응·다이빙·킥·핸들링·위치선정·피지컬',
+    '<b>OVR</b> · 지금 역할의 핵심 능력치(● 표시, 비중 20%+) 위주로 반영',
+    '<b>목표 역할</b> · 선수 › 역할에서 변경 / 1부 리그 25경기·평균 7.4+ 시즌 → 숙련도 ★ / ★3 → 역할 배지',
+    '<b>노장 전환</b> · 30대에 다른 자리가 더 맞으면 감독이 포지션 전환 제안',
+    '<b>잠재력·성장 유형</b> · 숨김 / 조기 성장형·대기만성형 등 / 보통 32세 전후 하락',
+    '<b>입지</b> · 주전·로테이션·벤치 / 몇 경기 연속 활약·부진해야 바뀜 / 잔류하면 프리시즌마다 한 단계씩',
+    '<b>사기 · 경기 감각</b> · 사기↑ → 평점·훈련↑ / 꾸준히 뛰면 능력치 +, 오래 쉬면 −'
   ],[
-    '훈련은 능력치 화면에서 <b>●</b>가 붙은 역할 핵심 능력치 위주로 고르세요.',
-    '가끔 다른 능력치를 올려 <b>소화 가능한 역할</b>을 늘리면 입지 경쟁과 오퍼에 유리해요.'
+    '훈련은 ● 붙은 핵심 능력치 위주 (추천 표시 참고)',
+    '가끔 다른 능력치도 올려 소화 가능한 역할 늘리기 → 입지·오퍼에 유리'
   ])}
   ${sec('move','⑤ 이적 · 재계약 · 임대',[
-    '<b>오퍼</b> · 여름(시즌 후)과 겨울(시즌 중반)에 와요. 소속 구단이 이적을 <b>거부</b>할 수 있고, 반대로 나를 <b>강제로 팔</b> 수도 있어요.',
-    '<b>바이아웃</b> · 계약에 "바이아웃 있음"이 붙어 있으면 여름 이적시장에서 오퍼가 더 잘 와요.',
-    '<b>보스만 사전 계약</b> · 계약 마지막 해에는 다른 구단과 미리 계약할 수 있어요. 소속팀이 막을 수 없고, 한 번 맺으면 바꿀 수 없어요.',
-    '<b>재계약·주급</b> · 계약이 끝나면 주급을 협상해요. 어릴수록 계약 기간이 길어요.',
-    '<b>임대</b> · 벤치나 로테이션, 2군일 때 선수 › 팀·행동에서 <b>임대 요청</b>을 할 수 있어요. 뛸 팀으로 가서 경기 감각과 성장을 챙길 수 있어요.'
+    '<b>오퍼</b> · 여름(시즌 후)·겨울(시즌 중반) / 소속 구단 거부 가능 / 강제 매각도 있음',
+    '<b>이적 진행</b> · 루머 기사 → 구단 간 협상 → 서류·이사회 승인 → 결과',
+    '<b>바이아웃</b> · "바이아웃 있음" 계약이면 여름 오퍼↑',
+    '<b>보스만 사전 계약</b> · 계약 마지막 해 / 소속팀이 막을 수 없음 / 한 번 맺으면 변경 불가',
+    '<b>재계약 · 임대</b> · 계약이 끝나면 주급 협상 / 벤치·로테이션·2군이면 선수 › 팀·행동에서 임대 요청',
+    '<b>무소속</b> · 팀 없이 개인 훈련하며 오퍼 대기 / 트로피·수상 없음'
   ],[
-    '계약 마지막 해에 원하는 구단의 오퍼가 오면 <b>보스만 사전 계약</b>으로 소속팀의 반대 없이 떠날 수 있어요.',
-    '벤치에 오래 있으면 경기 감각이 식어서 능력치가 깎여요. 출전 기회가 없으면 <b>임대 요청</b>을 고려하세요.'
+    '계약 마지막 해 원하는 구단 오퍼 → 보스만 사전 계약으로 이적',
+    '벤치가 길면 경기 감각↓ → 임대 요청 고려'
   ])}
   ${sec('act','⑥ 이적 요청 · 태업 (선수 › 팀·행동)',[
-    '<b>이적 요청</b> · 오퍼가 늘고 구단이 덜 막아요. 대신 인지도가 떨어지고 출전 시간이 줄 수 있으며, 그 구단과 재계약하기 어려워져요.',
-    '<b>태업</b> · 경기와 훈련에 나서지 않아요. 벌금을 내고 인지도가 크게 떨어지며, 구단은 여름에 나를 팔아요. 다른 구단도 영입을 꺼려요. 이적하면 태업은 자동으로 끝나요.',
-    '<b>최후의 수단</b> · 이적을 거절당했거나 태업한 구단은 그 뒤로 재계약을 제안하지 않아요.'
+    '<b>이적 요청</b> · 오퍼↑ · 구단 방해↓ / 인지도·출전 시간↓ · 재계약 어려움',
+    '<b>태업</b> · 훈련·경기 거부 / 벌금 · 인지도 크게↓ · 여름에 방출 · 다른 구단도 꺼림 / 이적하면 자동 종료',
+    '<b>최후의 수단</b> · 이적을 거절당했거나 태업한 구단은 이후 재계약 제안 없음'
   ],[
-    '태업은 정말 마지막 카드예요. 이적 요청만으로도 오퍼가 늘어나니 먼저 써 보세요.'
+    '태업은 마지막 카드 · 이적 요청만으로도 오퍼↑'
   ])}
   ${sec('mil','⑦ 병역 · 국가대표',[
-    '<b>병역</b> · 28세 시즌 전에 입대해야 해요. <b>김천 상무</b>는 27세까지, K리그 소속에 직전 시즌 10경기 이상 뛰어야 지원할 수 있고 선발이 보장되지 않아요.',
-    '<b>현역</b> · 상무에 못 가면 현역으로 <b>2시즌</b>을 통째로 쉬어요. 군대 체력 훈련으로 속도·피지컬은 소폭 오르지만, 슈팅·패스 같은 기술은 소폭 떨어지고 경기 감각이 크게 식어요.',
-    '<b>면제</b> · <b>아시안게임 금메달</b>이나 <b>올림픽 메달</b>을 따면 면제돼요. 아시안게임이 올림픽보다 쉬워요.',
-    '<b>국가대표</b> · 실력, 리그 수준, 입지, 평점, 인지도를 보고 뽑아요. 월드컵은 뽑히기도 어렵고 성적 내기는 더 어려워요.'
+    '<b>병역</b> · 28세 시즌 전 입대 / 김천 상무: 27세까지 · K리그 소속 · 직전 시즌 10경기+ · 선발 보장 X',
+    '<b>현역</b> · 상무 탈락 시 2시즌 공백 / 속도·피지컬 소폭↑ · 기술 소폭↓ · 경기 감각 크게↓',
+    '<b>면제</b> · 아시안게임 금메달 · 올림픽 메달 (아시안게임이 더 쉬움)',
+    '<b>국가대표 선발</b> · 실력·리그 수준·입지·평점·인지도 종합',
+    '<b>대회 직접 플레이</b> · 조별리그 3경기 → 토너먼트 / 접전엔 결정적 순간 / 대회 득점왕·MVP(월드컵 골든볼)'
   ],[
-    '병역 미필이라면 <b>아시안게임 소집은 꼭 응하세요.</b> 금메달 한 번이면 입대 공백 없이 커리어를 이어 가요.',
-    '상무에 가려면 27세 전에 K리그에서 꾸준히 뛰어 두세요. 직전 시즌 출전이 적으면 지원 자격이 안 돼요.'
+    '병역 미필이면 아시안게임 소집은 꼭 응하기 (금메달 = 면제)',
+    '상무는 27세 전 K리그에서 꾸준히 출전해 두기'
+  ])}
+  ${sec('shop','⑧ LP · 상점 · 꾸미기',[
+    '<b>LP 상점</b> · 리롤권 · 스카우트권 · 특성 선택권 · 이중국적 · 유럽 유스 시작권',
+    '<b>꾸미기</b> · 카드 테두리 · 은퇴식 연출 (영구) / 랭킹·친구 화면에도 보임',
+    '<b>구단 도감</b> · 뛰어 본 구단 수집 → 휘장 → 닉네임 테두리'
+  ],[
+    '출석 체크와 주간 챌린지(B등급+)로 매일 LP 모으기'
   ])}
   <section class="panel earnbox"><span class="eyebrow">💰 LP 버는 법</span>
     <div class="earng"><div class="earnc hot"><b>은퇴 등급</b><span>S+ <em>30</em> · S <em>10~30</em> 🎰<br>A 5 · B 3 · C 2 · D 0</span></div><div class="earnc"><b>주간 챌린지</b><span>B등급 이상 은퇴<br><em>20</em> · 하루 한 번</span></div><div class="earnc"><b>출석 체크</b><span>하루 <em>3</em><br>7일 연속 <em>+10</em></span></div><div class="earnc"><b>업적</b><span>중간 <em>1</em> · 어려움 <em>3</em><br>한 번씩</span></div></div>
@@ -4801,12 +4838,12 @@ function guideView(){
 }
 // 랭킹 기록의 커리어 카드 (예전 기록은 highlights가 그냥 글자라 카드 정보가 적다)
 function rankDetail(r){try{const j=JSON.parse(r.highlights);if(j&&j.v===2)return j}catch(e){}return null}
-function rankCard(r,i,mine,opt){   // opt: 친구 선수 카드일 때 {back,label,fr}
+function rankCard(r,i,mine,opt,top){   // top: 뒤로 가기 버튼 바로 아래에 넣을 내용 (내 선수 카드의 이미지 저장 버튼 등)   // opt: 친구 선수 카드일 때 {back,label,fr}
   const j=rankDetail(r),d=j&&j.d,gk=r.pos==='GK';
   const per=s=>s.y1===s.y2?`${s.y1}`:`${s.y1} - ${s.y2}`;
-  return `<button class="ghost" data-act="${opt?opt.back:mine?'hof-back':'rank-back'}" style="margin-bottom:10px">‹ ${opt?esc(opt.label):mine?'내 선수들로':'랭킹으로'}</button>
+  return `<button class="ghost" data-act="${opt?opt.back:mine?'hof-back':'rank-back'}" style="margin-bottom:10px">‹ ${opt?esc(opt.label):mine?'내 선수들로':'랭킹으로'}</button>${top||''}
   <section class="panel${mine?frameCls():frameOf(opt?opt.fr:j&&j.fr)}${!mine&&!opt&&i===0?' rank1':''}" style="--fc:${clubColOf(r.club)}"><div class="strip"><div class="ovr" style="padding:8px 14px"><div class="v" style="font-size:30px">${esc(r.grade)}</div><div class="k">${r.score}점</div></div>
-    <div class="who"><b>${mine||opt?'':(i+1)+'위 · '}${esc(r.name)}</b><span class="muted small">#${r.num} ${esc(DPOS[r.dpos]?DPOS[r.dpos].n:POS[r.pos]?POS[r.pos].name:'')} · ${r.retired_year} 은퇴 (${r.retired_age}세)${j&&j.nick?` · 등록 ${nickTag(j.nick,j.nb)}${crownTag(j.nick)}`:''}${!mine&&r.created_at&&G.rank.wins&&G.rank.wins[rowKey(r)]?` · <b>👑 랭킹 시즌 ${G.rank.wins[rowKey(r)]} 1위</b>`:''}</span></div></div>
+    <div class="who"><b>${mine||opt?'':(i+1)+'위 · '}${esc(r.name)}</b><span class="muted small">#${r.num} ${esc(DPOS[r.dpos]?DPOS[r.dpos].n:POS[r.pos]?POS[r.pos].name:'')} · ${r.retired_year} 은퇴 (${r.retired_age}세)${j&&j.nick?` · 등록 ${nickTag(j.nick,j.nb)}${crownTag(j.nick)}`:j?' · <span class="muted">(비로그인)</span>':''}${!mine&&r.created_at&&G.rank.wins&&G.rank.wins[rowKey(r)]?` · <b>👑 랭킹 시즌 ${G.rank.wins[rowKey(r)]} 1위</b>`:''}</span></div></div>
     <div class="statline"><div><b>${r.apps}</b><span>출장</span></div>${gk?`<div><b>${j?j.cs:'-'}</b><span>무실점</span></div><div><b>${d?d.conc:'-'}</b><span>실점</span></div>`:`<div><b>${r.goals}</b><span>골</span></div><div><b>${r.assists}</b><span>도움</span></div>`}<div><b>${d&&d.avg?dr2(d.avg):'-'}</b><span>평균 평점</span></div></div>
     <div class="trsplit"><span>🏆 팀 트로피 <b>${j&&j.tTeam!=null?j.tTeam:'-'}</b></span><span>🏅 개인 수상 <b>${j&&j.tInd!=null?j.tInd:'-'}</b></span><span>🇰🇷 A매치 <b>${r.caps}</b>${j&&r.caps?` · ${j.intlGoals}골`:''}</span></div></section>
   ${d&&d.stints&&d.stints.length?`<section class="panel crl"><div class="crr crh"><span class="cri"></span><span class="crn eyebrow">경력</span>${(gk?['경기','무실점','실점','평점']:['경기','골','도움','평점']).map(c=>`<span class="crc">${c}</span>`).join('')}</div>
@@ -4840,7 +4877,7 @@ function hofView(){
     return h+head+`<section class="panel"><div class="list">${R.rows.slice(0,10).map((r,i)=>{const j=rankDetail(r);return `<div class="li${i===0?' rank1':''}" data-act="rank-view" data-v="${i}" role="button" style="cursor:pointer"><span style="display:flex;gap:10px;align-items:center;min-width:0">
       <b class="num" style="width:26px;font-size:18px;${i<3?'color:var(--pitch)':''}">${i+1}</b>
       <span style="min-width:0"><b>${esc(r.name)}</b> <span class="muted small">#${r.num} ${esc(DPOS[r.dpos]?DPOS[r.dpos].n:POS[r.pos]?POS[r.pos].name:'')}</span><br>
-      <span class="muted small">${esc(r.club||'')} · 출장 ${r.apps} · ${r.pos==='GK'?`무실점 ${j?j.cs:'-'}`:`${r.goals}골 ${r.assists}도움`}${j&&j.nick?` · 등록 ${nickTag(j.nick,j.nb)}${crownTag(j.nick)}`:''}${R.wins&&R.wins[rowKey(r)]?` <span class="chip gold">👑 시즌 ${R.wins[rowKey(r)]} 1위</span>`:''}</span></span></span>
+      <span class="muted small">${esc(r.club||'')} · 출장 ${r.apps} · ${r.pos==='GK'?`무실점 ${j?j.cs:'-'}`:`${r.goals}골 ${r.assists}도움`}${j&&j.nick?` · 등록 ${nickTag(j.nick,j.nb)}${crownTag(j.nick)}`:j?' · <span class="muted">(비로그인)</span>':''}${R.wins&&R.wins[rowKey(r)]?` <span class="chip gold">👑 시즌 ${R.wins[rowKey(r)]} 1위</span>`:''}</span></span></span>
       <span class="row" style="gap:6px;flex-wrap:nowrap"><span class="chip gold" style="flex:none">${esc(r.grade)} ${r.score}</span><span class="muted">›</span></span></div>`}).join('')}</div>
       <button class="ghost" data-act="rank-reload">새로고침</button></section>`;
   }
@@ -4851,20 +4888,20 @@ function hofView(){
     const frRows=[...(mine!=null?[{nick:G.auth?(G.auth.nick||G.auth.name):'나',me:true,sc:mine}]:[]),...fr].sort((a,b)=>b.sc-a.sc);
     h+=`<section class="panel"><div class="row" style="justify-content:space-between;align-items:baseline"><span class="eyebrow">🗓️ 이번 주 챌린지 · ${wk}</span><button class="linkb" data-act="challenge">도전하기 ›</button></div>
       <div class="chlpban">${chalLpToday()?'✅ 오늘의 챌린지 보상 20 LP를 받았어요 · 내일 다시 받을 수 있어요':'🎁 <b>참여 보상 20 LP</b> · 챌린지 선수를 <b>B등급 이상</b>으로 은퇴시키면 하루 한 번 받아요'}</div>
-      <p class="small muted">이번 주는 모두 같은 후보 선수로 시작해요. 은퇴한 뒤 '내 선수들'에서 랭킹에 등록하면 아래 전체 순위에 올라가요.</p>
+      <p class="small muted">이번 주는 모두 같은 후보 선수로 시작 · 은퇴 후 저장하면 아래 전체 순위에 자동 등록</p>
       ${mine!=null?`<div class="note small">내 이번 주 최고 <b>${mine}점</b></div>`:''}</section>`;
     if(frRows.length)h+=`<section class="panel"><span class="eyebrow">친구 순위</span><div class="list">${frRows.map((r,i)=>`<div class="li"><span><b class="num" style="display:inline-block;width:22px">${i+1}</b><b>${esc(r.nick)}</b>${r.me?' <span class="chip">나</span>':''}</span><span class="chip gold">${r.sc}점</span></div>`).join('')}</div></section>`;
     if(R.chalLoading&&!R.chal)return h+'<section class="panel"><p class="muted">챌린지 순위를 불러오는 중…</p></section>';
     if(R.chalErr)return h+`<section class="panel"><div class="warn small">${esc(R.chalErr)}</div><button class="btn alt" data-act="rank-tab" data-v="chal">다시 불러오기</button></section>`;
     const rows=(R.chalWk===wk&&R.chal?R.chal:[]).map(x=>rescored(x,rankDetail(x))).sort((a,b)=>b.score-a.score);
-    return h+`<section class="panel"><span class="eyebrow">전체 순위 · 랭킹에 등록된 이번 주 챌린지 커리어</span>${rows.length?`<div class="list">${rows.map((r,i)=>{const j=rankDetail(r);return `<div class="li"><span style="display:flex;gap:10px;align-items:center;min-width:0"><b class="num" style="width:22px;${i<3?'color:var(--pitch)':''}">${i+1}</b><span style="min-width:0"><b>${esc(r.name)}</b> <span class="muted small">${esc(DPOS[r.dpos]?DPOS[r.dpos].n:POS[r.pos]?POS[r.pos].name:'')}</span><br><span class="muted small">${esc(r.club||'')}${j&&j.nick?` · <b>${esc(j.nick)}</b>`:''}</span></span></span><span class="chip gold" style="flex:none">${esc(r.grade)} ${r.score}</span></div>`}).join('')}</div>`:'<p class="small muted">아직 이번 주 챌린지 기록이 없어요. 가장 먼저 올려 보세요!</p>'}</section>`;
+    return h+`<section class="panel"><span class="eyebrow">전체 순위 · 랭킹에 등록된 이번 주 챌린지 커리어</span>${rows.length?`<div class="list">${rows.map((r,i)=>{const j=rankDetail(r);return `<div class="li"><span style="display:flex;gap:10px;align-items:center;min-width:0"><b class="num" style="width:22px;${i<3?'color:var(--pitch)':''}">${i+1}</b><span style="min-width:0"><b>${esc(r.name)}</b> <span class="muted small">${esc(DPOS[r.dpos]?DPOS[r.dpos].n:POS[r.pos]?POS[r.pos].name:'')}</span><br><span class="muted small">${esc(r.club||'')}${j&&j.nick?` · <b>${esc(j.nick)}</b>`:''}</span></span></span><span class="chip gold" style="flex:none">${esc(r.grade)} ${r.score}</span></div>`}).join('')}</div>`:'<p class="small muted">아직 이번 주 챌린지 기록 없음 · 가장 먼저 올려 보기!</p>'}</section>`;
   }
   if(!G.hof.length)return h+`<section class="panel"><p class="muted">아직 은퇴한 선수가 없어요. 첫 커리어를 끝까지 마치면 이곳에 기록이 남습니다.</p><button class="btn" data-act="new">새로운 인생 시작 <span class="arr">→</span></button></section>`;
   // 내 선수 한 명의 커리어 카드 (랭킹 카드와 같은 모양)
   if(G.hofView){const x=G.hof.find(r=>r.id===G.hofView);
     if(x){const row={name:x.name,num:x.num,pos:x.pos,dpos:x.dpos,score:x.score,grade:x.grade||gradeOf(x.score),apps:x.apps,goals:x.goals,assists:x.assists,caps:x.caps,club:x.club,retired_year:x.year,retired_age:x.age,
       highlights:JSON.stringify({v:2,fr:G.lp.eq.frame||null,top:x.top||[],cs:x.cs||0,tTeam:x.tTeam,tInd:x.tInd,intlGoals:x.intlGoals||0,tl:x.tl||null,badges:x.badges||[],d:x.detail||null})};
-      return h+rankCard(row,0,true)+`<button class="btn" data-act="card-img" data-v="${x.id}">📸 카드 이미지 저장 · 공유</button>`+(x.tl?'':`<section class="panel"><p class="small muted">${x.top&&x.top.length?'대표 트로피: '+esc(x.top.join(', ')):''} 이 기록은 예전 버전에서 은퇴해 트로피 연도 목록이 없어요.</p></section>`)}
+      return h+rankCard(row,0,true,null,`<button class="btn cardbtn" data-act="card-img" data-v="${x.id}">📸 커리어 카드 이미지 저장 · 공유</button>`)+(x.tl?'':`<section class="panel"><p class="small muted">${x.top&&x.top.length?'대표 트로피: '+esc(x.top.join(', ')):''} 예전 버전 기록 · 트로피 연도 목록 없음</p></section>`)}
     G.hofView=null}
   const list=G.hof.slice().sort((a,b)=>b.score-a.score);
   return h+`<section class="panel">${list.map((x,i)=>`<div class="cand${frameCls()}" style="--fc:${clubColOf(x.club)}"><div class="strip"><div class="jersey" style="width:44px;height:48px;font-size:22px">${x.num}</div>
@@ -4887,7 +4924,7 @@ function b11View(){
     <div class="field">${rows}</div>
     <div class="grid3"><div class="tile"><div class="v">${t.ovr}</div><div class="k">팀 OVR</div></div><div class="tile"><div class="v">${t.att}·${t.mid}·${t.def}</div><div class="k">공격·중원·수비</div></div><div class="tile"><div class="v">${t.filled}/11</div><div class="k">배치 인원</div></div></div>
     <div class="grid2"><button class="btn" data-act="b11-auto">최적 자동 배치</button><button class="btn alt" data-act="b11-clear">모두 비우기</button></div>
-    <p class="small muted">자리를 누르고 아래에서 선수를 고르세요. 숫자는 그 역할에서의 능력(전성기 능력치 기준)이고, 빈자리는 유스 선수(40)로 계산합니다.</p></section>`;
+    <p class="small muted">자리를 누르고 아래에서 선수 선택 · 숫자 = 그 역할 능력(전성기 기준) · 빈자리는 유스 선수(40)</p></section>`;
   if(sel){
     const d=FORMATIONS[B.f][+sel.split('-')[0]][+sel.split('-')[1]];
     const cand=G.hof.map(x=>({x,r:slotRating(x,d),at:Object.keys(B.slots).find(k=>B.slots[k]===x.id)})).sort((a,b)=>b.r-a.r);
@@ -4896,7 +4933,7 @@ function b11View(){
       <span class="row" style="gap:6px;flex-wrap:nowrap"><span class="chip ${c.r>=75?'good':c.r<55?'bad':''}">${c.r}</span><button class="ghost" data-act="put" data-v="${c.x.id}">배치</button></span></div>`).join('')}
       </div>${B.slots[sel]?'<button class="btn alt" data-act="put" data-v="">이 자리 비우기</button>':''}</section>`;
   }
-  h+=`<section class="panel"><span class="eyebrow">FRIENDLY MATCH</span><p class="small">완성한 베스트 11로 올스타 팀과 친선 경기를 치러 보세요.</p>
+  h+=`<section class="panel"><span class="eyebrow">FRIENDLY MATCH</span><p class="small">완성한 베스트 11로 올스타 팀과 친선 경기</p>
     <div class="grid2">${OPP.map((o,i)=>`<button class="btn alt" data-act="friendly" data-v="${i}"><span>${o.n}<br><span class="small muted" style="font-weight:400">팀 OVR ${o.lv}</span></span></button>`).join('')}</div>
     ${B.match?`<div class="note"><b>나의 베스트 11 ${B.match.gf} : ${B.match.ga} ${esc(B.match.opp)}</b> · ${B.match.gf>B.match.ga?'승리':B.match.gf===B.match.ga?'무승부':'패배'}${B.match.sc.length?`<br><span class="small">득점: ${B.match.sc.map(esc).join(', ')}</span>`:''}</div>`:''}</section>`;
   return h;
@@ -4921,7 +4958,7 @@ function milPlan(p){
     for(let y=base;ageAt(y)<=29&&y<=base+10;y++){if(!evYear(L,y))continue;
       const a=ageAt(y),d=y-p.year,el=a<=23?`<b>U23 선발 경쟁</b> · ${outlook(p,n==='올림픽'?'oly':'ag')}`:a<=29?`<b>와일드카드만</b> · A대표급 실력 필요 (팀당 3명)`:'';
       out.push({y,h:`<div class="mpl"><span>${ic} <b>${y} ${n}</b> <span class="muted">${d<=0?'올해':`${d}년 뒤`} · ${a}세</span></span><span>${el} · ${need} 시 면제${a>=28?' <span style="color:var(--red)">(입대 기한 이후)</span>':''}</span></div>`})}});
-  if(!out.length)return '<p class="small muted">입대 기한 전까지 남은 아시안게임·올림픽이 없어요.</p>';
+  if(!out.length)return '<p class="small muted">입대 기한 전 남은 아시안게임·올림픽 없음</p>';
   out.sort((a,b)=>a.y-b.y);const f0=out[0],y0=f0.y-p.year;
   return `<details class="milplan" data-k="milplan"${detOpen('milplan',false)?' open':''}><summary class="small">🎖️ 면제 기회 · <b>${f0.y}</b> ${f0.h.match(/<b>\d+ ([^<]+)<\/b>/)[1]} (${y0<=0?'올해':y0+'년 뒤'})${out.length>1?` 외 ${out.length-1}개`:''} <span class="muted">· 눌러서 보기</span></summary><span class="eyebrow">아시안게임은 U23(23세 이하) + 와일드카드 3명, 올림픽도 같은 규정</span>${out.map(x=>x.h).join('')}</details>`;
 }
@@ -4954,13 +4991,13 @@ function teamPanel(p,s){
   if(p.stage!=='pro')return '';
   const news=(s.news||[]).slice(0,3),seen=s.seenPrev||0;
   return `<section class="panel newsp"><div class="row" style="justify-content:space-between;align-items:center"><span class="eyebrow">최근 소식</span><button class="linkb" data-act="goto-team">${p.strike?'<span class="chip bad">태업 중</span> ':''}팀·행동 ›</button></div>
-    ${news.length?news.map(n=>`<div class="nw ${n.k}${(n.seq||0)>seen?' unread':''}"><span class="ntag">${esc(n.tag||'소식')}</span>${n.ci!=null?crest(n.ci,16):''}<span class="nt">${n.k==='rumor'?n.t:newsTxt(n.t)}</span></div>`).join(''):'<p class="small muted" style="margin:4px 0 0">아직 소식이 없어요.</p>'}</section>`;
+    ${news.length?news.map(n=>`<div class="nw ${n.k}${(n.seq||0)>seen?' unread':''}"><span class="ntag">${esc(n.tag||'소식')}</span>${n.ci!=null?crest(n.ci,16):''}<span class="nt">${n.k==='rumor'?n.t:newsTxt(n.t)}</span></div>`).join(''):'<p class="small muted" style="margin:4px 0 0">아직 소식 없음</p>'}</section>`;
 }
 // 선수 › 팀·행동 탭: 감독·케미·라이벌 + 선수가 할 수 있는 행동
 function teamActs(p){
   if(p.stage!=='pro'||p.phase==='retired')return '';
   const s=p.season,m=p.mgr,fit=styleFit(p),inSeason=p.phase==='round'&&s&&!s.done;
-  const acts=!inSeason||p.loan||p.mil.st==='serving'?'<p class="small muted">이적 요청·임대 요청·태업은 시즌 중에만 할 수 있어요.</p>'
+  const acts=!inSeason||p.loan||p.mil.st==='serving'?'<p class="small muted">이적 요청·임대 요청·태업은 시즌 중에만 가능</p>'
     :`<div class="pact">${p.strike?'<button class="ghost" data-act="strike-end">태업 끝내기</button>':`${p.wantsOut?'<span class="chip" style="align-self:center">이적 희망 중</span>':'<button class="ghost" data-act="req-ask">이적 요청</button>'}${p.u21||p.role!=='주전'?'<button class="ghost" data-act="loan-req">임대 요청</button>':''}<button class="ghost" data-act="strike-ask">태업</button>`}</div>`;
   return `<section class="panel"><span class="eyebrow">팀</span><div class="list small">
     ${m?`<div class="li"><span class="muted">감독</span><b>${esc(m.name)} · ${STYLES[m.style].n} <span class="chip ${fit>=2?'good':fit<0?'bad':''}">${fitWord(fit)}</span></b></div>`:''}
@@ -5024,7 +5061,7 @@ function seasonTab(p){
       ${noteBox(p.note)}
       ${p.injury>0?`<div class="warn small">${esc(p.injName||'부상')} 재활 중 · 개막 후 ${p.injury}경기 결장</div>`:''}
       ${p.mil.st==='serving'?`<div class="note small">군 복무 중 · 원소속팀 ${esc(teamName(p.mil.ret.club,p.mil.ret.u21))}</div>`:''}
-      ${p.u21?'<p class="small muted">2군 소속 · 1군 코칭스태프가 지켜보고 있어요.</p>':''}</section>
+      ${p.u21?'<p class="small muted">2군 소속 · 1군 코칭스태프가 지켜보는 중</p>':''}</section>
       ${(()=>{const cur=dposOf(p),B=BADGES[cur],has=(p.badges||[]).includes(cur);
         // 목표 역할은 여기서 보기만 한다 (바꾸기는 선수 › 역할)
         return `<section class="panel compact"><div class="rolesum"><span class="eyebrow">역할</span><b>${DPOS[cur].n}</b><span class="num">${fitOf(p.stats,cur)}</span><span class="rst">${stars(mastery(p,cur))}</span>${has?`<span class="chip gold">${B.i} ${B.n}</span>`:B?`<span class="hint">${B.i} 배지까지 ${MASTERY_MAX-mastery(p,cur)}</span>`:''}${p.dposAuto?'<span class="hint">자동</span>':''}<button class="linkb" data-act="goto-role">바꾸기 ›</button></div></section>`})()}
@@ -5104,7 +5141,7 @@ function seasonTab(p){
         :sxF?['red','⚠️','강등권 맞대결!',`vs ${esc(teamName(sxF.oi,p.u21))} · 결과에 따라 사기가 크게 흔들림`]:null;
       // 다음 상대: 이번 묶음에서 만나는 리그 상대들
       const opps=fx.slice(0,4).map(x=>esc(teamName(x.oi,p.u21))).join(' · ');
-      if(p.fa){G.dock=`<div class="dock-h"><b>무소속 · 다음 4경기</b><span class="small muted">팀이 없어 경기에 나서지 않아요 · 개인 훈련하며 오퍼를 기다려요</span></div><button class="btn" data-act="round" data-v="normal">개인 훈련하며 기다리기 <span class="arr">→</span></button>`}else
+      if(p.fa){G.dock=`<div class="dock-h"><b>무소속 · 다음 4경기</b><span class="small muted">팀 없음 · 경기 출전 없음 · 개인 훈련하며 오퍼 대기</span></div><button class="btn" data-act="round" data-v="normal">개인 훈련하며 기다리기 <span class="arr">→</span></button>`}else
       G.dock=`<div class="dock-h"><b>다음 4경기 <span class="small muted" style="font-weight:400">리그 ${from===to?from:from+'–'+to}R${ccN?` + ${COMP[cc.cp].s} ${ccN}`:''}</span></b><span class="small muted">${p.injury>0?`🩹 ${p.injury}경기 결장 후 복귀`:'이번 경기들을 어떻게 치를까요?'}</span></div>${opps?`<div class="nextopp">다음 상대 · ${opps}</div>`:''}
         ${ban?`<div class="fxban ${ban[0]}"><span class="fxi">${ban[1]}</span><span><b>${ban[2]}</b><br><span class="small">${ban[3]}</span></span></div>`:''}
         <div class="grid3 appr">${Object.entries(APPR).map(([k,a])=>{const dl=fatigueAfter(p.fatigue,a,s.streak)-p.fatigue,no=k==='attack'&&p.fatigue>=FAT_NOPUSH;
@@ -5167,14 +5204,14 @@ function seasonTab(p){
       ${noteBox(p.note)}
       ${p.forcedWhy?`<div class="warn small"><b>구단의 매각 결정</b> · ${esc(p.forcedWhy)}</div>`:''}
       ${p.offers.some(o=>o.forced&&(o.kind==='army'||o.kind==='sangmu'))?'<div class="warn small"><b>입대 기한</b> · 이번에 상무나 현역 중 하나를 골라야 해요.</div>':''}
-      ${p.stage==='pro'&&!real&&p.mil.st!=='serving'?'<p class="small">다른 구단의 오퍼는 오지 않았어요.</p>':''}</section>
+      ${p.stage==='pro'&&!real&&p.mil.st!=='serving'?'<p class="small">다른 구단 오퍼 없음</p>':''}</section>
       <section class="panel">${p.offers.map((o,i)=>[o,i]).sort((x,y)=>(x[0].kind==='sangmu'&&x[0].elig&&!x[0].elig.ok?1:0)-(y[0].kind==='sangmu'&&y[0].elig&&!y[0].elig.ok?1:0)).map(([o,i])=>offerCard(p,o,i,'offer')).join('')}</section>
       ${(()=>{const m=p.offers.some(o=>o.forced&&(o.kind==='army'||o.kind==='sangmu'))?milPlan(p):milWarn(p);return m?`<section class="panel compact">${m}</section>`:''})()}`;
   }
   if(p.phase==='retired'){
     const T=totals(p);
     const pend=p.final&&p.final.rec&&p.final.saved==null;
-    G.dock=pend?`<div class="dock-h"><b>이 커리어를 명예의 전당에 저장할까요?</b></div><div class="grid2"><button class="btn" data-act="save-career">커리어 저장하기</button><button class="btn alt" data-act="discard-career">저장하지 않기</button></div>`:`<button class="btn" data-act="new">새 인생 시작 <span class="arr">→</span></button>`;
+    G.dock=pend?`<div class="dock-h"><b>이 커리어를 명예의 전당에 저장할까요?</b>${sharedOn()?'<span class="small muted">저장하면 모두의 랭킹에도 자동 등록</span>':''}</div><div class="grid2"><button class="btn" data-act="save-career">커리어 저장하기</button><button class="btn alt" data-act="discard-career">저장하지 않기</button></div>`:`<button class="btn" data-act="new">새 인생 시작 <span class="arr">→</span></button>`;
     return `<section class="panel hero"><span class="eyebrow">${p.year} 은퇴</span><h1>${esc(p.name)}, ${p.age}세에 축구화를 벗다</h1>
       <p>${esc(teamName(p.club,p.u21))}에서 마지막 시즌을 보냈습니다.</p></section>
       ${p.final?(()=>{const f=p.final,h=G.hof.find(x=>x.id===f.id);return `<section class="panel"><div class="strip"><div class="ovr" style="padding:8px 14px"><div class="v" style="font-size:34px">${f.grade}</div><div class="k">GRADE</div></div>
@@ -5188,9 +5225,9 @@ function seasonTab(p){
         <div class="hlg">${careerHighlights(p).map(x=>`<div class="hl"><span class="hli">${x.ci!=null?crest(x.ci,26):x.i}</span><span><span class="hlk">${x.k}</span><b>${esc(x.v)}</b><span class="small muted">${esc(x.d)}</span></span></div>`).join('')}</div></section>
         ${f.chal?`<section class="panel"><span class="eyebrow">🗓️ 주간 챌린지 ${f.chal}</span><div class="chlpban">${f.chalLp==='got'?'🎁 오늘의 챌린지 보상 <b>+20 LP</b>!':f.chalLp==='done'?'✅ 오늘 보상은 이미 받았어요 · 내일 다시 받을 수 있어요':'B등급 미만이라 오늘의 보상(20 LP)은 받지 못했어요 · B등급 이상으로 은퇴하면 받아요'}</div><p class="small">이번 챌린지 점수 <b>${f.score}점</b> · 내 이번 주 최고 ${G.chal[f.chal]}점. 친구 화면의 챌린지 순위에 올라가요.</p></section>`:''}
         <section class="panel">
-        ${f.unlocked?`<div class="note"><b>🔓 ${POS[f.unlocked].name} 해금!</b><br><span class="small">${POS[p.pos].name} S등급 커리어를 달성해 이제 ${POS[f.unlocked].name}(으)로도 선수를 키울 수 있어요.</span></div>`:(()=>{const nx=UNLOCK_ORDER[UNLOCK_ORDER.indexOf(p.pos)+1];return nx&&!isUnlocked(nx)?`<p class="small muted">🔒 ${POS[nx].name}는 ${POS[p.pos].name} S등급(78점 이상) 커리어를 만들면 열려요.</p>`:''})()}
+        ${f.unlocked?`<div class="note"><b>🔓 ${POS[f.unlocked].name} 해금!</b><br><span class="small">${POS[p.pos].name} S등급 커리어를 달성해 이제 ${POS[f.unlocked].name}(으)로도 선수를 키울 수 있어요.</span></div>`:(()=>{const nx=UNLOCK_ORDER[UNLOCK_ORDER.indexOf(p.pos)+1];return nx&&!isUnlocked(nx)?`<p class="small muted">🔒 ${POS[nx].name}는 ${POS[p.pos].name} S등급(80점 이상) 커리어를 만들면 해금</p>`:''})()}
         <div class="list small">${f.epilogue.map(t=>`<div class="li"><span>${esc(t)}</span></div>`).join('')}</div>
-        ${f.saved===true||(!f.rec&&h)?`<p class="small"><span class="chip good">명예의 전당에 저장됨</span></p>${h?`<button class="btn" data-act="card-img" data-v="${h.id}">📸 커리어 카드 이미지 저장 · 공유</button>`:''}`:f.saved===false?'<p class="small muted">이 커리어는 저장하지 않았어요.</p>':'<p class="small muted">아래에서 이 커리어를 명예의 전당에 남길지 고르세요. 저장하면 랭킹과 베스트 11에 쓸 수 있어요.</p>'}
+        ${f.saved===true||(!f.rec&&h)?`<p class="small"><span class="chip good">명예의 전당에 저장됨</span></p>${h?`<button class="btn" data-act="card-img" data-v="${h.id}">📸 커리어 카드 이미지 저장 · 공유</button>`:''}`:f.saved===false?'<p class="small muted">이 커리어는 저장하지 않음</p>':'<p class="small muted">아래에서 명예의 전당 저장 여부 선택 · 저장하면 모두의 랭킹 자동 등록 · 베스트 11에 사용</p>'}
         ${h?shareBtn(h):''}<button class="ghost" data-act="hof">명예의 전당 보기</button></section>`})():''}`;
   }
   return '';
@@ -5311,7 +5348,7 @@ function careerTab(p){
     <p class="small muted">A매치 ${p.caps}경기 ${p.intlGoals}골 · 인지도 ${repLabel(p.rep)} · 커리어 총수입 ${money(p.earned)}원</p></section>
     ${careerList(p)}
     <details class="panel" data-k="seasons"${detOpen('seasons',false)?' open':''}><summary><span class="eyebrow">시즌별 기록 · 수상</span></summary>${p.history.length?`<div class="list small">${p.history.slice().reverse().map(h=>`<div class="li"><span><b>${h.year}</b> <span class="muted">${h.age}세</span> · ${esc(h.club)}<br><span class="muted">${h.lg}${lgTag(h.lg)?` (${lgTag(h.lg)})`:''}${h.rank!=='-'?` ${h.rank}위`:''}</span>${(()=>{const tr=p.trophies.filter(t=>t.year===h.year);return tr.length?`<span class="tchips">${tr.map(t=>`<span class="tchip ${trophyCat(t)}">${esc(t.n)}</span>`).join('')}</span>`:''})()}</span>
-      <span class="small" style="text-align:right;white-space:nowrap">${appsTxt(h.apps,h.subs)}경기 ${p.pos==='GK'?h.cs+'무실점 '+(h.conc!=null?h.conc+'실점':''):h.goals+'골 '+h.assists+'도움'}<br><span class="muted">평점 ${h.apps?dr2(h.avg):'-'}</span></span></div>`).join('')}</div>`:'<p class="muted small">첫 시즌을 마치면 기록이 쌓입니다.</p>'}</details>`;
+      <span class="small" style="text-align:right;white-space:nowrap">${appsTxt(h.apps,h.subs)}경기 ${p.pos==='GK'?h.cs+'무실점 '+(h.conc!=null?h.conc+'실점':''):h.goals+'골 '+h.assists+'도움'}<br><span class="muted">평점 ${h.apps?dr2(h.avg):'-'}</span></span></div>`).join('')}</div>`:'<p class="muted small">첫 시즌을 마치면 기록이 쌓임</p>'}</details>`;
 }
 function playerTab(p){
   const tabs=[['ability','능력치'],['role','역할'],['status','팀·행동'],['medical','부상 기록']],t=G.ptab||'ability';
@@ -5336,7 +5373,7 @@ function playerTab(p){
     <div class="li"><span class="muted">에이전트</span><b>${p.agent?'있음':'없음'}</b></div>`:`<div class="li"><span class="muted">신분</span><b>${p.stage==='hs'?'고교생':'대학생'}</b></div>`}
     <div class="li"><span class="muted">병역</span><b>${MIL_TXT[p.mil.st]}${p.mil.why?` · ${esc(p.mil.why)}`:''}</b></div>
     ${p.injury>0?`<div class="li"><span class="muted">부상</span><b style="color:var(--red)">${esc(p.injName||'부상')} · ${p.injury}경기</b></div>`:''}</div>${milWarn(p)}</section>`;
-  if(t==='medical')h+=`<section class="panel">${p.injuries.length?`<div class="list small">${p.injuries.slice().reverse().map(x=>`<div class="li"><span><b>${esc(x.n)}</b><br><span class="muted">${x.year} · ${x.age}세${x.loss?` · ${esc(x.loss)}`:''}</span></span><span class="chip ${x.g>=8?'bad':''}">${x.g}경기</span></div>`).join('')}</div>`:'<p class="small muted">부상 이력이 없어요. 피로가 쌓이거나 나이가 들수록 부상 위험이 커집니다.</p>'}</section>`;
+  if(t==='medical')h+=`<section class="panel">${p.injuries.length?`<div class="list small">${p.injuries.slice().reverse().map(x=>`<div class="li"><span><b>${esc(x.n)}</b><br><span class="muted">${x.year} · ${x.age}세${x.loss?` · ${esc(x.loss)}`:''}</span></span><span class="chip ${x.g>=8?'bad':''}">${x.g}경기</span></div>`).join('')}</div>`:'<p class="small muted">부상 이력 없음 · 피로가 쌓이거나 나이가 들수록 부상 위험↑</p>'}</section>`;
   return h;
 }
 // 트로피 분류: 리그·국내 대회(리그 우승·승격·국내 컵) / 국제 대회(대륙 클럽대회·국가대표) / 개인 수상
@@ -5405,7 +5442,7 @@ const detOpen=(k,def)=>G.det&&k in G.det?G.det[k]:def;function act(a,v){
     case 'req-yes':G.confirm=null;requestTransfer(p);break;
     case 'strike-yes':G.confirm=null;goStrike(p);break;
     case 'strike-end':endStrike(p);break;
-    case 'save-career':saveCareer(p,true);toast(G.auth?'명예의 전당에 저장했습니다 ✓ (클라우드에도 저장돼요)':'명예의 전당에 저장했습니다 ✓');break;
+    case 'save-career':saveCareer(p,true);toast(sharedOn()?(G.auth?'명예의 전당에 저장하고 모두의 랭킹에도 올렸어요 ✓':'명예의 전당에 저장하고 랭킹에 (비로그인)으로 올렸어요 ✓'):'명예의 전당에 저장했습니다 ✓');break;
     case 'discard-career':saveCareer(p,false);break;
     case 'call-yes':answerCall(p,true);break;
     case 'call-no':answerCall(p,false);break;
@@ -5583,6 +5620,7 @@ async function checkVersion(){
 }
 setTimeout(checkVersion,3000);
 </script>
+
 
 </body>
 </html>
