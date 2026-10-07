@@ -121,7 +121,37 @@ input[type=text],input[type=number]{width:100%;padding:11px 12px;border-radius:1
 .tci{font-size:20px;text-align:center}
 .tcn{display:flex;flex-direction:column;min-width:0;font-size:13px}
 .tcc{font-family:var(--f-num);font-weight:800;font-size:15px;color:var(--pitch)}
-.milplan{display:flex;flex-direction:column;gap:4px;margin-top:4px}
+/* 레전드 상점 */
+.lpbal{display:flex;align-items:baseline;gap:6px;font-size:13px}.lpbal b{font-family:var(--f-num);font-size:32px;color:var(--card-ink);background:var(--card);padding:0 10px;border-radius:8px}
+.shop-i{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.shop-ic{font-size:24px;text-align:center}.shop-t{display:flex;flex-direction:column;min-width:0}
+.fprev{display:inline-block;width:26px;height:32px;border-radius:6px;background:var(--surface-2);border:1px solid var(--line)}
+.footline{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:4px 8px;margin:8px 0 2px;font-size:12px}
+.footline .linkb{font-size:12px}
+.useb{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.useb .sbtn,.cand .sbtn{white-space:nowrap;flex:none;width:auto;writing-mode:horizontal-tb}
+.traitpick{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.potg{display:flex;align-items:center;gap:8px}
+.pg{display:inline-flex;width:30px;height:30px;align-items:center;justify-content:center;border-radius:8px;font-family:var(--f-num);font-weight:900;font-size:17px;color:#fff;background:#6b7280}
+.pg-S{background:linear-gradient(135deg,#f59e0b,#ef4444)}.pg-A{background:#7c3aed}.pg-B{background:#2563eb}.pg-C{background:#16a34a}
+/* 카드 테두리 스킨 */
+.frame-gold{border:2px solid #e3b23c!important;box-shadow:0 0 0 3px rgba(227,178,60,.22)}
+.frame-club{border:3px solid var(--fc,#888)!important}
+.frame-fire{border:2px solid #ff6a00!important;animation:fireGlow 1.6s ease-in-out infinite}
+@keyframes fireGlow{0%,100%{box-shadow:0 0 6px rgba(255,106,0,.45)}50%{box-shadow:0 0 18px rgba(255,170,0,.85)}}
+.frame-holo{border:2px solid transparent!important;background:linear-gradient(var(--surface),var(--surface)) padding-box,linear-gradient(120deg,#7df9ff,#c084fc,#f472b6,#facc15,#7df9ff) border-box!important;background-size:100% 100%,300% 300%!important;animation:holo 4s linear infinite}
+@keyframes holo{to{background-position:0 0,300% 0}}
+.frame-diamond{border:2px solid #8fe3ff!important;box-shadow:0 0 14px rgba(143,227,255,.7),inset 0 0 10px rgba(143,227,255,.25)}
+/* 은퇴식 연출 */
+.cerp{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.cerp i{position:absolute;font-style:normal;font-size:22px}
+.cerp.fall i{top:-30px;animation:achfall linear infinite}
+.cerp.rise i{bottom:-40px;animation:riseUp linear infinite}
+@keyframes riseUp{0%{transform:translateY(0)}100%{transform:translateY(-115vh)}}
+.fw{position:absolute;width:5px;height:5px;border-radius:50%;animation:fwb 1.8s ease-out infinite}
+@keyframes fwb{0%{transform:scale(.05);opacity:1}75%{opacity:1}100%{transform:scale(1);opacity:0}}
+.cerjersey{display:inline-flex;width:84px;height:96px;align-items:center;justify-content:center;background:var(--ink);color:var(--bg);font-family:var(--f-num);font-size:46px;font-weight:900;border-radius:16px 16px 10px 10px;animation:jUp 2.2s ease-out both;box-shadow:0 0 30px rgba(242,193,78,.6)}
+@keyframes jUp{0%{transform:translateY(90px) scale(.5);opacity:0}60%{transform:translateY(-12px) scale(1.08);opacity:1}100%{transform:none}}.milplan{display:flex;flex-direction:column;gap:4px;margin-top:4px}
 .mpl{display:flex;flex-direction:column;font-size:12px;padding:5px 8px;border:1px solid var(--line);border-radius:8px;background:var(--surface-2)}
 .mctx{font-size:12px;font-weight:700;padding:3px 8px;border-radius:7px;background:var(--surface-2);border:1px solid var(--line);align-self:flex-start}
 .fbbadge{display:inline-flex;align-items:center;gap:3px;border:0;border-radius:999px;padding:4px 9px;background:var(--red);color:#fff;font-size:12px;font-weight:700;animation:fxpulse 1.4s ease-in-out infinite}
@@ -903,13 +933,13 @@ const euroAcad=p=>p.u21&&isEuro(p.club)?1.25:1;
 /* 숨은 시작 특성 (약 45%의 선수가 하나를 갖고 태어난다. 화면에는 보이지 않고 은퇴할 때 공개된다)
    모두 효과가 작고, 장점마다 대가가 있다 */
 const TRAITS={
-  ageless:{n:'노익장',i:'🧬',d:'하락이 2년 늦게 시작되고 하락 폭도 절반이었다',c:'대신 23세까지 성장이 조금 느렸다'},
-  iron:{n:'강철 체력',i:'🔋',d:'경기마다 피로가 덜 쌓였다',c:'대신 경기 감각이 천천히 올라왔다'},
-  bigGame:{n:'빅매치 강심장',i:'🔥',d:'빅매치·대륙대회 토너먼트·결승에서 더 잘했다',c:'대신 평범한 경기에서는 집중력이 조금 떨어졌다'},
-  star:{n:'스타성',i:'🌟',d:'인지도가 남보다 빨리 올랐다',c:'대신 부진할 때 비판도 더 크게 받았다'},
-  grinder:{n:'연습벌레',i:'🏋️',d:'동계 훈련 효과가 더 좋았다',c:'대신 쉬라는 말에 마음이 불편했다(휴식 요청 시 사기 추가 하락)'},
-  oneclub:{n:'원클럽 DNA',i:'❤️',d:'한 팀에 오래 있을수록 팀 케미·감독 신뢰가 쌓였다',c:'대신 이적하면 적응이 느렸다'},
-  abroad:{n:'해외 체질',i:'✈️',d:'유럽 무대에 빨리 적응했다',c:'대신 국내에서는 인기가 천천히 올랐다'}
+  ageless:{s:'하락이 늦고 완만 · 대신 23세까지 성장 조금 느림',n:'노익장',i:'🧬',d:'하락이 2년 늦게 시작되고 하락 폭도 절반이었다',c:'대신 23세까지 성장이 조금 느렸다'},
+  iron:{s:'피로가 덜 쌓임 · 대신 경기 감각이 천천히 오름',n:'강철 체력',i:'🔋',d:'경기마다 피로가 덜 쌓였다',c:'대신 경기 감각이 천천히 올라왔다'},
+  bigGame:{s:'빅매치·토너먼트·결승에 강함 · 대신 평범한 경기 집중력 소폭↓',n:'빅매치 강심장',i:'🔥',d:'빅매치·대륙대회 토너먼트·결승에서 더 잘했다',c:'대신 평범한 경기에서는 집중력이 조금 떨어졌다'},
+  star:{s:'인지도가 빨리 오름 · 대신 비판도 크게 받음',n:'스타성',i:'🌟',d:'인지도가 남보다 빨리 올랐다',c:'대신 부진할 때 비판도 더 크게 받았다'},
+  grinder:{s:'동계 훈련 효과↑ · 대신 휴식 요청 시 사기 더 하락',n:'연습벌레',i:'🏋️',d:'동계 훈련 효과가 더 좋았다',c:'대신 쉬라는 말에 마음이 불편했다(휴식 요청 시 사기 추가 하락)'},
+  oneclub:{s:'오래 있을수록 케미·감독 신뢰↑ · 대신 이적하면 적응 느림',n:'원클럽 DNA',i:'❤️',d:'한 팀에 오래 있을수록 팀 케미·감독 신뢰가 쌓였다',c:'대신 이적하면 적응이 느렸다'},
+  abroad:{s:'유럽 적응 빠름 · 대신 국내 인기는 천천히',n:'해외 체질',i:'✈️',d:'유럽 무대에 빨리 적응했다',c:'대신 국내에서는 인기가 천천히 올랐다'}
 };
 const TRAIT_KEYS=Object.keys(TRAITS);
 const traitOf=p=>p&&(p.trait||(p.ageless?'ageless':null));
@@ -976,8 +1006,8 @@ function makeCandidate(pos,type,seed,foot){const TOT=footTotal(foot);
   // 잠재력과 성장 유형은 능력치와 무관하게 정해지고 화면에는 보이지 않는다
   const gtype=pickGrowth(rng());
   const pot=Math.max(o+8,clamp(Math.round(70+g()*9+(gtype==='late'?3:0)),55,105));
-  const trait=rng()<.45?TRAIT_KEYS[Math.floor(rng()*TRAIT_KEYS.length)]:null;
-  return {stats:s,pot,ovr:o,dpos,gtype,trait};
+  const trait=rng()<.45?TRAIT_KEYS[Math.floor(rng()*TRAIT_KEYS.length)]:null,scoutOff=3+Math.floor(rng()*7);
+  return {stats:s,pot,ovr:o,dpos,gtype,trait,scoutOff};
 }
 const START_TOTAL=246;
 // 이름: 흔한 성은 자주, 드문 성·복성(남궁·제갈 등)은 가끔. 외자 이름도 섞는다
@@ -2523,6 +2553,9 @@ function retire(p){
     stints:careerStints(p).map(r=>({n:r.mil?'현역 복무':r.fa?'무소속':r.name,ci:r.ci,y1:r.y1,y2:r.y2,a:r.apps,g:r.goals,as:r.assists,cs:r.cs,rt:r.apps?Math.round(r.rs/r.apps*100)/100:0,l:r.loan?1:0})).slice(-14),
     hl:careerHighlights(p).map(x=>({i:x.i,k:x.k,v:x.v,d:x.d})),story:(p.final.story&&p.final.story.lines||[]).map(x=>({i:x.i,t:x.t}))};
   p.final.id=rec.id;p.final.rec=rec;p.final.saved=null;   // 저장 여부는 은퇴 화면에서 고른다
+  // 레전드 포인트 · 은퇴식 (상점에서 산 연출이 있으면 그걸로)
+  p.final.lp=p.challenge?0:lpEarn('r:'+rec.id,GRADE_LP[grade]||1);lpSave();
+  {const cer=G.lp.eq.cer;celebrate(cer==='jersey'?'🎽':'🎖️',`${p.name} 은퇴`,`커리어 ${grade} 등급 · ${score}점${p.final.lp?` · +${p.final.lp} LP`:''}`,cer?'cer-'+cer:'trophy');G.celebQ[G.celebQ.length-1].num=p.num}
 }
 function saveCareer(p,yes){const f=p.final;if(!f||f.saved!=null)return;f.saved=!!yes;if(yes){G.hof.unshift(f.rec);G.hof=G.hof.slice(0,60)}delete f.rec}
 
@@ -2628,7 +2661,7 @@ function livePs(){
   // 지금 플레이 중인 선수가 같은 선수 중 기준: 목록에서는 지금 선수로 대표한다
   if(G.p&&G.p.phase!=='retired'){if(!G.p.pid)G.p.pid=newPid();const k=pkey(G.p),o=m[k];if(!o||!newer(o,G.p))m[k]=G.p;else{o.pid=G.p.pid}}
   return Object.values(m).sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,4);
-}const saveData=()=>({p:G.p,ps:livePs(),retiredPids:(G.retiredPids||[]).slice(-60),hof:G.hof,b11:G.b11,unlock:G.unlock,ach:G.ach,frRec:G.frRec,chal:G.chal,create:{seed:G.create.seed,rerolls:G.create.rerolls,used:G.create.used}});
+}const saveData=()=>({lp:G.lp,p:G.p,ps:livePs(),retiredPids:(G.retiredPids||[]).slice(-60),hof:G.hof,b11:G.b11,unlock:G.unlock,ach:G.ach,frRec:G.frRec,chal:G.chal,create:{seed:G.create.seed,rerolls:G.create.rerolls,used:G.create.used}});
 function applyData(d){
   if(!d)return;G.p=d.p||null;G.hof=d.hof||[];G.b11=d.b11||G.b11;if(d.create)Object.assign(G.create,d.create);if(d.unlock)G.unlock=UNLOCK_ORDER.filter(k=>d.unlock.includes(k)||G.unlock.includes(k));syncUnlock();
   if(d.ach)G.ach={...d.ach,...G.ach};if(d.frRec)G.frRec={...d.frRec,...G.frRec};if(d.chal){for(const k in d.chal)G.chal[k]=Math.max(G.chal[k]||0,d.chal[k])}
@@ -2640,7 +2673,7 @@ function applyData(d){
    진행 중인 선수는 모두 클라우드에 남겨 두고, 같은 선수라면 더 최근에 플레이한 쪽을 쓴다 */
 const hofKey=r=>r.id||[r.name,r.num,r.year,r.score,r.pos].join('|');
 function mergeData(d){
-  if(!d)return false;let ch=false;
+  if(!d)return false;let ch=lpMerge(d.lp);
   const have=new Set(G.hof.map(hofKey));
   (d.hof||[]).forEach(r=>{if(!have.has(hofKey(r))){G.hof.push(r);have.add(hofKey(r));ch=true}});
   if(ch)G.hof.sort((a,b)=>(b.year||0)-(a.year||0)||((b.id||'')>(a.id||'')?1:-1));
@@ -3112,8 +3145,89 @@ function trophyYears(p){const by={};p.trophies.forEach(t=>{const y=by[t.year]=by
 function checkAch(p){
   if(!p)return;
   for(const a of ACH){if(G.ach[a.id])continue;let ok=false;try{ok=a.c(p)}catch(e){}
-    if(ok){G.ach[a.id]={y:p.year,who:p.name};G.achQ.push(a.id)}}
+    if(ok){G.ach[a.id]={y:p.year,who:p.name};G.achQ.push(a.id);lpEarn('a:'+a.id,achLP(a));lpSave()}}
 }
+/* ---------- 레전드 포인트(LP) · 상점 ----------
+   은퇴 등급과 업적으로 LP를 모아 소모품(리롤권·스카우트권·특성 선택권)과 꾸미기(카드 테두리·은퇴식)를 산다.
+   기기끼리 합칠 수 있게 '번 기록'과 '쓴 기록'을 쌓아 두는 장부 방식 (잔액 = 번 것 - 산 것) */
+const LPKEY='kickoff-life-lp';
+G.lp=load(LPKEY,null)||{earn:{},buy:[],use:[],eq:{}};
+G.lp.earn=G.lp.earn||{};G.lp.buy=G.lp.buy||[];G.lp.use=G.lp.use||[];G.lp.eq=G.lp.eq||{};
+const lpSave=()=>{try{localStorage.setItem(LPKEY,JSON.stringify(G.lp))}catch(e){}};
+const lpBal=()=>Object.values(G.lp.earn).reduce((a,b)=>a+b,0)-G.lp.buy.reduce((a,b)=>a+(b.c||0),0);
+const lpEarn=(key,n)=>{if(n>0&&G.lp.earn[key]==null){G.lp.earn[key]=n;return n}return 0};
+const lpItem=k=>G.lp.buy.filter(b=>b.k===k).length-G.lp.use.filter(u=>u.k===k).length;
+const lpOwns=k=>G.lp.buy.some(b=>b.k===k);
+const lpUse=k=>{if(lpItem(k)<=0)return false;G.lp.use.push({id:newPid(),k});lpSave();return true};
+const GRADE_LP={'S+':20,'S':12,'A':7,'B':4,'C':2,'D':1};
+const achLP=a=>a.h?5:a.m?2:1;
+// 처음 한 번: 이미 쌓아 둔 명예의 전당·업적만큼 LP를 소급해서 준다
+function lpBackfill(){
+  G.hof.forEach(r=>lpEarn('r:'+hofKey(r),GRADE_LP[r.grade||gradeOf(r.score)]||1));
+  ACH.forEach(a=>{if(G.ach[a.id])lpEarn('a:'+a.id,achLP(a))});
+  lpSave();
+}
+// 기기끼리 합치기: 번 기록·산 기록·쓴 기록 모두 합집합
+function lpMerge(d){
+  if(!d)return false;let ch=false;
+  for(const k in d.earn||{})if(G.lp.earn[k]==null){G.lp.earn[k]=d.earn[k];ch=true}
+  const ids=new Set(G.lp.buy.map(b=>b.id));(d.buy||[]).forEach(b=>{if(!ids.has(b.id)){G.lp.buy.push(b);ch=true}});
+  const us=new Set(G.lp.use.map(b=>b.id));(d.use||[]).forEach(b=>{if(!us.has(b.id)){G.lp.use.push(b);ch=true}});
+  for(const k in d.eq||{})if(!G.lp.eq[k]&&d.eq[k]){G.lp.eq[k]=d.eq[k];ch=true}
+  if(ch)lpSave();return ch;
+}
+// 상점 물건
+const SHOP_ITEMS=[
+  {k:'reroll',i:'🎲',n:'리롤권',c:2,d:'선수 만들 때 능력치 다시 돌리기 1회 추가'},
+  {k:'scout',i:'🔍',n:'스카우트권',c:3,d:'후보 선수 3명 중 1명의 최소 잠재력 등급(S·A·B·C·D)을 확인'},
+  {k:'trait',i:'🎭',n:'특성 선택권',c:5,d:'새 선수가 가질 시작 특성 하나를 직접 고른다'}
+];
+const SKINS={
+  frame:[
+    {k:'gold',n:'골드 테두리',c:8,d:'명예의 전당 카드에 금빛 테두리'},
+    {k:'club',n:'클럽 컬러',c:10,d:'가장 오래 뛴 구단의 대표 색 테두리'},
+    {k:'fire',n:'불꽃',c:15,d:'일렁이는 불꽃 테두리'},
+    {k:'holo',n:'홀로그램',c:20,d:'빛에 따라 색이 바뀌는 홀로그램 테두리'},
+    {k:'diamond',n:'레전드 다이아',c:30,d:'S 등급 이상 커리어가 있어야 살 수 있어요',req:()=>G.hof.some(r=>r.score>=78)}
+  ],
+  cer:[
+    {k:'petals',n:'꽃가루',c:8,d:'은퇴식에 꽃잎이 흩날린다'},
+    {k:'clap',n:'기립박수',c:10,d:'관중석 전체가 일어나 박수를 보낸다'},
+    {k:'fireworks',n:'불꽃놀이',c:15,d:'경기장 위로 불꽃이 터진다'},
+    {k:'jersey',n:'영구결번',c:20,d:'등번호가 하늘로 올라가 영구결번된다'}
+  ]
+};
+// 잠재력 등급: 실제 잠재력에서 후보마다 정해진 오차(3~9)를 뺀 값으로 '최소 등급'을 보여 준다
+const POT_G=v=>v>=92?'S':v>=84?'A':v>=76?'B':v>=68?'C':'D';
+const potFloor=x=>POT_G(x.pot-(x.scoutOff||6));
+function shopView(){
+  const bal=lpBal(),eq=G.lp.eq;
+  const buyBtn=(k,c,dis,label)=>`<button class="sbtn" data-act="lp-buy" data-v="${k}" ${dis||bal<c?'disabled':''}>${label||`${c} LP`}</button>`;
+  const item=x=>`<div class="shop-i"><span class="shop-ic">${x.i}</span><span class="shop-t"><b>${x.n}</b><span class="small muted">${x.d}</span><span class="small">보유 <b>${lpItem(x.k)}</b></span></span>${buyBtn(x.k,x.c)}</div>`;
+  const skin=(grp,x)=>{const key=`skin:${grp}:${x.k}`,own=lpOwns(key),on=eq[grp]===x.k,lock=x.req&&!x.req();
+    return `<div class="shop-i"><span class="shop-ic">${grp==='frame'?`<span class="fprev frame-${x.k}"></span>`:{petals:'🌸',clap:'👏',fireworks:'🎆',jersey:'🎽'}[x.k]}</span><span class="shop-t"><b>${x.n}</b><span class="small muted">${x.d}</span></span>
+      ${own?`<button class="sbtn${on?'':' alt'}" data-act="lp-eq" data-v="${grp}:${on?'':x.k}">${on?'장착 중':'장착'}</button>`:buyBtn(key,x.c,lock,lock?'잠김':`${x.c} LP`)}</div>`};
+  return `<section class="panel"><span class="eyebrow">LEGEND SHOP</span><h2 class="sectionh">레전드 상점</h2>
+      <div class="lpbal"><span>보유</span><b>${bal}</b><span>LP</span></div>
+      <p class="small muted">LP는 은퇴할 때 커리어 등급만큼(D 1 · C 2 · B 4 · A 7 · S 12 · S+ 20), 업적을 달성할 때(일반 1 · 중간 2 · 어려움 5) 쌓여요. 주간 챌린지에서는 상점 아이템을 쓸 수 없어요.</p></section>
+    <section class="panel"><span class="eyebrow">소모품 · 하나씩 사서 선수 만들 때 써요</span>${SHOP_ITEMS.map(item).join('')}</section>
+    <section class="panel"><span class="eyebrow">명예의 전당 카드 테두리</span>${SKINS.frame.map(x=>skin('frame',x)).join('')}</section>
+    <section class="panel"><span class="eyebrow">은퇴식 연출</span>${SKINS.cer.map(x=>skin('cer',x)).join('')}</section>
+    <button class="btn alt" data-act="home">홈으로 <span class="arr">←</span></button>`;
+}
+function lpBuy(k){
+  const it=SHOP_ITEMS.find(x=>x.k===k);let cost=it?it.c:0;
+  if(k.startsWith('skin:')){const [,grp,id]=k.split(':'),s=(SKINS[grp]||[]).find(x=>x.k===id);if(!s||lpOwns(k)||(s.req&&!s.req()))return;cost=s.c}
+  else if(!it)return;
+  if(lpBal()<cost)return;
+  G.lp.buy.push({id:newPid(),k,c:cost});
+  if(k.startsWith('skin:')){const [,grp,id]=k.split(':');G.lp.eq[grp]=id}
+  lpSave();toast(`구매했습니다 ✓ (-${cost} LP)`);
+}
+// 클럽 컬러 테두리: 그 선수가 가장 오래 뛴 구단의 대표 색
+const clubColOf=n=>{const ci=CLUBS.findIndex(c=>c.name===n);return ci>=0?teamCol(ci)[0]:'#888'};
+const frameCls=()=>G.lp.eq.frame?` frame-${G.lp.eq.frame}`:'';
+if(!G.lp.bf){lpBackfill();G.lp.bf=1;lpSave()}
 // 우승·수상·승격 축하: 업적 팝업보다 먼저 뜬다
 G.celebQ=[];
 // 연출 종류(fx): trophy(기본) · hat(해트트릭) · goal · save · up(승격) · down(강등)
@@ -3133,9 +3247,15 @@ function achOverlay(){
   const conf=Array.from({length:28},(_,i)=>`<i style="left:${(i*37)%100}%;background:${['#f2c14e','#2f9e44','#2f6fd6','#e03131','#ae3ec9'][i%5]};animation-delay:${(i%7)*.12}s;animation-duration:${1.6+(i%5)*.25}s"></i>`).join('');
   if(G.celebQ.length){const c=G.celebQ[0],fx=c.fx||'trophy';
     const bg=fx==='down'?`<div class="rain">${Array.from({length:34},(_,i)=>`<i style="left:${(i*29)%104}%;animation-delay:${(i%10)*.09}s;animation-duration:${.55+(i%4)*.12}s"></i>`).join('')}</div>`:fx==='save'?'':`<div class="conf">${conf}</div>`;
+    // 은퇴식 연출 (상점 스킨)
+    const ck=fx.startsWith('cer-')?fx.slice(4):null;
+    const cerBg=ck==='petals'?`<div class="cerp fall">${Array.from({length:22},(_,i)=>`<i style="left:${(i*43)%100}%;animation-delay:${(i%8)*.3}s;animation-duration:${3+(i%5)*.6}s">${['🌸','🌷','🌼'][i%3]}</i>`).join('')}</div>`
+      :ck==='clap'?`<div class="cerp rise">${Array.from({length:20},(_,i)=>`<i style="left:${(i*37)%100}%;animation-delay:${(i%7)*.35}s;animation-duration:${2.6+(i%4)*.5}s">👏</i>`).join('')}</div>`
+      :ck==='fireworks'?`<div class="cerp">${Array.from({length:6},(_,i)=>{const col=['#f2c14e','#ef4444','#60a5fa','#a78bfa','#34d399','#f472b6'][i];const sh=Array.from({length:12},(_,k)=>{const a=k/12*Math.PI*2;return `${Math.round(Math.cos(a)*70)}px ${Math.round(Math.sin(a)*70)}px 0 1px ${col}`}).join(',');return `<span class="fw" style="left:${15+(i*29)%70}%;top:${12+(i*23)%45}%;box-shadow:${sh};animation-delay:${i*.35}s"></span>`}).join('')}</div>`
+      :ck==='jersey'?`<div class="conf">${conf}</div>`:'';
     const balls=fx==='hat'?'<span class="fxball b1">⚽</span><span class="fxball b2">⚽</span><span class="fxball b3">⚽</span>':fx==='goal'?'<span class="fxball b4">⚽</span>':'';
     const big={hat:'HAT-TRICK',goal:'GOAL!',save:'SAVE!'}[fx];
-    return `<div class="achov fx-${fx}">${bg}<div class="fxlayer">${balls}</div><div class="achbox celeb">${fx==='trophy'||fx==='up'?'<span class="rays"></span>':''}<span class="celebi">${c.i}</span>${big?`<span class="fxbig">${big}</span>`:''}<b class="celebt">${esc(c.t)}</b><span class="small muted">${esc(c.d||'')}</span>
+    return `<div class="achov fx-${fx}">${ck?cerBg:bg}<div class="fxlayer">${balls}</div><div class="achbox celeb">${fx==='trophy'||fx==='up'?'<span class="rays"></span>':''}${ck==='jersey'?`<span class="cerjersey">${c.num||''}</span>`:`<span class="celebi">${c.i}</span>`}${big?`<span class="fxbig">${big}</span>`:''}<b class="celebt">${esc(c.t)}</b><span class="small muted">${esc(c.d||'')}</span>
     ${c.cer?`<div class="cere"><span class="cerei">${c.cer[0]}</span><span class="small"><b>${c.cer[1]}!</b></span></div>`:''}
     ${G.celebQ.length>1?`<p class="small muted">이어서 ${G.celebQ.length-1}개 더!</p>`:''}<button class="btn" data-act="celeb-ok">${G.celebQ.length>1?'다음':fx==='down'?'다시 일어선다':'좋아요!'} <span class="arr">→</span></button></div></div>`}
   if(!G.achQ.length)return '';
@@ -3514,7 +3634,7 @@ function resolveMoment(p,i){
 
 /* ---------- 업데이트 노트 (최신이 위, 버전마다 누적) ---------- */
 const UPDATES=[
-  {d:'2026.10.07 10:23',t:'숨은 시작 특성 7종',l:['선수의 약 45%가 숨은 특성을 하나 갖고 태어나요. 화면에는 보이지 않고 은퇴할 때 공개돼요','🧬 노익장(하락이 늦고 완만 · 대신 23세까지 성장 조금 느림) · 🔋 강철 체력(피로 덜 쌓임 · 대신 경기 감각이 천천히 오름) · 🔥 빅매치 강심장(빅매치·토너먼트·결승에 강함 · 대신 평범한 경기 집중력 소폭↓)','🌟 스타성(인지도 빨리 오름 · 대신 비판도 크게) · 🏋️ 연습벌레(동계 훈련 효과↑ · 대신 휴식 요청 시 사기↓) · ❤️ 원클럽 DNA(오래 있을수록 케미·감독 신뢰↑ · 대신 이적하면 적응 느림) · ✈️ 해외 체질(유럽 적응 빠름 · 대신 국내 인기는 천천히)']},  {d:'2026.10.07 10:05',t:'같은 선수 중복 진행 수정',l:['다른 기기 선수를 이어하기로 가져온 뒤에도 같은 선수가 목록에 또 떠서 두 갈래로 진행되던 문제를 고쳤어요','같은 선수(이름·등번호·포지션·나이)는 하나로 합치고, 더 많이 진행한 쪽으로 이어가요']},  {d:'2026.10.07 09:53',t:'동기화 강화 · 내 선수 커리어 카드 · 새 랜덤 요소',l:['기기마다 다른 선수를 키워도 클라우드에 모두 남아요. 다른 기기에서 진행 중인 선수는 홈·계정 화면에서 \'이어하기\'로 바로 이어갈 수 있어요','명예의 전당·업적·해금은 기기끼리 자동으로 합쳐지고, 계정 화면의 \'지금 저장 · 동기화\'를 누르면 바로 맞추고 \'저장했습니다\'가 떠요','예전 버전이 휴대폰에 남아 있으면 홈에 \'새 버전이 나왔어요\' 버튼이 떠요','내 선수들: 선수를 누르면 은퇴 카드처럼 경력·트로피 진열장(대회별 횟수·연도)·은퇴 후 이야기를 볼 수 있어요','⏰ 이적시장 마감일 깜짝 오퍼: 드물게 한 단계 위 구단이 웃돈을 들고 막판에 뛰어들어요','🌧️ 날씨·원정: 가끔 폭우·폭설·무더위·강풍 경기가 있고, AFC 장거리 원정은 더 지쳐요','💸 구단 위기: 아주 가끔 재정난(주급 삭감 요청)이나 새 구단주 인수(팀 전력 상승) 소식이 있어요','👔 성적이 바닥이면 시즌 중 감독이 경질되고, 성향이 다른 새 감독이 와서 입지가 다시 정해져요']},  {d:'2026.10.07 09:37',t:'기기 간 동기화 · 몸값 현실화 · 결승 일정',l:['로그인하면 컴퓨터·폰 기록이 서로 덮어쓰지 않고 합쳐져요: 명예의 전당·업적·포지션 해금은 두 기기 것을 모두 남기고, 진행 중인 선수는 더 최근에 플레이한 쪽을 써요. 앱을 열거나 다시 볼 때마다 자동으로 맞춰요','한 번에 진행하는 4경기에 대륙대회 경기가 포함돼요 (예: 리그 3경기 + UEL 1경기)','대륙대회·컵대회 결승은 실제처럼 리그 일정이 모두 끝난 뒤에 치러요. 토너먼트 일정도 실제처럼 뒤로 옮겼어요','몸값이 실제 이적시장처럼 최상위로 갈수록 가파르게 올라요. 월드클래스는 700억~1,000억대도 (아주 드물게) 가능하고, 돈 많은 빅클럽은 가끔 웃돈을 얹어 영입해요','결정적 순간에 어떤 경기인지(리그 몇 라운드 · 대륙대회 단계 · 결승) 표시되고, 선택지 버튼 색이 모두 같아졌어요','병역 정보에 앞으로 열리는 아시안게임·올림픽이 몇 년 뒤인지, 그때 나이로 U23·와일드카드 중 어떻게 나갈 수 있는지 보여요','명예의 전당: 모두의 랭킹 · 주간 챌린지 · 내 선수들 탭, 선수마다 트로피·개인 수상 전체 목록','은퇴 하이라이트의 \'최고의 팀\'에 2군(U21) 기간은 나오지 않아요','새 이벤트 16개: 예능 섭외, 개인 트레이너, 훈련장 말다툼, 축구화 스폰서, 전술 실험, 열애설, 판정 논란, 라이벌 도발, 멘탈 코치, 단독 인터뷰 등','몸값 업적 기준을 새 몸값에 맞게 올렸어요 (500억 · 1,000억 사나이, 이적료 300억)']},  {d:'2026.10.07 00:59',t:'평균 평점 소수 둘째 자리 · 피드백',l:['시즌·통산 평균 평점이 7.36처럼 소수 둘째 자리까지 보여요 (경기 평점은 그대로 첫째 자리)','피드백은 로그인한 뒤에 보낼 수 있어요 (보낸 사람 닉네임이 함께 전달돼요)']},  {d:'2026.10.07 00:34',t:'은퇴·새 인생 버튼 위치',l:['시즌 화면 아래의 은퇴하기 · 새 인생 시작 버튼은 시즌 결산 화면에서만 보여요','홈 화면의 새 인생 시작 · 주간 챌린지는 언제든 쓸 수 있어요']},  {d:'2026.10.07 00:21',t:'평점 기준 조정 · 골키퍼 선방',l:['평점이 실제 축구처럼 바뀌었어요: 무난한 경기 6.6~6.8, 무실점이나 1골·1도움이면 7.1~7.4, 공격 포인트·결정적 수비·선방이 쌓일수록 더 올라가요','골키퍼는 경기마다 선방 수가 기록되고 평점에 반영돼요 (지난 경기 목록에 🧤 선방 표시)','평점이 올라간 만큼 재계약 제안 등 평점 기준도 함께 올렸어요 (구단 재계약 제안은 최근 평점 7.4 이상)','이적·상무 결과 카운트다운 중에는 뒤 화면이 가려져서 결과가 미리 보이지 않아요']},  {d:'2026.10.07 00:09',t:'대륙대회 · 다양한 기사 · 큰 순간 연출',l:['UCL·UEL·UECL·ACLE·ACL2를 실제로 치러요. 조 추첨(포트·같은 리그 회피) → 조별리그 6경기 → 16강(AFC는 8강)부터 홈·원정 토너먼트 → 결승','대륙대회 경기는 주중에 리그 사이사이 열리고, 시즌 기록과 피로에 더해져요. 조별 탈락·토너먼트 결과가 소식에 떠요','순위 탭에 대륙대회 탭이 생겼어요: 조별 순위표 · 토너먼트 추첨 결과와 합계 스코어','순위표에 승·무·패가 보여요 (게임 안에서 실제로 치른 경기 기록)','2군 리그 순위표에 대륙대회·강등 구역이 잘못 표시되던 문제를 고쳤어요','언론·라이벌 기사가 훨씬 다양해졌어요: 멀티골·결승골·연속골·골 가뭄·인터뷰·칼럼·순위 기사 등, 가상의 매체 이름과 함께','결정적 순간이 포지션마다 여러 상황으로 나오고, 선택지 4개가 매번 다른 조합으로 나와요','해트트릭은 축구공이 날아오고 세레머니가 보이고, 결정적 골·선방, 승격·강등에도 연출이 생겼어요','이적·상무 지원·재계약·임대 요청은 3·2·1 카운트다운 뒤 결과를 알려 줘요','구단이 이적을 막을 때 이유를 알려 줘요 (이적료 부족, 감독의 잔류 요청, 시즌 중 전력 공백 등)','활약이 좋으면 가끔 소속팀이 먼저 주급·계약 기간을 올린 재계약을 제안해요','골키퍼 평점은 무실점·실점, 수비수 평점은 수비 경기력·무실점에 더 크게 움직이고, 골·도움 비중은 조금 줄었어요','중간 난이도 업적 23개가 추가됐어요']},  {d:'2026.10.06 23:13',t:'짧은 부상 · 직접 만든 학교',l:['부상이 이번 묶음 안에 끝나면 넘어가기만 뜨지 않고 평소처럼 경기 방식을 고를 수 있어요 (복귀 후 경기에 반영)','연승·연패 때 배경색이 바뀌던 효과를 없앴어요 (화면 안 표시는 그대로)','출신 고교에서 ✏️ 직접 입력을 고르면 원하는 이름의 일반고로 시작해요 (모구단·우선지명 없음)','유스 고교 이름은 원래대로 고정돼요']},
+  {d:'2026.10.07 10:36',t:'레전드 상점',l:['은퇴 등급(D 1 · C 2 · B 4 · A 7 · S 12 · S+ 20)과 업적(일반 1 · 중간 2 · 어려움 5)으로 레전드 포인트(LP)가 쌓여요. 지금까지의 명예의 전당·업적만큼 한 번 소급해서 드렸어요','🎲 리롤권: 능력치 다시 돌리기 +1회 · 🔍 스카우트권: 후보 3명 중 1명의 최소 잠재력 등급(S·A·B·C·D)을 확인 · 🎭 특성 선택권: 새 선수의 시작 특성을 직접 골라요','명예의 전당 카드 테두리(골드 · 클럽 컬러 · 불꽃 · 홀로그램 · 레전드 다이아)와 은퇴식 연출(꽃가루 · 기립박수 · 불꽃놀이 · 영구결번)을 사서 장착할 수 있어요','LP와 산 물건도 로그인하면 기기끼리 합쳐져요. 주간 챌린지에서는 상점 아이템을 쓸 수 없어요','업데이트 노트는 홈 화면 맨 아래 줄로 옮겼어요']},  {d:'2026.10.07 10:23',t:'숨은 시작 특성 7종',l:['선수의 약 45%가 숨은 특성을 하나 갖고 태어나요. 화면에는 보이지 않고 은퇴할 때 공개돼요','🧬 노익장(하락이 늦고 완만 · 대신 23세까지 성장 조금 느림) · 🔋 강철 체력(피로 덜 쌓임 · 대신 경기 감각이 천천히 오름) · 🔥 빅매치 강심장(빅매치·토너먼트·결승에 강함 · 대신 평범한 경기 집중력 소폭↓)','🌟 스타성(인지도 빨리 오름 · 대신 비판도 크게) · 🏋️ 연습벌레(동계 훈련 효과↑ · 대신 휴식 요청 시 사기↓) · ❤️ 원클럽 DNA(오래 있을수록 케미·감독 신뢰↑ · 대신 이적하면 적응 느림) · ✈️ 해외 체질(유럽 적응 빠름 · 대신 국내 인기는 천천히)']},  {d:'2026.10.07 10:05',t:'같은 선수 중복 진행 수정',l:['다른 기기 선수를 이어하기로 가져온 뒤에도 같은 선수가 목록에 또 떠서 두 갈래로 진행되던 문제를 고쳤어요','같은 선수(이름·등번호·포지션·나이)는 하나로 합치고, 더 많이 진행한 쪽으로 이어가요']},  {d:'2026.10.07 09:53',t:'동기화 강화 · 내 선수 커리어 카드 · 새 랜덤 요소',l:['기기마다 다른 선수를 키워도 클라우드에 모두 남아요. 다른 기기에서 진행 중인 선수는 홈·계정 화면에서 \'이어하기\'로 바로 이어갈 수 있어요','명예의 전당·업적·해금은 기기끼리 자동으로 합쳐지고, 계정 화면의 \'지금 저장 · 동기화\'를 누르면 바로 맞추고 \'저장했습니다\'가 떠요','예전 버전이 휴대폰에 남아 있으면 홈에 \'새 버전이 나왔어요\' 버튼이 떠요','내 선수들: 선수를 누르면 은퇴 카드처럼 경력·트로피 진열장(대회별 횟수·연도)·은퇴 후 이야기를 볼 수 있어요','⏰ 이적시장 마감일 깜짝 오퍼: 드물게 한 단계 위 구단이 웃돈을 들고 막판에 뛰어들어요','🌧️ 날씨·원정: 가끔 폭우·폭설·무더위·강풍 경기가 있고, AFC 장거리 원정은 더 지쳐요','💸 구단 위기: 아주 가끔 재정난(주급 삭감 요청)이나 새 구단주 인수(팀 전력 상승) 소식이 있어요','👔 성적이 바닥이면 시즌 중 감독이 경질되고, 성향이 다른 새 감독이 와서 입지가 다시 정해져요']},  {d:'2026.10.07 09:37',t:'기기 간 동기화 · 몸값 현실화 · 결승 일정',l:['로그인하면 컴퓨터·폰 기록이 서로 덮어쓰지 않고 합쳐져요: 명예의 전당·업적·포지션 해금은 두 기기 것을 모두 남기고, 진행 중인 선수는 더 최근에 플레이한 쪽을 써요. 앱을 열거나 다시 볼 때마다 자동으로 맞춰요','한 번에 진행하는 4경기에 대륙대회 경기가 포함돼요 (예: 리그 3경기 + UEL 1경기)','대륙대회·컵대회 결승은 실제처럼 리그 일정이 모두 끝난 뒤에 치러요. 토너먼트 일정도 실제처럼 뒤로 옮겼어요','몸값이 실제 이적시장처럼 최상위로 갈수록 가파르게 올라요. 월드클래스는 700억~1,000억대도 (아주 드물게) 가능하고, 돈 많은 빅클럽은 가끔 웃돈을 얹어 영입해요','결정적 순간에 어떤 경기인지(리그 몇 라운드 · 대륙대회 단계 · 결승) 표시되고, 선택지 버튼 색이 모두 같아졌어요','병역 정보에 앞으로 열리는 아시안게임·올림픽이 몇 년 뒤인지, 그때 나이로 U23·와일드카드 중 어떻게 나갈 수 있는지 보여요','명예의 전당: 모두의 랭킹 · 주간 챌린지 · 내 선수들 탭, 선수마다 트로피·개인 수상 전체 목록','은퇴 하이라이트의 \'최고의 팀\'에 2군(U21) 기간은 나오지 않아요','새 이벤트 16개: 예능 섭외, 개인 트레이너, 훈련장 말다툼, 축구화 스폰서, 전술 실험, 열애설, 판정 논란, 라이벌 도발, 멘탈 코치, 단독 인터뷰 등','몸값 업적 기준을 새 몸값에 맞게 올렸어요 (500억 · 1,000억 사나이, 이적료 300억)']},  {d:'2026.10.07 00:59',t:'평균 평점 소수 둘째 자리 · 피드백',l:['시즌·통산 평균 평점이 7.36처럼 소수 둘째 자리까지 보여요 (경기 평점은 그대로 첫째 자리)','피드백은 로그인한 뒤에 보낼 수 있어요 (보낸 사람 닉네임이 함께 전달돼요)']},  {d:'2026.10.07 00:34',t:'은퇴·새 인생 버튼 위치',l:['시즌 화면 아래의 은퇴하기 · 새 인생 시작 버튼은 시즌 결산 화면에서만 보여요','홈 화면의 새 인생 시작 · 주간 챌린지는 언제든 쓸 수 있어요']},  {d:'2026.10.07 00:21',t:'평점 기준 조정 · 골키퍼 선방',l:['평점이 실제 축구처럼 바뀌었어요: 무난한 경기 6.6~6.8, 무실점이나 1골·1도움이면 7.1~7.4, 공격 포인트·결정적 수비·선방이 쌓일수록 더 올라가요','골키퍼는 경기마다 선방 수가 기록되고 평점에 반영돼요 (지난 경기 목록에 🧤 선방 표시)','평점이 올라간 만큼 재계약 제안 등 평점 기준도 함께 올렸어요 (구단 재계약 제안은 최근 평점 7.4 이상)','이적·상무 결과 카운트다운 중에는 뒤 화면이 가려져서 결과가 미리 보이지 않아요']},  {d:'2026.10.07 00:09',t:'대륙대회 · 다양한 기사 · 큰 순간 연출',l:['UCL·UEL·UECL·ACLE·ACL2를 실제로 치러요. 조 추첨(포트·같은 리그 회피) → 조별리그 6경기 → 16강(AFC는 8강)부터 홈·원정 토너먼트 → 결승','대륙대회 경기는 주중에 리그 사이사이 열리고, 시즌 기록과 피로에 더해져요. 조별 탈락·토너먼트 결과가 소식에 떠요','순위 탭에 대륙대회 탭이 생겼어요: 조별 순위표 · 토너먼트 추첨 결과와 합계 스코어','순위표에 승·무·패가 보여요 (게임 안에서 실제로 치른 경기 기록)','2군 리그 순위표에 대륙대회·강등 구역이 잘못 표시되던 문제를 고쳤어요','언론·라이벌 기사가 훨씬 다양해졌어요: 멀티골·결승골·연속골·골 가뭄·인터뷰·칼럼·순위 기사 등, 가상의 매체 이름과 함께','결정적 순간이 포지션마다 여러 상황으로 나오고, 선택지 4개가 매번 다른 조합으로 나와요','해트트릭은 축구공이 날아오고 세레머니가 보이고, 결정적 골·선방, 승격·강등에도 연출이 생겼어요','이적·상무 지원·재계약·임대 요청은 3·2·1 카운트다운 뒤 결과를 알려 줘요','구단이 이적을 막을 때 이유를 알려 줘요 (이적료 부족, 감독의 잔류 요청, 시즌 중 전력 공백 등)','활약이 좋으면 가끔 소속팀이 먼저 주급·계약 기간을 올린 재계약을 제안해요','골키퍼 평점은 무실점·실점, 수비수 평점은 수비 경기력·무실점에 더 크게 움직이고, 골·도움 비중은 조금 줄었어요','중간 난이도 업적 23개가 추가됐어요']},  {d:'2026.10.06 23:13',t:'짧은 부상 · 직접 만든 학교',l:['부상이 이번 묶음 안에 끝나면 넘어가기만 뜨지 않고 평소처럼 경기 방식을 고를 수 있어요 (복귀 후 경기에 반영)','연승·연패 때 배경색이 바뀌던 효과를 없앴어요 (화면 안 표시는 그대로)','출신 고교에서 ✏️ 직접 입력을 고르면 원하는 이름의 일반고로 시작해요 (모구단·우선지명 없음)','유스 고교 이름은 원래대로 고정돼요']},
   {d:'2026.10.06 23:08',t:'유스 고교 추가 · 더 촘촘한 화면',l:['부산(개성고)·전남(광양제철고)·대구(현풍고)·대전(충남기계공고)·광주(금호고)·강원(강릉제일고)·경남(진주고)·안양(안양공고) 유스 고교가 생겼어요','유스가 없는 일반 고교는 없어졌어요','출신 고교 이름을 직접 정할 수 있어요 (비우면 원래 이름)','글자와 여백을 한 번 더 줄여 시즌 화면이 한 화면에 들어와요','새 인생 시작 · 은퇴하기 버튼을 작게 정리했어요']},
   {d:'2026.10.06 22:50',t:'결정적 순간',l:['빅매치(접전)와 결승전에 출전하면 경기 막판 결정적 순간을 직접 골라요','공격수는 슈팅 방향, 미드필더는 패스할 동료, 수비수는 막는 방법, 골키퍼는 페널티킥 방향을 골라요','성공 확률은 보이지 않고 장면마다 달라요. 상대 골키퍼·수비의 대응과 내 능력치에 따라 정해져요','성공하면 골·도움·선방이 실제 스코어와 평점에 반영되고, 결승 우승에도 영향을 줘요']},
   {d:'2026.10.06 22:40',t:'유럽대항전 · 구단 대표 색 · 촘촘한 화면',l:['UCL·UEL·UECL이 생겼어요. 지난 시즌 리그 순위로 출전권이 정해져요 (잉글랜드·스페인·독일·이탈리아 1~4위 UCL, 5~6위 UEL, 7위 UECL / 프랑스 1~4위 UCL, 5위 UEL, 6위 UECL)','K리그1은 1~2위 ACLE, 3위 ACL2에 나가요','대륙대회 결승은 실제로 출전 중인 대회에서만 오를 수 있어요','오퍼 카드에 그 팀이 나가는 대륙대회와 순위가 보여요','대륙대회에 나가는 시즌에는 시즌 시작 전에 알려 줘요','순위표에 대륙대회 출전권 구역이 표시돼요','구단 엠블럼이 실제 대표 색을 쓰고, 모양도 구단마다 다양해졌어요','팀 배경이 구단 대표 색으로 은은하게 바뀌어요','화면 전체를 더 촘촘하게 정리해 스크롤을 줄였어요']},
@@ -3636,7 +3756,8 @@ function homeView(){
     ${tile('ach','ACHIEVEMENTS','업적',`${ACH.filter(a=>G.ach[a.id]).length} / ${ACH.length} 달성`)}
     ${tile('guide','HOW TO PLAY','게임 방법','진행 방법 · 꿀팁')}
     ${sharedOn()?tile('friends','FRIENDS','친구'+(G.fr.inN?` <span class="chip gold">${G.fr.inN}</span>`:''),G.auth?(G.fr.inN?'받은 친구 요청이 있어요':'랭킹 · 베스트 11 대결'):'로그인하면 열려요'):''}
-    ${tile('updates','UPDATES','업데이트 노트',`${UPDATES[0].d.slice(5)} · ${UPDATES[0].t}`)}
+    ${tile('shop','LEGEND SHOP','레전드 상점',`보유 ${lpBal()} LP`)}
+    ${'' && tile('updates','UPDATES','업데이트 노트',`${UPDATES[0].d.slice(5)} · ${UPDATES[0].t}`)}
   </div>`;
   return h;
 }function createView(){
@@ -3662,10 +3783,16 @@ function homeView(){
     h+=`<section class="panel"><div class="row" style="justify-content:space-between;align-items:center"><div><span class="eyebrow">STEP 2 · SCOUTING</span><h2 class="sectionh">후보 선수</h2></div>
       <button class="ghost" data-act="reroll" ${c.rerolls<=0?'disabled':''}>능력치 다시 돌리기 ${c.rerolls}회</button></div>
       <p class="muted small">모든 후보는 능력치 총합이 ${footTotal(c.foot)}으로 같고, 분배만 다릅니다. 선수마다 숨겨진 잠재력이 있어서 얼마나 크게 성장할지는 직접 키워 봐야 알 수 있어요.</p>
+      ${c.challenge?'':(()=>{const R=lpItem('reroll'),S=lpItem('scout'),T=lpItem('trait');
+        // 상점 아이템: 리롤권 · 스카우트권 · 특성 선택권
+        return `<div class="useb">${R?`<button class="sbtn alt" data-act="use-reroll">🎲 리롤권 쓰기 · ${R}</button>`:''}${S?`<span class="small muted">🔍 스카우트권 ${S}장 · 후보를 골라 최소 잠재력 확인</span>`:''}
+          ${c.traitPaid||T?`<button class="sbtn alt" data-act="trait-open">🎭 ${c.forceTrait?`특성: ${TRAITS[c.forceTrait].n} (바꾸기)`:`특성 선택권 쓰기 · ${T}`}</button>`:''}${!R&&!S&&!T?'<span class="small muted">🛒 레전드 상점에서 리롤권·스카우트권·특성 선택권을 살 수 있어요</span>':''}</div>
+          ${c.traitOpen?`<div class="traitpick">${TRAIT_KEYS.map(k=>`<button class="dbtn${c.forceTrait===k?' pri':''}" data-act="trait-pick" data-v="${k}"><b>${TRAITS[k].i} ${TRAITS[k].n}</b><span>${TRAITS[k].s}</span></button>`).join('')}<p class="small muted">${c.traitPaid?'이미 선택권을 썼어요. 선수를 고르기 전까지 자유롭게 바꿀 수 있어요.':'고르면 선택권 1장을 써요.'}</p></div>`:''}`})()}
       ${c.cands.map((x,i)=>`<div class="cand"><div class="row" style="justify-content:space-between;align-items:center">
         <span><b>후보 ${i+1}</b> <span class="chip">${DPOS[x.dpos].n}</span></span>
         <span class="row" style="gap:6px"><span class="chip">총합 ${STATS.reduce((a,k)=>a+x.stats[k],0)}</span><span class="chip good">OVR ${x.ovr}</span></span></div>
         <div class="mini">${STATS.map(k=>`<span>${lb[k]}<b>${x.stats[k]}</b></span>`).join('')}</div>
+        ${c.challenge?'':c.scout&&c.scout[i]!=null?`<div class="potg"><span class="pg pg-${c.scout[i]}">${c.scout[i]}</span><span class="small">🔍 잠재력 <b>최소 ${c.scout[i]}</b> <span class="muted">· 실제로는 이보다 높을 수 있어요</span></span></div>`:lpItem('scout')>0?`<button class="sbtn alt" data-act="scout" data-v="${i}" style="align-self:flex-start">🔍 이 후보 스카우트하기</button>`:''}
         <button class="btn" data-act="pick" data-v="${i}">이 선수로 시작 <span class="arr">→</span></button></div>`).join('')}</section>`;
   }
   return h;
@@ -3761,7 +3888,7 @@ function rankCard(r,i,mine){
   const j=rankDetail(r),d=j&&j.d,gk=r.pos==='GK';
   const per=s=>s.y1===s.y2?`${s.y1}`:`${s.y1} - ${s.y2}`;
   return `<button class="ghost" data-act="${mine?'hof-back':'rank-back'}" style="margin-bottom:10px">‹ ${mine?'내 선수들로':'랭킹으로'}</button>
-  <section class="panel"><div class="strip"><div class="ovr" style="padding:8px 14px"><div class="v" style="font-size:30px">${esc(r.grade)}</div><div class="k">${r.score}점</div></div>
+  <section class="panel${mine?frameCls():''}" style="--fc:${clubColOf(r.club)}"><div class="strip"><div class="ovr" style="padding:8px 14px"><div class="v" style="font-size:30px">${esc(r.grade)}</div><div class="k">${r.score}점</div></div>
     <div class="who"><b>${mine?'':(i+1)+'위 · '}${esc(r.name)}</b><span class="muted small">#${r.num} ${esc(DPOS[r.dpos]?DPOS[r.dpos].n:POS[r.pos]?POS[r.pos].name:'')} · ${r.retired_year} 은퇴 (${r.retired_age}세)${j&&j.nick?` · 등록 ${esc(j.nick)}`:''}</span></div></div>
     <div class="statline"><div><b>${r.apps}</b><span>출장</span></div>${gk?`<div><b>${j?j.cs:'-'}</b><span>무실점</span></div><div><b>${d?d.conc:'-'}</b><span>실점</span></div>`:`<div><b>${r.goals}</b><span>골</span></div><div><b>${r.assists}</b><span>도움</span></div>`}<div><b>${d&&d.avg?dr2(d.avg):'-'}</b><span>평균 평점</span></div></div>
     <div class="trsplit"><span>🏆 팀 트로피 <b>${j&&j.tTeam!=null?j.tTeam:'-'}</b></span><span>🏅 개인 수상 <b>${j&&j.tInd!=null?j.tInd:'-'}</b></span><span>🇰🇷 A매치 <b>${r.caps}</b>${j&&r.caps?` · ${j.intlGoals}골`:''}</span></div></section>
@@ -3814,7 +3941,7 @@ function hofView(){
       return h+rankCard(row,0,true)+(x.tl?'':`<section class="panel"><p class="small muted">${x.top&&x.top.length?'대표 트로피: '+esc(x.top.join(', ')):''} 이 기록은 예전 버전에서 은퇴해 트로피 연도 목록이 없어요.</p></section>`)}
     G.hofView=null}
   const list=G.hof.slice().sort((a,b)=>b.score-a.score);
-  return h+`<section class="panel">${list.map((x,i)=>`<div class="cand"><div class="strip"><div class="jersey" style="width:44px;height:48px;font-size:22px">${x.num}</div>
+  return h+`<section class="panel">${list.map((x,i)=>`<div class="cand${frameCls()}" style="--fc:${clubColOf(x.club)}"><div class="strip"><div class="jersey" style="width:44px;height:48px;font-size:22px">${x.num}</div>
       <div class="who"><b>${i+1}. ${esc(x.name)}</b><span class="muted small">${posLabel(x)} · ${x.year} 은퇴 (${x.age}세) · ${esc(x.club)}</span></div>
       <div class="ovr"><div class="v" style="font-size:22px">${x.grade||gradeOf(x.score)}</div><div class="k">${x.score}점</div></div></div>
       <div class="mini"><span>최고 OVR<b>${x.peak}</b></span><span>출장<b>${x.apps}</b></span>${(x.pos==='DF'||x.pos==='GK')&&x.cs!=null?`<span>무실점<b>${x.cs}</b></span>`:`<span>골<b>${x.goals}</b></span>`}<span>도움<b>${x.assists}</b></span>
@@ -4281,7 +4408,7 @@ function trophyTab(p){
 let lastApp='',lastDock='';
 function render(){
   let h=header();G.dock='';
-  h+=G.screen==='home'?homeView():G.screen==='create'?createView():G.screen==='hof'?hofView():G.screen==='b11'?b11View():G.screen==='guide'?guideView():G.screen==='acct'?acctView():G.screen==='friends'?friendsView():G.screen==='ach'?achView():G.screen==='updates'?updatesView():G.screen==='feedback'?feedbackView():gameView();
+  h+=G.screen==='home'?homeView():G.screen==='create'?createView():G.screen==='hof'?hofView():G.screen==='b11'?b11View():G.screen==='guide'?guideView():G.screen==='acct'?acctView():G.screen==='friends'?friendsView():G.screen==='ach'?achView():G.screen==='updates'?updatesView():G.screen==='shop'?shopView():G.screen==='feedback'?feedbackView():gameView();
   // 팀 색 배경 + 분위기 효과 (연승 🔥 · 연패 🥶 · 강등 · 승격)
   {const p=G.p,b=document.body,inGame=G.screen==='game'&&p&&p.phase!=='retired'&&!p.fa;
    if(inGame){b.style.setProperty('--team',teamCol(p.club)[0])}
@@ -4293,7 +4420,7 @@ function render(){
    b.classList.toggle('glory',!!(inGame&&mv&&mv.my==='up'))}
   // 업적 축하 팝업은 하단 도크보다 위에 뜨도록 별도 층에 그린다
   {let ov=document.getElementById('achlayer');if(!ov){ov=document.createElement('div');ov.id='achlayer';document.body.appendChild(ov)}const oh=achOverlay();if(ov.dataset.h!==oh){ov.innerHTML=oh;ov.dataset.h=oh}}
-  if(sharedOn()&&G.screen==='home')h+=`<button class="linkb fblink" data-act="feedback">💬 피드백 보내기${isAdmin()?' · 📥 받은 피드백 보기':''}</button>`;
+  if(G.screen==='home')h+=`<div class="footline">${sharedOn()?`<button class="linkb" data-act="feedback">💬 피드백${isAdmin()?' · 📥 받은 피드백':''}</button><span class="muted">·</span>`:''}<button class="linkb" data-act="updates">📋 업데이트 노트 · ${UPDATES[0].d.slice(5)} ${esc(UPDATES[0].t)}</button></div>`;
   h+=`<footer>킥오프 라이프 · ${G.auth?`기록이 ${esc(G.auth.name)} 아이디로 서버에 저장됩니다`:'기록은 이 브라우저에만 저장됩니다'}</footer>`;
   const dock=G.screen==='game'&&G.tab==='season'&&G.dock,app=document.getElementById('app');
   let dk=document.getElementById('dock');
@@ -4370,9 +4497,9 @@ const detOpen=(k,def)=>G.det&&k in G.det?G.det[k]:def;function act(a,v){
     case 'pos':if(!isUnlocked(v)||c.challenge)break;c.pos=v;c.type=Object.keys(POS[v].types)[0];if(c.cands)makeCands(c);break;
     case 'type':if(c.challenge)break;c.type=v;if(c.cands)makeCands(c);break;
     case 'foot':if(c.challenge)break;c.foot=v;if(c.cands)makeCands(c);break;
-    case 'gen':makeCands(c);break;
-    case 'reroll':if(c.rerolls>0&&!c.challenge){c.rerolls--;c.seed=newSeed();makeCands(c)}break;
-    case 'pick':{c.num=clamp(parseInt(c.num)||10,1,99);c.used=true;G.p=newPlayer(c,c.cands[+v]);if(c.challenge){G.p.challenge=c.challenge;c.challenge=null}G.train=[];G.screen='game';G.tab='season';G.toTop=true;break}
+    case 'gen':makeCands(c);c.scout={};break;
+    case 'reroll':if(c.rerolls>0&&!c.challenge){c.rerolls--;c.seed=newSeed();makeCands(c);c.scout={}}break;
+    case 'pick':{c.num=clamp(parseInt(c.num)||10,1,99);c.used=true;G.p=newPlayer(c,c.forceTrait&&!c.challenge?{...c.cands[+v],trait:c.forceTrait}:c.cands[+v]);c.forceTrait=null;c.traitPaid=false;c.traitOpen=false;c.scout={};if(c.challenge){G.p.challenge=c.challenge;c.challenge=null}G.train=[];G.screen='game';G.tab='season';G.toTop=true;break}
     case 'tab':G.tab=v;break;
     case 'ptab':G.ptab=v;break;
     case 'ttab':G.ttab=v;break;
@@ -4385,6 +4512,13 @@ const detOpen=(k,def)=>G.det&&k in G.det?G.det[k]:def;function act(a,v){
     case 'ach-ok':G.achQ=[];break;
     case 'ach':G.screen='ach';G.toTop=true;break;
     case 'updates':G.screen='updates';G.toTop=true;break;
+    case 'shop':G.screen='shop';G.toTop=true;break;
+    case 'lp-buy':lpBuy(v);break;
+    case 'lp-eq':{const [g,k]=v.split(':');G.lp.eq[g]=k||null;lpSave();break}
+    case 'use-reroll':if(!c.challenge&&lpUse('reroll')){c.rerolls++;toast('리롤권을 썼어요 (+1회)')}break;
+    case 'scout':if(!c.challenge&&c.cands&&!(c.scout&&c.scout[v]!=null)&&lpUse('scout')){c.scout=c.scout||{};c.scout[v]=potFloor(c.cands[+v])}break;
+    case 'trait-open':if(!c.challenge&&(c.traitPaid||lpItem('trait')>0))c.traitOpen=!c.traitOpen;break;
+    case 'trait-pick':if(!c.challenge){if(!c.traitPaid){if(!lpUse('trait'))break;c.traitPaid=true}c.forceTrait=v;c.traitOpen=false}break;
     case 'feedback':G.screen='feedback';G.fb.msg=null;G.fb.err=null;G.toTop=true;if(sharedOn()&&G.auth)setTimeout(fbLoad);break;
     case 'fb-cat':G.fb.cat=v;break;
     case 'fb-send':if(sharedOn())fbSend();break;
