@@ -2592,16 +2592,21 @@ const authErr=e=>{const m=(e&&(e.msg||e.error_description||e.message||e.error))|
 // 진행 중인 선수 목록 (기기마다 다른 선수를 키워도 클라우드에 모두 남는다)
 const newPid=()=>'p'+Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36);
 G.cloudPs=[];G.retiredPids=load('kickoff-life-closed',[]);
+// 같은 선수인지: 기기마다 번호(pid)가 달라도 이름·등번호·포지션·출생 연도가 같으면 같은 선수다
+const pkey=x=>x?`k:${x.name}|${x.num}|${x.pos}|${(x.year||0)-(x.age||0)}`:'';
+// 얼마나 진행했는지 (플레이 시각이 없는 예전 저장을 비교할 때)
+const prog=x=>(x.year||0)*1000+(x.phase==='round'&&x.season?(x.season.mi||0)+1:x.phase==='offseason'||x.phase==='summary'?900:0);
+// a가 b보다 더 최근 상태인가
+const newer=(a,b)=>{if(!b)return true;if(a.ts&&b.ts&&a.ts!==b.ts)return a.ts>b.ts;const d=prog(a)-prog(b);return d?d>0:(a.ts||0)>(b.ts||0)};
+const isClosed=x=>{const c=G.retiredPids||[];return c.includes(x.pid)||c.includes(pkey(x))};
 function livePs(){
   const m={};
-  const add=x=>{if(!x||x.phase==='retired')return;if(!x.pid)x.pid=newPid();const o=m[x.pid];if(!o||(x.ts||0)>(o.ts||0))m[x.pid]=x};
-  G.cloudPs.forEach(add);add(G.p);
-  // 은퇴한 선수(이 기기에서 은퇴 처리된 같은 선수)는 목록에서 뺀다
-  if(G.p&&G.p.phase==='retired'&&G.p.pid)delete m[G.p.pid];
-  (G.retiredPids||[]).forEach(id=>delete m[id]);
+  const add=x=>{if(!x||x.phase==='retired'||isClosed(x))return;if(!x.pid)x.pid=newPid();const k=pkey(x),o=m[k];if(!o||newer(x,o))m[k]=x};
+  G.cloudPs.forEach(add);
+  // 지금 플레이 중인 선수가 같은 선수 중 기준: 목록에서는 지금 선수로 대표한다
+  if(G.p&&G.p.phase!=='retired'){if(!G.p.pid)G.p.pid=newPid();const k=pkey(G.p),o=m[k];if(!o||!newer(o,G.p))m[k]=G.p;else{o.pid=G.p.pid}}
   return Object.values(m).sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,4);
-}
-const saveData=()=>({p:G.p,ps:livePs(),retiredPids:(G.retiredPids||[]).slice(-30),hof:G.hof,b11:G.b11,unlock:G.unlock,ach:G.ach,frRec:G.frRec,chal:G.chal,create:{seed:G.create.seed,rerolls:G.create.rerolls,used:G.create.used}});
+}const saveData=()=>({p:G.p,ps:livePs(),retiredPids:(G.retiredPids||[]).slice(-60),hof:G.hof,b11:G.b11,unlock:G.unlock,ach:G.ach,frRec:G.frRec,chal:G.chal,create:{seed:G.create.seed,rerolls:G.create.rerolls,used:G.create.used}});
 function applyData(d){
   if(!d)return;G.p=d.p||null;G.hof=d.hof||[];G.b11=d.b11||G.b11;if(d.create)Object.assign(G.create,d.create);if(d.unlock)G.unlock=UNLOCK_ORDER.filter(k=>d.unlock.includes(k)||G.unlock.includes(k));syncUnlock();
   if(d.ach)G.ach={...d.ach,...G.ach};if(d.frRec)G.frRec={...d.frRec,...G.frRec};if(d.chal){for(const k in d.chal)G.chal[k]=Math.max(G.chal[k]||0,d.chal[k])}
@@ -2622,15 +2627,15 @@ function mergeData(d){
   if(d.chal)for(const k in d.chal)if((d.chal[k]||0)>(G.chal[k]||0)){G.chal[k]=d.chal[k];ch=true}
   if(d.frRec)for(const k in d.frRec)if(!G.frRec[k]){G.frRec[k]=d.frRec[k];ch=true}
   if(d.b11&&d.b11.line&&!(G.b11&&G.b11.line&&G.b11.line.some(Boolean))){G.b11=d.b11;ch=true}
-  G.retiredPids=[...new Set([...(G.retiredPids||[]),...(d.retiredPids||[])])].slice(-30);try{localStorage.setItem('kickoff-life-closed',JSON.stringify(G.retiredPids))}catch(e){}
+  G.retiredPids=[...new Set([...(G.retiredPids||[]),...(d.retiredPids||[])])].slice(-60);try{localStorage.setItem('kickoff-life-closed',JSON.stringify(G.retiredPids))}catch(e){}
   // 진행 중인 선수들: 예전 저장(p 하나)도 목록으로 받는다
   const ps=(d.ps&&d.ps.length?d.ps:d.p?[d.p]:[]).filter(x=>x&&x.phase!=='retired');
   const before=JSON.stringify(G.cloudPs.map(x=>[x.pid,x.ts]));
   G.cloudPs=ps;if(JSON.stringify(ps.map(x=>[x.pid,x.ts]))!==before)ch=true;
   // 지금 선수와 같은 선수가 다른 기기에서 더 진행됐으면 그걸로 이어간다. 이 기기에 선수가 없으면 가장 최근 선수를 가져온다
-  const lp=G.p,same=lp&&lp.pid?ps.find(x=>x.pid===lp.pid):null;
-  const take=same&&(same.ts||0)>(lp.ts||0)?same:!lp||(lp.phase==='retired'&&(G.retiredPids||[]).includes(lp.pid))?ps.slice().sort((a,b)=>(b.ts||0)-(a.ts||0))[0]:null;
-  if(take&&JSON.stringify(take)!==JSON.stringify(lp)){G.p=JSON.parse(JSON.stringify(take));applyWorld(G.p.world);G.p.evHist=G.p.evHist||[];ch=true}
+  const lp=G.p,same=lp?ps.filter(x=>x.pid===lp.pid||pkey(x)===pkey(lp)).sort((a,b)=>newer(a,b)?-1:1)[0]:null;
+  const take=same&&newer(same,lp)?same:!lp||(lp.phase==='retired'&&isClosed(lp))?ps.filter(x=>!isClosed(x)).sort((a,b)=>(b.ts||0)-(a.ts||0))[0]:null;
+  if(take&&JSON.stringify(take)!==JSON.stringify(lp)){const keep=lp&&same===take?lp.pid:null;G.p=JSON.parse(JSON.stringify(take));if(keep)G.p.pid=keep;applyWorld(G.p.world);G.p.evHist=G.p.evHist||[];ch=true}
   return ch;
 }
 // 다른 기기에서 진행 중인 선수 카드: 눌러서 그 선수로 이어하기
@@ -2642,10 +2647,10 @@ function otherPsHtml(){
     ${G.p&&G.p.phase!=='retired'?'<span class="muted">지금 선수도 클라우드에 남아 있어서 나중에 다시 바꿔 이어할 수 있어요.</span>':''}</div>`;
 }
 // 다른 기기에서 진행 중인 (지금 선수가 아닌) 선수들
-const otherPs=()=>livePs().filter(x=>!G.p||x.pid!==G.p.pid);
+const otherPs=()=>livePs().filter(x=>!G.p||(x.pid!==G.p.pid&&pkey(x)!==pkey(G.p)));
 // 진행 중인 선수 바꾸기: 지금 선수는 클라우드 목록에 그대로 남는다
 function switchPlayer(pid){
-  const t=livePs().find(x=>x.pid===pid);if(!t)return;
+  const t=livePs().find(x=>x.pid===pid);if(!t||(G.p&&pkey(t)===pkey(G.p)))return;
   if(G.p&&G.p.phase!=='retired')G.cloudPs=livePs();
   G.p=JSON.parse(JSON.stringify(t));applyWorld(G.p.world);G.p.evHist=G.p.evHist||[];G.screen='game';G.tab='season';G.toTop=true;
 }
@@ -3487,7 +3492,7 @@ function resolveMoment(p,i){
 
 /* ---------- 업데이트 노트 (최신이 위, 버전마다 누적) ---------- */
 const UPDATES=[
-  {d:'2026.10.07 09:53',t:'동기화 강화 · 내 선수 커리어 카드 · 새 랜덤 요소',l:['기기마다 다른 선수를 키워도 클라우드에 모두 남아요. 다른 기기에서 진행 중인 선수는 홈·계정 화면에서 \'이어하기\'로 바로 이어갈 수 있어요','명예의 전당·업적·해금은 기기끼리 자동으로 합쳐지고, 계정 화면의 \'지금 저장 · 동기화\'를 누르면 바로 맞추고 \'저장했습니다\'가 떠요','예전 버전이 휴대폰에 남아 있으면 홈에 \'새 버전이 나왔어요\' 버튼이 떠요','내 선수들: 선수를 누르면 은퇴 카드처럼 경력·트로피 진열장(대회별 횟수·연도)·은퇴 후 이야기를 볼 수 있어요','⏰ 이적시장 마감일 깜짝 오퍼: 드물게 한 단계 위 구단이 웃돈을 들고 막판에 뛰어들어요','🌧️ 날씨·원정: 가끔 폭우·폭설·무더위·강풍 경기가 있고, AFC 장거리 원정은 더 지쳐요','💸 구단 위기: 아주 가끔 재정난(주급 삭감 요청)이나 새 구단주 인수(팀 전력 상승) 소식이 있어요','👔 성적이 바닥이면 시즌 중 감독이 경질되고, 성향이 다른 새 감독이 와서 입지가 다시 정해져요']},  {d:'2026.10.07 09:37',t:'기기 간 동기화 · 몸값 현실화 · 결승 일정',l:['로그인하면 컴퓨터·폰 기록이 서로 덮어쓰지 않고 합쳐져요: 명예의 전당·업적·포지션 해금은 두 기기 것을 모두 남기고, 진행 중인 선수는 더 최근에 플레이한 쪽을 써요. 앱을 열거나 다시 볼 때마다 자동으로 맞춰요','한 번에 진행하는 4경기에 대륙대회 경기가 포함돼요 (예: 리그 3경기 + UEL 1경기)','대륙대회·컵대회 결승은 실제처럼 리그 일정이 모두 끝난 뒤에 치러요. 토너먼트 일정도 실제처럼 뒤로 옮겼어요','몸값이 실제 이적시장처럼 최상위로 갈수록 가파르게 올라요. 월드클래스는 700억~1,000억대도 (아주 드물게) 가능하고, 돈 많은 빅클럽은 가끔 웃돈을 얹어 영입해요','결정적 순간에 어떤 경기인지(리그 몇 라운드 · 대륙대회 단계 · 결승) 표시되고, 선택지 버튼 색이 모두 같아졌어요','병역 정보에 앞으로 열리는 아시안게임·올림픽이 몇 년 뒤인지, 그때 나이로 U23·와일드카드 중 어떻게 나갈 수 있는지 보여요','명예의 전당: 모두의 랭킹 · 주간 챌린지 · 내 선수들 탭, 선수마다 트로피·개인 수상 전체 목록','은퇴 하이라이트의 \'최고의 팀\'에 2군(U21) 기간은 나오지 않아요','새 이벤트 16개: 예능 섭외, 개인 트레이너, 훈련장 말다툼, 축구화 스폰서, 전술 실험, 열애설, 판정 논란, 라이벌 도발, 멘탈 코치, 단독 인터뷰 등','몸값 업적 기준을 새 몸값에 맞게 올렸어요 (500억 · 1,000억 사나이, 이적료 300억)']},  {d:'2026.10.07 00:59',t:'평균 평점 소수 둘째 자리 · 피드백',l:['시즌·통산 평균 평점이 7.36처럼 소수 둘째 자리까지 보여요 (경기 평점은 그대로 첫째 자리)','피드백은 로그인한 뒤에 보낼 수 있어요 (보낸 사람 닉네임이 함께 전달돼요)']},  {d:'2026.10.07 00:34',t:'은퇴·새 인생 버튼 위치',l:['시즌 화면 아래의 은퇴하기 · 새 인생 시작 버튼은 시즌 결산 화면에서만 보여요','홈 화면의 새 인생 시작 · 주간 챌린지는 언제든 쓸 수 있어요']},  {d:'2026.10.07 00:21',t:'평점 기준 조정 · 골키퍼 선방',l:['평점이 실제 축구처럼 바뀌었어요: 무난한 경기 6.6~6.8, 무실점이나 1골·1도움이면 7.1~7.4, 공격 포인트·결정적 수비·선방이 쌓일수록 더 올라가요','골키퍼는 경기마다 선방 수가 기록되고 평점에 반영돼요 (지난 경기 목록에 🧤 선방 표시)','평점이 올라간 만큼 재계약 제안 등 평점 기준도 함께 올렸어요 (구단 재계약 제안은 최근 평점 7.4 이상)','이적·상무 결과 카운트다운 중에는 뒤 화면이 가려져서 결과가 미리 보이지 않아요']},  {d:'2026.10.07 00:09',t:'대륙대회 · 다양한 기사 · 큰 순간 연출',l:['UCL·UEL·UECL·ACLE·ACL2를 실제로 치러요. 조 추첨(포트·같은 리그 회피) → 조별리그 6경기 → 16강(AFC는 8강)부터 홈·원정 토너먼트 → 결승','대륙대회 경기는 주중에 리그 사이사이 열리고, 시즌 기록과 피로에 더해져요. 조별 탈락·토너먼트 결과가 소식에 떠요','순위 탭에 대륙대회 탭이 생겼어요: 조별 순위표 · 토너먼트 추첨 결과와 합계 스코어','순위표에 승·무·패가 보여요 (게임 안에서 실제로 치른 경기 기록)','2군 리그 순위표에 대륙대회·강등 구역이 잘못 표시되던 문제를 고쳤어요','언론·라이벌 기사가 훨씬 다양해졌어요: 멀티골·결승골·연속골·골 가뭄·인터뷰·칼럼·순위 기사 등, 가상의 매체 이름과 함께','결정적 순간이 포지션마다 여러 상황으로 나오고, 선택지 4개가 매번 다른 조합으로 나와요','해트트릭은 축구공이 날아오고 세레머니가 보이고, 결정적 골·선방, 승격·강등에도 연출이 생겼어요','이적·상무 지원·재계약·임대 요청은 3·2·1 카운트다운 뒤 결과를 알려 줘요','구단이 이적을 막을 때 이유를 알려 줘요 (이적료 부족, 감독의 잔류 요청, 시즌 중 전력 공백 등)','활약이 좋으면 가끔 소속팀이 먼저 주급·계약 기간을 올린 재계약을 제안해요','골키퍼 평점은 무실점·실점, 수비수 평점은 수비 경기력·무실점에 더 크게 움직이고, 골·도움 비중은 조금 줄었어요','중간 난이도 업적 23개가 추가됐어요']},  {d:'2026.10.06 23:13',t:'짧은 부상 · 직접 만든 학교',l:['부상이 이번 묶음 안에 끝나면 넘어가기만 뜨지 않고 평소처럼 경기 방식을 고를 수 있어요 (복귀 후 경기에 반영)','연승·연패 때 배경색이 바뀌던 효과를 없앴어요 (화면 안 표시는 그대로)','출신 고교에서 ✏️ 직접 입력을 고르면 원하는 이름의 일반고로 시작해요 (모구단·우선지명 없음)','유스 고교 이름은 원래대로 고정돼요']},
+  {d:'2026.10.07 10:05',t:'같은 선수 중복 진행 수정',l:['다른 기기 선수를 이어하기로 가져온 뒤에도 같은 선수가 목록에 또 떠서 두 갈래로 진행되던 문제를 고쳤어요','같은 선수(이름·등번호·포지션·나이)는 하나로 합치고, 더 많이 진행한 쪽으로 이어가요']},  {d:'2026.10.07 09:53',t:'동기화 강화 · 내 선수 커리어 카드 · 새 랜덤 요소',l:['기기마다 다른 선수를 키워도 클라우드에 모두 남아요. 다른 기기에서 진행 중인 선수는 홈·계정 화면에서 \'이어하기\'로 바로 이어갈 수 있어요','명예의 전당·업적·해금은 기기끼리 자동으로 합쳐지고, 계정 화면의 \'지금 저장 · 동기화\'를 누르면 바로 맞추고 \'저장했습니다\'가 떠요','예전 버전이 휴대폰에 남아 있으면 홈에 \'새 버전이 나왔어요\' 버튼이 떠요','내 선수들: 선수를 누르면 은퇴 카드처럼 경력·트로피 진열장(대회별 횟수·연도)·은퇴 후 이야기를 볼 수 있어요','⏰ 이적시장 마감일 깜짝 오퍼: 드물게 한 단계 위 구단이 웃돈을 들고 막판에 뛰어들어요','🌧️ 날씨·원정: 가끔 폭우·폭설·무더위·강풍 경기가 있고, AFC 장거리 원정은 더 지쳐요','💸 구단 위기: 아주 가끔 재정난(주급 삭감 요청)이나 새 구단주 인수(팀 전력 상승) 소식이 있어요','👔 성적이 바닥이면 시즌 중 감독이 경질되고, 성향이 다른 새 감독이 와서 입지가 다시 정해져요']},  {d:'2026.10.07 09:37',t:'기기 간 동기화 · 몸값 현실화 · 결승 일정',l:['로그인하면 컴퓨터·폰 기록이 서로 덮어쓰지 않고 합쳐져요: 명예의 전당·업적·포지션 해금은 두 기기 것을 모두 남기고, 진행 중인 선수는 더 최근에 플레이한 쪽을 써요. 앱을 열거나 다시 볼 때마다 자동으로 맞춰요','한 번에 진행하는 4경기에 대륙대회 경기가 포함돼요 (예: 리그 3경기 + UEL 1경기)','대륙대회·컵대회 결승은 실제처럼 리그 일정이 모두 끝난 뒤에 치러요. 토너먼트 일정도 실제처럼 뒤로 옮겼어요','몸값이 실제 이적시장처럼 최상위로 갈수록 가파르게 올라요. 월드클래스는 700억~1,000억대도 (아주 드물게) 가능하고, 돈 많은 빅클럽은 가끔 웃돈을 얹어 영입해요','결정적 순간에 어떤 경기인지(리그 몇 라운드 · 대륙대회 단계 · 결승) 표시되고, 선택지 버튼 색이 모두 같아졌어요','병역 정보에 앞으로 열리는 아시안게임·올림픽이 몇 년 뒤인지, 그때 나이로 U23·와일드카드 중 어떻게 나갈 수 있는지 보여요','명예의 전당: 모두의 랭킹 · 주간 챌린지 · 내 선수들 탭, 선수마다 트로피·개인 수상 전체 목록','은퇴 하이라이트의 \'최고의 팀\'에 2군(U21) 기간은 나오지 않아요','새 이벤트 16개: 예능 섭외, 개인 트레이너, 훈련장 말다툼, 축구화 스폰서, 전술 실험, 열애설, 판정 논란, 라이벌 도발, 멘탈 코치, 단독 인터뷰 등','몸값 업적 기준을 새 몸값에 맞게 올렸어요 (500억 · 1,000억 사나이, 이적료 300억)']},  {d:'2026.10.07 00:59',t:'평균 평점 소수 둘째 자리 · 피드백',l:['시즌·통산 평균 평점이 7.36처럼 소수 둘째 자리까지 보여요 (경기 평점은 그대로 첫째 자리)','피드백은 로그인한 뒤에 보낼 수 있어요 (보낸 사람 닉네임이 함께 전달돼요)']},  {d:'2026.10.07 00:34',t:'은퇴·새 인생 버튼 위치',l:['시즌 화면 아래의 은퇴하기 · 새 인생 시작 버튼은 시즌 결산 화면에서만 보여요','홈 화면의 새 인생 시작 · 주간 챌린지는 언제든 쓸 수 있어요']},  {d:'2026.10.07 00:21',t:'평점 기준 조정 · 골키퍼 선방',l:['평점이 실제 축구처럼 바뀌었어요: 무난한 경기 6.6~6.8, 무실점이나 1골·1도움이면 7.1~7.4, 공격 포인트·결정적 수비·선방이 쌓일수록 더 올라가요','골키퍼는 경기마다 선방 수가 기록되고 평점에 반영돼요 (지난 경기 목록에 🧤 선방 표시)','평점이 올라간 만큼 재계약 제안 등 평점 기준도 함께 올렸어요 (구단 재계약 제안은 최근 평점 7.4 이상)','이적·상무 결과 카운트다운 중에는 뒤 화면이 가려져서 결과가 미리 보이지 않아요']},  {d:'2026.10.07 00:09',t:'대륙대회 · 다양한 기사 · 큰 순간 연출',l:['UCL·UEL·UECL·ACLE·ACL2를 실제로 치러요. 조 추첨(포트·같은 리그 회피) → 조별리그 6경기 → 16강(AFC는 8강)부터 홈·원정 토너먼트 → 결승','대륙대회 경기는 주중에 리그 사이사이 열리고, 시즌 기록과 피로에 더해져요. 조별 탈락·토너먼트 결과가 소식에 떠요','순위 탭에 대륙대회 탭이 생겼어요: 조별 순위표 · 토너먼트 추첨 결과와 합계 스코어','순위표에 승·무·패가 보여요 (게임 안에서 실제로 치른 경기 기록)','2군 리그 순위표에 대륙대회·강등 구역이 잘못 표시되던 문제를 고쳤어요','언론·라이벌 기사가 훨씬 다양해졌어요: 멀티골·결승골·연속골·골 가뭄·인터뷰·칼럼·순위 기사 등, 가상의 매체 이름과 함께','결정적 순간이 포지션마다 여러 상황으로 나오고, 선택지 4개가 매번 다른 조합으로 나와요','해트트릭은 축구공이 날아오고 세레머니가 보이고, 결정적 골·선방, 승격·강등에도 연출이 생겼어요','이적·상무 지원·재계약·임대 요청은 3·2·1 카운트다운 뒤 결과를 알려 줘요','구단이 이적을 막을 때 이유를 알려 줘요 (이적료 부족, 감독의 잔류 요청, 시즌 중 전력 공백 등)','활약이 좋으면 가끔 소속팀이 먼저 주급·계약 기간을 올린 재계약을 제안해요','골키퍼 평점은 무실점·실점, 수비수 평점은 수비 경기력·무실점에 더 크게 움직이고, 골·도움 비중은 조금 줄었어요','중간 난이도 업적 23개가 추가됐어요']},  {d:'2026.10.06 23:13',t:'짧은 부상 · 직접 만든 학교',l:['부상이 이번 묶음 안에 끝나면 넘어가기만 뜨지 않고 평소처럼 경기 방식을 고를 수 있어요 (복귀 후 경기에 반영)','연승·연패 때 배경색이 바뀌던 효과를 없앴어요 (화면 안 표시는 그대로)','출신 고교에서 ✏️ 직접 입력을 고르면 원하는 이름의 일반고로 시작해요 (모구단·우선지명 없음)','유스 고교 이름은 원래대로 고정돼요']},
   {d:'2026.10.06 23:08',t:'유스 고교 추가 · 더 촘촘한 화면',l:['부산(개성고)·전남(광양제철고)·대구(현풍고)·대전(충남기계공고)·광주(금호고)·강원(강릉제일고)·경남(진주고)·안양(안양공고) 유스 고교가 생겼어요','유스가 없는 일반 고교는 없어졌어요','출신 고교 이름을 직접 정할 수 있어요 (비우면 원래 이름)','글자와 여백을 한 번 더 줄여 시즌 화면이 한 화면에 들어와요','새 인생 시작 · 은퇴하기 버튼을 작게 정리했어요']},
   {d:'2026.10.06 22:50',t:'결정적 순간',l:['빅매치(접전)와 결승전에 출전하면 경기 막판 결정적 순간을 직접 골라요','공격수는 슈팅 방향, 미드필더는 패스할 동료, 수비수는 막는 방법, 골키퍼는 페널티킥 방향을 골라요','성공 확률은 보이지 않고 장면마다 달라요. 상대 골키퍼·수비의 대응과 내 능력치에 따라 정해져요','성공하면 골·도움·선방이 실제 스코어와 평점에 반영되고, 결승 우승에도 영향을 줘요']},
   {d:'2026.10.06 22:40',t:'유럽대항전 · 구단 대표 색 · 촘촘한 화면',l:['UCL·UEL·UECL이 생겼어요. 지난 시즌 리그 순위로 출전권이 정해져요 (잉글랜드·스페인·독일·이탈리아 1~4위 UCL, 5~6위 UEL, 7위 UECL / 프랑스 1~4위 UCL, 5위 UEL, 6위 UECL)','K리그1은 1~2위 ACLE, 3위 ACL2에 나가요','대륙대회 결승은 실제로 출전 중인 대회에서만 오를 수 있어요','오퍼 카드에 그 팀이 나가는 대륙대회와 순위가 보여요','대륙대회에 나가는 시즌에는 시즌 시작 전에 알려 줘요','순위표에 대륙대회 출전권 구역이 표시돼요','구단 엠블럼이 실제 대표 색을 쓰고, 모양도 구단마다 다양해졌어요','팀 배경이 구단 대표 색으로 은은하게 바뀌어요','화면 전체를 더 촘촘하게 정리해 스크롤을 줄였어요']},
@@ -4405,9 +4410,9 @@ const detOpen=(k,def)=>G.det&&k in G.det?G.det[k]:def;function act(a,v){
   if(G.p&&(G.p!==p||JSON.stringify(G.p)!==ver0))G.p.ts=Date.now();
   if(G.p&&!G.p.pid)G.p.pid=newPid();
   // 은퇴했거나 새 인생으로 지운 선수는 다른 기기의 '이어하기' 목록에서도 빠지게 기록한다
-  const closed=[];if(p&&p.pid&&G.p!==p&&p.phase!=='retired'&&a==='pick')closed.push(p.pid);
-  if(G.p&&G.p.phase==='retired'&&G.p.pid)closed.push(G.p.pid);
-  if(closed.some(id=>!(G.retiredPids||[]).includes(id))){G.retiredPids=[...new Set([...(G.retiredPids||[]),...closed])].slice(-30);try{localStorage.setItem('kickoff-life-closed',JSON.stringify(G.retiredPids))}catch(e){}}
+  const closed=[];if(p&&G.p!==p&&p.phase!=='retired'&&a==='pick')closed.push(p.pid,pkey(p));
+  if(G.p&&G.p.phase==='retired')closed.push(G.p.pid,pkey(G.p));
+  if(closed.some(id=>id&&!(G.retiredPids||[]).includes(id))){G.retiredPids=[...new Set([...(G.retiredPids||[]),...closed.filter(Boolean)])].slice(-60);try{localStorage.setItem('kickoff-life-closed',JSON.stringify(G.retiredPids))}catch(e){}}
   store();render();
 }
 document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(b&&!b.disabled)act(b.dataset.act,b.dataset.v)});
