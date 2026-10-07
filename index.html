@@ -3091,12 +3091,12 @@ function retire(p){
     hl:careerHighlights(p).map(x=>({i:x.i,k:x.k,v:x.v,d:x.d})),story:(p.final.story&&p.final.story.lines||[]).map(x=>({i:x.i,t:x.t}))};
   p.final.id=rec.id;p.final.rec=rec;p.final.saved=null;   // 저장 여부는 은퇴 화면에서 고른다
   // 레전드 포인트 · 은퇴식 (상점에서 산 연출이 있으면 그걸로)
-  // 주간 챌린지: 등급 LP 대신, A등급 이상으로 은퇴하면 하루 한 번 20 LP
-  p.final.lp=p.challenge?(score>=GRADE_CUT.A?lpEarn('cd:'+kstDay(),CHAL_LP):0):lpEarn('r:'+rec.id,grade==='S'?rollS():GRADE_LP[grade]||0);lpSave();
+  // 주간 챌린지: 등급 LP 대신, B등급 이상으로 은퇴하면 하루 한 번 20 LP
+  p.final.lp=p.challenge?(score>=GRADE_CUT.B?lpEarn('cd:'+kstDay(),CHAL_LP):0):lpEarn('r:'+rec.id,grade==='S'?rollS():GRADE_LP[grade]||0);lpSave();
   if(!p.challenge&&grade==='S'&&p.final.lp)p.final.sRoll=p.final.lp;
-  if(p.challenge)p.final.chalLp=score>=GRADE_CUT.A?(p.final.lp?'got':'done'):'low';
+  if(p.challenge)p.final.chalLp=score>=GRADE_CUT.B?(p.final.lp?'got':'done'):'low';
   {const cer=G.lp.eq.cer;celebrate(cer==='jersey'?'🎽':'🎖️',`${p.name} 은퇴`,`커리어 ${grade} 등급 · ${score}점${p.final.lp?` · +${p.final.lp} LP`:''}`,cer?'cer-'+cer:'trophy');G.celebQ[G.celebQ.length-1].num=p.num}
-  if(p.final.chalLp==='got')celebrate('🎁','주간 챌린지 보상 +20 LP!',`A등급 이상 커리어 달성 · 오늘의 보상 지급 (보유 ${lpBal()} LP)`,'goal');
+  if(p.final.chalLp==='got')celebrate('🎁','주간 챌린지 보상 +20 LP!',`B등급 이상 커리어 달성 · 오늘의 보상 지급 (보유 ${lpBal()} LP)`,'goal');
   if(p.final.sRoll)celebrate(p.final.sRoll>=20?'🎰':'⭐',`S등급 보상 뽑기 +${p.final.sRoll} LP${p.final.sRoll>=30?' 대박!':p.final.sRoll>=20?'!':''}`,'S등급 커리어는 10~30 LP 중 하나 (10 · 15 · 20 · 30)',p.final.sRoll>=20?'goal':undefined);
 }
 function saveCareer(p,yes){const f=p.final;if(!f||f.saved!=null)return;f.saved=!!yes;if(yes){G.hof.unshift(f.rec);G.hof=G.hof.slice(0,60)}delete f.rec}
@@ -3830,11 +3830,11 @@ function attendView(){
     <div class="grid3"><div class="tile"><div class="v">${st}일</div><div class="k">연속 출석</div></div><div class="tile"><div class="v">${toBonus}일</div><div class="k">+10 보너스까지</div></div><div class="tile"><div class="v">${mCnt}일</div><div class="k">이번 달 출석</div></div></div>
     <p class="hint">하루 한 번 출석 체크 3 LP · 7일 연속마다 +10 LP · ✅ 출석 · 🎁 챌린지 보상 받은 날</p></section>
   <section class="panel"><div class="row" style="justify-content:space-between;align-items:center"><span class="eyebrow">🗓️ 주간 챌린지 · ${weekKey()}</span><span class="chip${chalLpToday()?' good':' gold'}">${chalLpToday()?'오늘 보상 받음':'오늘 보상 대기'}</span></div>
-    <div class="chlpban">${chalLpToday()?'✅ 오늘의 챌린지 보상 20 LP를 받았어요 · 내일 다시 받을 수 있어요':'🎁 챌린지 선수를 <b>A등급 이상</b>으로 은퇴시키면 오늘 <b>20 LP</b>'}</div>
+    <div class="chlpban">${chalLpToday()?'✅ 오늘의 챌린지 보상 20 LP를 받았어요 · 내일 다시 받을 수 있어요':'🎁 챌린지 선수를 <b>B등급 이상</b>으로 은퇴시키면 오늘 <b>20 LP</b>'}</div>
     <div class="list small"><div class="li"><span>이번 주 보상 받은 날</span><b>${wCh} / 7일 · ${wCh*CHAL_LP} LP</b></div><div class="li"><span>이번 주 내 최고 점수</span><b>${G.chal[weekKey()]!=null?G.chal[weekKey()]+'점':'아직 없음'}</b></div></div>
     <button class="btn" data-act="challenge">주간 챌린지 도전하기 <span class="arr">→</span></button></section>
   <section class="panel earnbox"><span class="eyebrow">💰 LP 버는 법</span>
-    <div class="earng"><div class="earnc hot"><b>은퇴 등급</b><span>S+ <em>30</em> · S <em>10~30</em> 🎰<br>A 5 · B 3 · C 2 · D 0</span></div><div class="earnc"><b>주간 챌린지</b><span>A등급 이상 은퇴<br><em>20</em> · 하루 한 번</span></div><div class="earnc"><b>출석 체크</b><span>하루 <em>3</em><br>7일 연속 <em>+10</em></span></div><div class="earnc"><b>업적</b><span>중간 <em>1</em> · 어려움 <em>3</em><br>한 번씩</span></div></div>
+    <div class="earng"><div class="earnc hot"><b>은퇴 등급</b><span>S+ <em>30</em> · S <em>10~30</em> 🎰<br>A 5 · B 3 · C 2 · D 0</span></div><div class="earnc"><b>주간 챌린지</b><span>B등급 이상 은퇴<br><em>20</em> · 하루 한 번</span></div><div class="earnc"><b>출석 체크</b><span>하루 <em>3</em><br>7일 연속 <em>+10</em></span></div><div class="earnc"><b>업적</b><span>중간 <em>1</em> · 어려움 <em>3</em><br>한 번씩</span></div></div>
     <p class="hint">S등급은 10~30 LP 뽑기 (10 · 15 · 20 · 30), S+는 30 LP · 주간 챌린지 선수는 등급 LP 대신 하루 보상 20 LP</p></section>
   <button class="btn alt" data-act="home">홈으로 <span class="arr">←</span></button>`;
 }
@@ -3922,7 +3922,7 @@ function shopView(){
       ${own?`<button class="sbtn${on?'':' alt'}" data-act="lp-eq" data-v="${grp}:${on?'':x.k}">${on?'장착 중':'장착'}</button>`:buyBtn(key,x.c,lock,lock?'잠김':`${x.c} LP`)}</div>`};
   return `<section class="panel"><span class="eyebrow">LP SHOP</span><h2 class="sectionh">LP 상점</h2>
       <div class="lpbal"><span>보유</span><b>${bal}</b><span>LP</span></div>
-      <div class="list small lpsrc"><div class="li"><span>📅 출석 체크 (홈 › 출석·보상)</span><b>하루 3 LP · 7일 연속마다 +10</b></div><div class="li"><span>🗓️ 주간 챌린지 (A등급 이상 은퇴)</span><b>하루 한 번 20 LP</b></div><div class="li"><span>🎖️ 은퇴 등급</span><b>C 2 · B 3 · A 5 · S 10~30 · S+ 30</b></div><div class="li"><span>🏅 업적</span><b>중간 1 · 어려움 3</b></div></div><p class="hint">주간 챌린지에서는 상점 아이템을 쓸 수 없어요 · 오늘 출석 ${attToday()?'✅':'–'} · 연속 ${attStreak()}일</p></section>
+      <div class="list small lpsrc"><div class="li"><span>📅 출석 체크 (홈 › 출석·보상)</span><b>하루 3 LP · 7일 연속마다 +10</b></div><div class="li"><span>🗓️ 주간 챌린지 (B등급 이상 은퇴)</span><b>하루 한 번 20 LP</b></div><div class="li"><span>🎖️ 은퇴 등급</span><b>C 2 · B 3 · A 5 · S 10~30 · S+ 30</b></div><div class="li"><span>🏅 업적</span><b>중간 1 · 어려움 3</b></div></div><p class="hint">주간 챌린지에서는 상점 아이템을 쓸 수 없어요 · 오늘 출석 ${attToday()?'✅':'–'} · 연속 ${attStreak()}일</p></section>
     <section class="panel"><span class="eyebrow">소모품 · 하나씩 사서 선수 만들 때 써요</span>${SHOP_ITEMS.map(item).join('')}</section>
     <section class="panel"><span class="eyebrow">명예의 전당 카드 테두리</span>${SKINS.frame.map(x=>skin('frame',x)).join('')}</section>
     <section class="panel"><span class="eyebrow">은퇴식 연출</span>${SKINS.cer.map(x=>skin('cer',x)).join('')}</section>
@@ -4466,7 +4466,7 @@ function resolveMoment(p,i){
 
 /* ---------- 업데이트 노트 (최신이 위, 버전마다 누적) ---------- */
 const UPDATES=[
-  {d:'2026.10.08 00:09',t:'버그 수정 · 다음 상대 표시',l:['하단에 이번 4경기에서 만날 상대 팀이 보여요 (한 묶음 안에서는 같은 팀을 두 번 만나지 않아요)','LP 상점 소모품 가격 인하: 리롤권 2 · 스카우트권 3 · 특성 선택권 5 · 이중국적 10 · 유럽 유스 시작권 25 LP','주간 챌린지 보상: 챌린지 선수를 A등급 이상으로 은퇴시키면 하루 한 번 20 LP (받으면 알림이 떠요)','출석 체크: 홈 › 출석·보상에서 버튼을 누르면 하루 한 번 3 LP · 7일 연속마다 보너스 10 LP · 이번 주 출석 도장과 챌린지 보상 받은 날도 볼 수 있어요','운영자 공지에 포지션 해금 선물을 담을 수 있어요','S등급으로 은퇴하면 LP 뽑기: 10 · 15 · 20 · 30 LP 중 하나 (S+는 30 LP)','업적 25개 추가 (일반 6 · 중간 10 · 어려움 9) · 어려움 업적 LP 2 → 3 (이미 받은 것도 3으로)','카드 테두리·은퇴식 같은 영구 꾸미기는 가격을 올렸어요 (테두리 60~300 · 은퇴식 70~200 LP)','등번호 랜덤이 포지션 대표 번호만 나오던 문제 수정 (이제 1~99 골고루)','무소속일 때 지난 소속팀이 우승해도 트로피를 받던 버그 수정','2군·무소속이어도 시즌 결산 주요 수상에 1군 리그 MVP·득점왕·도움왕이 보여요','예전 명예의 전당 기록도 커리어 카드에 대표 트로피가 보여요']},
+  {d:'2026.10.08 00:09',t:'버그 수정 · 다음 상대 표시',l:['하단에 이번 4경기에서 만날 상대 팀이 보여요 (한 묶음 안에서는 같은 팀을 두 번 만나지 않아요)','LP 상점 소모품 가격 인하: 리롤권 2 · 스카우트권 3 · 특성 선택권 5 · 이중국적 10 · 유럽 유스 시작권 25 LP','주간 챌린지 보상: 챌린지 선수를 B등급 이상으로 은퇴시키면 하루 한 번 20 LP (받으면 알림이 떠요)','출석 체크: 홈 › 출석·보상에서 버튼을 누르면 하루 한 번 3 LP · 7일 연속마다 보너스 10 LP · 이번 주 출석 도장과 챌린지 보상 받은 날도 볼 수 있어요','운영자 공지에 포지션 해금 선물을 담을 수 있어요','S등급으로 은퇴하면 LP 뽑기: 10 · 15 · 20 · 30 LP 중 하나 (S+는 30 LP)','업적 25개 추가 (일반 6 · 중간 10 · 어려움 9) · 어려움 업적 LP 2 → 3 (이미 받은 것도 3으로)','카드 테두리·은퇴식 같은 영구 꾸미기는 가격을 올렸어요 (테두리 60~300 · 은퇴식 70~200 LP)','등번호 랜덤이 포지션 대표 번호만 나오던 문제 수정 (이제 1~99 골고루)','무소속일 때 지난 소속팀이 우승해도 트로피를 받던 버그 수정','2군·무소속이어도 시즌 결산 주요 수상에 1군 리그 MVP·득점왕·도움왕이 보여요','예전 명예의 전당 기록도 커리어 카드에 대표 트로피가 보여요']},
   {d:'2026.10.07 19:00',t:'국가대표 대회 · 커리어 카드 · 구단 도감',l:['월드컵·아시안컵·아시안게임·올림픽을 경기마다 직접 뛰어요: 조별리그 → 토너먼트, 접전엔 결정적 순간, 비기면 승부차기. 아시안게임 3·4위전은 결과만 바로 봐요. 대회 득점왕·MVP(월드컵 골든볼)도 있어요','발롱도르에 월드컵 성적이 조금 반영돼요 (발롱도르는 정말 압도적인 시즌이어야 받을 수 있어요). 시즌 결산에 올해의 주요 수상(발롱도르·리그 MVP·득점왕·도움왕 수상자)이 나와요','은퇴 화면·내 선수 카드에서 커리어 카드 이미지를 저장·공유할 수 있어요','30대에 몸이 예전 같지 않으면 감독이 포지션 전환을 제안해요 (윙어 → 측면 미드·윙백, 공미 → 레지스타, 수미 → 센터백 …)','이적은 루머 기사 → 구단 간 협상 → 서류·이사회 승인 순서로 진행돼요','LP 상점: 이중국적(유럽 워크퍼밋 불필요) · 유럽 유스 시작권(유럽 전체 구단 유스 중 뽑기 · 빅클럽 대박부터 변방 꽝까지)','유럽 리그 수준 조정: 변방 1부(에레디비시·포르투갈 67, 벨기에·튀르키예 65)를 챔피언십(66) 근처로 올리고, 다른 2부(2. 분데스 63 · 세군다 62 · 세리에 B · 리그 2 61)는 조금 낮췄어요','구단 도감: 뛰어 본 구단을 모으고, 휘장을 끼면 랭킹·친구 화면의 닉네임 테두리가 바뀌어요','S+ 조건: 빅클럽 주전 5시즌 이상으로 강화 · 5대 리그 개인상에 도움왕·올해의 포지션상도 포함 · 5대 리그 안에서도 위상 차(EPL > 세리에 A > 라리가 > 분데스 > 리그 1)']},
   {d:'2026.10.07 18:29',t:'등급 기준 상향 · 랭킹 점수 통일',l:['등급 기준을 조금 올렸어요: S+ 90 · S 80 · A 67 · B 52 · C 37 (다음 포지션 해금도 S 80점)','S+ 조건의 5대 리그 개인상에 도움왕·올해의 공격수·미드필더·수비수·골키퍼·최소실점 골키퍼도 들어가요 (합계 3회 이상)','랭킹 점수가 보는 사람마다 조금씩 다르게 계산되던 문제를 고쳤어요. 이제 누가 봐도 같은 점수·순위예요']},
   {d:'2026.10.07 16:30',t:'랭킹 시즌제 · 커리어 점수 재조정 · 선발(교체)',l:['모두의 랭킹은 3일마다 새 시즌. 1위는 금빛 왕관 테두리, 시즌 1위 기록을 올린 사람은 닉네임에 👑 휘장이 붙어요 (역대 랭킹도 볼 수 있어요)','커리어 점수: 개인상은 상 종류와 리그 수준에 따라 다르게, 같은 상을 반복하면 점점 덜 쳐줘요. 최상위는 압축돼서 100점은 나오지 않아요. 이미 올라간 기록도 새 기준으로 다시 계산해서 보여 줘요','2부 리그 팀은 컵대회 결승에 가기 어렵고, 결승 상대는 1부 팀이에요','출장 수를 선발(교체)로 표시해요 · 예) 12(4)','친구 베스트 11 대결이 문자 중계로 바뀌었어요: 전반 장면 → 하프타임에 공격적·균형·수비적 전술 선택 → 후반. 양쪽 선수 이름으로 골·선방·골대 장면이 나와요','커리어 점수는 85점 위로 곡선처럼 완만해져서 정말 엄청난 커리어만 99점대예요 (100점은 없음)']},
@@ -4663,7 +4663,7 @@ function homeView(){
     ${tile('hof','RANKING','명예의 전당',sharedOn()?'모두의 커리어 순위':`은퇴 선수 ${G.hof.length}명`)}
     ${tile('b11','BEST XI','나의 베스트 11',G.hof.length?'포메이션 짜기':'은퇴 선수가 생기면 열려요')}
     ${tile('attend','DAILY','출석 · 보상',attToday()?`✅ 오늘 출석 · 연속 ${attStreak()}일${chalLpToday()?' · 🎁 받음':''}`:'<span class="chlp">📅 출석 체크 +3 LP</span>')}
-    ${tile('challenge','WEEKLY','주간 챌린지',`${chalLpToday()?'✅ 오늘 20 LP 받음':'<span class="chlp">🎁 하루 한 번 20 LP</span> A등급 이상 은퇴 시'}${G.chal[weekKey()]!=null?` · 이번 주 최고 ${G.chal[weekKey()]}점`:''}`)}
+    ${tile('challenge','WEEKLY','주간 챌린지',`${chalLpToday()?'✅ 오늘 20 LP 받음':'<span class="chlp">🎁 하루 한 번 20 LP</span> B등급 이상 은퇴 시'}${G.chal[weekKey()]!=null?` · 이번 주 최고 ${G.chal[weekKey()]}점`:''}`)}
     ${tile('ach','ACHIEVEMENTS','업적',`${ACH.filter(a=>G.ach[a.id]).length} / ${ACH.length} 달성`)}
     ${tile('guide','HOW TO PLAY','게임 방법','진행 방법 · 꿀팁')}
     ${sharedOn()?tile('friends','FRIENDS','친구'+(G.fr.inN?` <span class="chip gold">${G.fr.inN}</span>`:''),G.auth?(G.fr.inN?'받은 친구 요청이 있어요':'랭킹 · 베스트 11 대결'):'로그인하면 열려요'):''}
@@ -4677,7 +4677,7 @@ function homeView(){
   if(!c.challenge&&!DPOS[c.type])c.type=TYPE_ROLE[c.type]&&DPOS[TYPE_ROLE[c.type]].g===c.pos?TYPE_ROLE[c.type]:rolesOf(c.pos)[0];
   const types=Object.keys(POS[c.pos].types);
   let h=`<section class="panel"><span class="eyebrow">STEP 1 · PLAYER</span><h2 class="sectionh">나만의 선수 만들기</h2>
-    ${c.challenge?`<div class="note small"><b>🗓️ 주간 챌린지 · ${c.challenge}</b><br><span class="chlp">🎁 A등급 이상 은퇴 시 20 LP (하루 한 번)</span><br>이번 주는 모두 같은 <b>${POS[c.pos].name} · ${esc(DPOS[c.type]?DPOS[c.type].n:c.type)}</b> 후보 선수로 시작해요(잠재력·성장 유형도 같아요). 이름과 등번호만 바꿀 수 있어요. 은퇴하면 커리어 점수가 친구 챌린지 순위에 올라가요.</div>`:''}
+    ${c.challenge?`<div class="note small"><b>🗓️ 주간 챌린지 · ${c.challenge}</b><br><span class="chlp">🎁 B등급 이상 은퇴 시 20 LP (하루 한 번)</span><br>이번 주는 모두 같은 <b>${POS[c.pos].name} · ${esc(DPOS[c.type]?DPOS[c.type].n:c.type)}</b> 후보 선수로 시작해요(잠재력·성장 유형도 같아요). 이름과 등번호만 바꿀 수 있어요. 은퇴하면 커리어 점수가 친구 챌린지 순위에 올라가요.</div>`:''}
     ${c.heir?`<div class="note small"><b>${esc(c.heir)}의 아들</b>로 시작합니다. 아버지의 성과 등번호를 물려받았고, 시작 사기가 높아요. 능력치 총합은 다른 선수와 같습니다.</div>`:''}
     <button class="btn alt" data-act="rand-all"><span>전부 랜덤으로 정하기<br><span class="small muted" style="font-weight:400">이름 · 등번호 · 포지션 · 역할 · 주발 · 출신 고교</span></span><span class="arr">↻</span></button>
     <div class="grid2" style="grid-template-columns:2fr 1fr">
@@ -4795,7 +4795,7 @@ function guideView(){
     '상무에 가려면 27세 전에 K리그에서 꾸준히 뛰어 두세요. 직전 시즌 출전이 적으면 지원 자격이 안 돼요.'
   ])}
   <section class="panel earnbox"><span class="eyebrow">💰 LP 버는 법</span>
-    <div class="earng"><div class="earnc hot"><b>은퇴 등급</b><span>S+ <em>30</em> · S <em>10~30</em> 🎰<br>A 5 · B 3 · C 2 · D 0</span></div><div class="earnc"><b>주간 챌린지</b><span>A등급 이상 은퇴<br><em>20</em> · 하루 한 번</span></div><div class="earnc"><b>출석 체크</b><span>하루 <em>3</em><br>7일 연속 <em>+10</em></span></div><div class="earnc"><b>업적</b><span>중간 <em>1</em> · 어려움 <em>3</em><br>한 번씩</span></div></div>
+    <div class="earng"><div class="earnc hot"><b>은퇴 등급</b><span>S+ <em>30</em> · S <em>10~30</em> 🎰<br>A 5 · B 3 · C 2 · D 0</span></div><div class="earnc"><b>주간 챌린지</b><span>B등급 이상 은퇴<br><em>20</em> · 하루 한 번</span></div><div class="earnc"><b>출석 체크</b><span>하루 <em>3</em><br>7일 연속 <em>+10</em></span></div><div class="earnc"><b>업적</b><span>중간 <em>1</em> · 어려움 <em>3</em><br>한 번씩</span></div></div>
     <p class="hint">S등급은 10~30 LP 뽑기 (10 · 15 · 20 · 30), S+는 30 LP · 주간 챌린지 선수는 등급 LP 대신 하루 보상 20 LP</p></section>
   <button class="btn alt" data-act="home">홈으로 <span class="arr">←</span></button>`;
 }
@@ -4850,7 +4850,7 @@ function hofView(){
     const fr=G.auth&&G.fr.list?G.fr.list.filter(x=>x.status==='accepted').map(x=>{const b=(G.fr.show[x.uid]||{}).b11;return {nick:x.nick,sc:b&&b.ch?b.ch[wk]:null}}).filter(r=>r.sc!=null):[];
     const frRows=[...(mine!=null?[{nick:G.auth?(G.auth.nick||G.auth.name):'나',me:true,sc:mine}]:[]),...fr].sort((a,b)=>b.sc-a.sc);
     h+=`<section class="panel"><div class="row" style="justify-content:space-between;align-items:baseline"><span class="eyebrow">🗓️ 이번 주 챌린지 · ${wk}</span><button class="linkb" data-act="challenge">도전하기 ›</button></div>
-      <div class="chlpban">${chalLpToday()?'✅ 오늘의 챌린지 보상 20 LP를 받았어요 · 내일 다시 받을 수 있어요':'🎁 <b>참여 보상 20 LP</b> · 챌린지 선수를 <b>A등급 이상</b>으로 은퇴시키면 하루 한 번 받아요'}</div>
+      <div class="chlpban">${chalLpToday()?'✅ 오늘의 챌린지 보상 20 LP를 받았어요 · 내일 다시 받을 수 있어요':'🎁 <b>참여 보상 20 LP</b> · 챌린지 선수를 <b>B등급 이상</b>으로 은퇴시키면 하루 한 번 받아요'}</div>
       <p class="small muted">이번 주는 모두 같은 후보 선수로 시작해요. 은퇴한 뒤 '내 선수들'에서 랭킹에 등록하면 아래 전체 순위에 올라가요.</p>
       ${mine!=null?`<div class="note small">내 이번 주 최고 <b>${mine}점</b></div>`:''}</section>`;
     if(frRows.length)h+=`<section class="panel"><span class="eyebrow">친구 순위</span><div class="list">${frRows.map((r,i)=>`<div class="li"><span><b class="num" style="display:inline-block;width:22px">${i+1}</b><b>${esc(r.nick)}</b>${r.me?' <span class="chip">나</span>':''}</span><span class="chip gold">${r.sc}점</span></div>`).join('')}</div></section>`;
@@ -5186,7 +5186,7 @@ function seasonTab(p){
           <div class="hlg">${st.lines.map(x=>`<div class="hl${x.k==='bad'?' bad':''}"><span class="hli">${x.i}</span><span class="small" style="line-height:1.5">${esc(x.t)}</span></div>`).join('')}</div></section>`})()}
         <section class="panel"><span class="eyebrow">CAREER HIGHLIGHTS</span><h2 class="sectionh">빛났던 순간들</h2>
         <div class="hlg">${careerHighlights(p).map(x=>`<div class="hl"><span class="hli">${x.ci!=null?crest(x.ci,26):x.i}</span><span><span class="hlk">${x.k}</span><b>${esc(x.v)}</b><span class="small muted">${esc(x.d)}</span></span></div>`).join('')}</div></section>
-        ${f.chal?`<section class="panel"><span class="eyebrow">🗓️ 주간 챌린지 ${f.chal}</span><div class="chlpban">${f.chalLp==='got'?'🎁 오늘의 챌린지 보상 <b>+20 LP</b>!':f.chalLp==='done'?'✅ 오늘 보상은 이미 받았어요 · 내일 다시 받을 수 있어요':'A등급 미만이라 오늘의 보상(20 LP)은 받지 못했어요 · A등급 이상으로 은퇴하면 받아요'}</div><p class="small">이번 챌린지 점수 <b>${f.score}점</b> · 내 이번 주 최고 ${G.chal[f.chal]}점. 친구 화면의 챌린지 순위에 올라가요.</p></section>`:''}
+        ${f.chal?`<section class="panel"><span class="eyebrow">🗓️ 주간 챌린지 ${f.chal}</span><div class="chlpban">${f.chalLp==='got'?'🎁 오늘의 챌린지 보상 <b>+20 LP</b>!':f.chalLp==='done'?'✅ 오늘 보상은 이미 받았어요 · 내일 다시 받을 수 있어요':'B등급 미만이라 오늘의 보상(20 LP)은 받지 못했어요 · B등급 이상으로 은퇴하면 받아요'}</div><p class="small">이번 챌린지 점수 <b>${f.score}점</b> · 내 이번 주 최고 ${G.chal[f.chal]}점. 친구 화면의 챌린지 순위에 올라가요.</p></section>`:''}
         <section class="panel">
         ${f.unlocked?`<div class="note"><b>🔓 ${POS[f.unlocked].name} 해금!</b><br><span class="small">${POS[p.pos].name} S등급 커리어를 달성해 이제 ${POS[f.unlocked].name}(으)로도 선수를 키울 수 있어요.</span></div>`:(()=>{const nx=UNLOCK_ORDER[UNLOCK_ORDER.indexOf(p.pos)+1];return nx&&!isUnlocked(nx)?`<p class="small muted">🔒 ${POS[nx].name}는 ${POS[p.pos].name} S등급(78점 이상) 커리어를 만들면 열려요.</p>`:''})()}
         <div class="list small">${f.epilogue.map(t=>`<div class="li"><span>${esc(t)}</span></div>`).join('')}</div>
