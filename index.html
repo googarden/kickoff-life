@@ -900,8 +900,29 @@ const ageF=p=>gOf(p).curve(p.age);
 const trainAge=p=>Math.max(.25,gOf(p).curve(p.age)*.9+.15);
 // 유럽 구단 2군(U21·B팀)은 훈련 시설과 코칭이 좋아 성장이 더 잘 된다
 const euroAcad=p=>p.u21&&isEuro(p.club)?1.25:1;
-// 숨은 특성 '노익장'(약 10%): 하락이 2년 늦게 시작되고 하락 폭도 절반이다. 은퇴할 때 공개된다
-const declineAge=p=>gOf(p).decline+(p.ageless?2:0);
+/* 숨은 시작 특성 (약 45%의 선수가 하나를 갖고 태어난다. 화면에는 보이지 않고 은퇴할 때 공개된다)
+   모두 효과가 작고, 장점마다 대가가 있다 */
+const TRAITS={
+  ageless:{n:'노익장',i:'🧬',d:'하락이 2년 늦게 시작되고 하락 폭도 절반이었다',c:'대신 23세까지 성장이 조금 느렸다'},
+  iron:{n:'강철 체력',i:'🔋',d:'경기마다 피로가 덜 쌓였다',c:'대신 경기 감각이 천천히 올라왔다'},
+  bigGame:{n:'빅매치 강심장',i:'🔥',d:'빅매치·대륙대회 토너먼트·결승에서 더 잘했다',c:'대신 평범한 경기에서는 집중력이 조금 떨어졌다'},
+  star:{n:'스타성',i:'🌟',d:'인지도가 남보다 빨리 올랐다',c:'대신 부진할 때 비판도 더 크게 받았다'},
+  grinder:{n:'연습벌레',i:'🏋️',d:'동계 훈련 효과가 더 좋았다',c:'대신 쉬라는 말에 마음이 불편했다(휴식 요청 시 사기 추가 하락)'},
+  oneclub:{n:'원클럽 DNA',i:'❤️',d:'한 팀에 오래 있을수록 팀 케미·감독 신뢰가 쌓였다',c:'대신 이적하면 적응이 느렸다'},
+  abroad:{n:'해외 체질',i:'✈️',d:'유럽 무대에 빨리 적응했다',c:'대신 국내에서는 인기가 천천히 올랐다'}
+};
+const TRAIT_KEYS=Object.keys(TRAITS);
+const traitOf=p=>p&&(p.trait||(p.ageless?'ageless':null));
+const hasT=(p,k)=>traitOf(p)===k;
+// 노익장: 하락이 2년 늦게 시작되고 하락 폭도 절반이다
+const declineAge=p=>gOf(p).decline+(hasT(p,'ageless')?2:0);
+// 특성별 성장 보정 (노익장은 어릴 때 조금 느리게)
+const traitGrow=p=>hasT(p,'ageless')&&p.age<=23?.92:1;
+// 특성별 경기력 보정: 빅매치 강심장 · 해외 체질
+function traitPerf(p,tg){let d=0;const big=tg&&(tg.includes('big')||tg.includes('final'));
+  if(hasT(p,'bigGame'))d+=big?.15:-.03;
+  if(hasT(p,'abroad')&&isEuro(p.club))d+=.05;
+  return d}
 // 포텐 폭발형: 20~27세 사이 어느 시즌에 갑자기 크게 성장한다
 const burstSeason=p=>gOf(p).burst&&p.age>=20&&p.age<=27&&Math.random()<.3;
 const potF=p=>clamp((p.pot-ovr(p))/12,.12,1.5);
@@ -955,7 +976,8 @@ function makeCandidate(pos,type,seed,foot){const TOT=footTotal(foot);
   // 잠재력과 성장 유형은 능력치와 무관하게 정해지고 화면에는 보이지 않는다
   const gtype=pickGrowth(rng());
   const pot=Math.max(o+8,clamp(Math.round(70+g()*9+(gtype==='late'?3:0)),55,105));
-  return {stats:s,pot,ovr:o,dpos,gtype};
+  const trait=rng()<.45?TRAIT_KEYS[Math.floor(rng()*TRAIT_KEYS.length)]:null;
+  return {stats:s,pot,ovr:o,dpos,gtype,trait};
 }
 const START_TOTAL=246;
 // 이름: 흔한 성은 자주, 드문 성·복성(남궁·제갈 등)은 가끔. 외자 이름도 섞는다
@@ -993,7 +1015,7 @@ if(G.p&&G.p.dposAuto===undefined){G.p.dposAuto=true}
 if(G.p){applyWorld(G.p.world);G.p.evHist=G.p.evHist||[];if(G.p.rep==null)G.p.rep=35}else defaultComps();
 
 function newPlayer(c,cand){
-  const p={name:c.name.trim()||'무명 선수',num:c.num,pos:c.pos,type:c.type,foot:c.foot,stats:{...cand.stats},pot:cand.pot,gtype:cand.gtype||'normal',ageless:Math.random()<.1,dpos:cand.dpos,dposAuto:true,peakStats:{...cand.stats},
+  const p={name:c.name.trim()||'무명 선수',num:c.num,pos:c.pos,type:c.type,foot:c.foot,stats:{...cand.stats},pot:cand.pot,gtype:cand.gtype||'normal',trait:cand.trait||null,ageless:cand.trait==='ageless',dpos:cand.dpos,dposAuto:true,peakStats:{...cand.stats},
     age:18,year:2026,stage:'hs',club:c.school>=0?c.school:pick(youthHs()),u21:false,contract:{years:0,salary:0},money:0,fatigue:0,morale:65,injury:0,
     caps:0,intlGoals:0,history:[],trophies:[],phase:'prep',season:null,event:null,winter:null,note:null,offers:null,summary:null,peak:0,earned:0,
     mil:{st:'none'},injuries:[],injName:null,rehab:null,fragile:0,milestones:[],evHist:[],susp:0,captain:false,agent:false,wantsOut:false,
@@ -1240,7 +1262,7 @@ function tryMove(p,of){
   p.fa=false;
   if(moved&&of.fee){p.mvAnchor={v:of.fee,y:p.year};if(!p.maxFee||of.fee>p.maxFee.v)p.maxFee={v:of.fee,year:p.year,from:teamName(p.club,p.u21),to:teamName(of.club,of.u21)}}
   p.stage='pro';p.club=of.club;p.u21=of.u21;p.contract={years:of.years,salary:of.salary,buyout:of.clause||0};
-  if(moved){p.morale=clamp(p.morale+5,0,100);p.captain=false;p.wantsOut=false;p.atClub=0;if(p.badBlood&&p.badBlood.club!==p.club)p.badBlood=null;p.chem=15;p.mgr=null;mgrFor(p);
+  if(moved){p.morale=clamp(p.morale+5,0,100);p.captain=false;p.wantsOut=false;p.atClub=0;if(p.badBlood&&p.badBlood.club!==p.club)p.badBlood=null;p.chem=hasT(p,'oneclub')?5:15;if(hasT(p,'oneclub'))p.morale=clamp(p.morale-3,0,100);p.mgr=null;mgrFor(p);
     if(p.strike||p.struck){p.strike=false;p.struck=false;p.reqd=false;p.note=`태업 종료 · ${teamName(p.club,p.u21)}에서 새 출발합니다.`}}
   p.role=roleFor(p,p.club,p.u21);
   return true;
@@ -1413,7 +1435,7 @@ const s0=p=>p.season&&p.season.newsSeq||0;
 const OUT_K=['킥오프데일리','그라운드뉴스','풋볼투데이','스포츠라인','하프타임','주간 축구','골포스트 매거진'],
   OUT_E=['더 터치라인','유로풋볼 위클리','현지 일간지','풋볼 인사이더','라 피치','킥오프 인터내셔널'],
   OUT_A=['고교축구 매거진','유스풋볼','그라운드뉴스'];
-function press(p,head,kind,tag){const o=pick(p.stage!=='pro'?OUT_A:isEuro(p.club)?OUT_E:OUT_K);addNews(p,`[${tag||'언론'}] ${head} <span class="muted">· ${o}</span>`,kind)}
+function press(p,head,kind,tag){if(kind==='bad'&&hasT(p,'star'))p.morale=clamp(p.morale-1,0,100);const o=pick(p.stage!=='pro'?OUT_A:isEuro(p.club)?OUT_E:OUT_K);addNews(p,`[${tag||'언론'}] ${head} <span class="muted">· ${o}</span>`,kind)}
 function pressAfterRound(p,res){
   const s=p.season,pl=res.filter(m=>m.play),best=pl.reduce((a,m)=>!a||m.r>a.r?m:a,null);
   const n0=s0(p),N=`<b>${(p.name)}</b>`,T=(teamName(p.club,p.u21)),att=p.pos==='FW'||p.pos==='MF',def=p.pos==='DF'||p.pos==='GK';
@@ -1549,7 +1571,7 @@ function startSeason(p,picks){
   // 집중 훈련: 이미 평균보다 높은 능력치는 효과가 줄어든다. 고르지 않은 능력치도 함께 조금씩 오른다
   const avgS=STATS.reduce((a,k)=>a+p.stats[k],0)/6;
   // 동계 훈련은 직접 땀 흘린 만큼 오른다: 잠재력에 거의 닿아도 효과가 크게 줄지 않고, 23세까지는 고른 능력치가 최소 1은 오른다
-  const tPot=clamp((p.pot-ovr(p))/12,.45,1.5)*euroAcad(p);
+  const tPot=clamp((p.pot-ovr(p))/12,.45,1.5)*euroAcad(p)*traitGrow(p)*(hasT(p,'grinder')?1.1:1);
   picks.forEach(k=>{let g=Math.max(0,Math.round(rand(1,2.6)*trainAge(p)*tPot*moraleTrain(p.morale)*(p.chronic?.5:1)*clamp(1-(p.stats[k]-avgS)/50,.5,1.2)*roleGrowF(p)));if(p.age<=23&&!p.chronic)g=Math.max(1,g);addStat(p,k,g);lines.push(`${lab(p,k)} +${g}`)});
   STATS.filter(k=>!picks.includes(k)).forEach(k=>{if(Math.random()<.45*trainAge(p)*potF(p))addStat(p,k,1)});
   if(p.chronic){lines.push('잔부상 여파로 훈련 효과 절반');p.chronic=false}
@@ -1632,7 +1654,7 @@ function simMatch(p,s,ap,no,f){
   // 출전 시간: 교체는 후반 막판에 들어가고, 선발도 지쳐 있거나 경기 흐름에 따라 일찍 빠질 수 있다
   const pm=!play?0:sub?ri(5,35):Math.random()<.18+(p.fatigue>=50?.25:0)+(ap.rest?.3:0)?ri(55,80):90;
   const diff=lv+(play?(o-lv)*(['k1','k2'].includes(club.lg)?.55:.35):0)-oppL;   // K리그는 스타 한 명의 영향이 크다
-  const perf=play?5.72+(o-lv)/9+ap.perf+moraleBonus(p.morale)+chemBonus(p)+(p.captain?.05:0)+s.boost-fatiguePenalty(p.fatigue)+wxP+gauss()*.65:0;
+  const perf=play?5.72+(o-lv)/9+ap.perf+moraleBonus(p.morale)+chemBonus(p)+(p.captain?.05:0)+s.boost-fatiguePenalty(p.fatigue)+wxP+traitPerf(p,tg)+gauss()*.65:0;
   // 수비 역할은 그날 경기력이 실점에 직접 영향을 준다 (공격수가 득점으로 경기를 바꾸듯)
   const dw=play?(DEF_W[dposOf(p)]||0)*pm/90:0;
   const gf=poisson(clamp(1.35+diff*.07,.3,3.5)*wxG),ga=poisson(clamp(1.25-diff*.07,.25,3.2)*wxG*(dw?clamp(1-(perf-6.6)*dw,.55,1.5):1));
@@ -1664,14 +1686,14 @@ function simMatch(p,s,ap,no,f){
     if(cc&&g)s.ccG=(s.ccG||0)+g;
     s.apps++;s.goals+=g;s.assists+=a;s.ratingSum+=r;if(ga===0&&def)s.cs++;if(r>=8.3)s.motm++;
     s.dk=(s.dk||0)+dk;if(clutch)s.clutch=(s.clutch||0)+1;s.conc=(s.conc||0)+ga;s.saves=(s.saves||0)+sv;
-    p.fatigue+=(sub?ap.fat*.4:ap.fat*Math.max(.75,pm/90))*(s.mult||1)+(tg.includes('cup')?3:0)+wxF;   // 선발은 많이, 교체는 조금 · 궂은 날씨·장거리 원정은 더 지친다
+    p.fatigue+=(sub?ap.fat*.4:ap.fat*Math.max(.75,pm/90))*(s.mult||1)+(tg.includes('cup')?3:0)+wxF;if(hasT(p,'iron'))p.fatigue-=(sub?ap.fat*.4:ap.fat*Math.max(.75,pm/90))*(s.mult||1)*.12;   // 선발은 많이, 교체는 조금 · 궂은 날씨·장거리 원정은 더 지친다
     if(tg.includes('big')&&!sub){if(r>=7.5){p.rep=clamp(p.rep+1,0,100);p.morale=clamp(p.morale+3,0,100)}else if(r<6){p.rep=clamp(p.rep-1,0,100);p.morale=clamp(p.morale-3,0,100)}}
     if(tg.includes('scout')&&f.sc!=null&&r>=7.6){p.scouted={ci:f.sc,y:p.year};if(isEuro(f.sc))addEuroWatch(p,1,`${teamName(f.sc,false)} 스카우트 관전`);addNews(p,`[스카우트] ${teamName(f.sc,false)} 스카우트가 vs ${teamName(oi,p.u21)}전 활약을 인상 깊게 지켜봤다`,'good')}
     if(p.fragile>0)p.fragile--;
     if(Math.random()<injuryRisk(p,ap))inj=injure(p);
   }else if(ap===APPR.attack&&!forced&&!susp&&p.injury<=0&&!p.strike)p.fatigue+=2;   // 벤치에서도 강도 높게 훈련하면 피로가 쌓인다
   else p.fatigue=Math.max(0,p.fatigue-(p.injury>0||susp||forced?6:3));   // 벤치는 조금 회복
-  { const v=sharpOf(p);p.sharp=clamp(play?v+pm/9*(1-v/120)-1:v-(wasInj||p.injury>0?4:3),0,100) }
+  { const v=sharpOf(p);p.sharp=clamp(play?v+pm/9*(1-v/120)*(hasT(p,'iron')?.8:1)-1:v-(wasInj||p.injury>0?4:3),0,100) }
   if(!cc){
   if(gf>ga)s.w++;else if(gf===ga)s.d++;else s.l++;
   // 팀 연승·연패 (화면 표시용)
@@ -1730,7 +1752,7 @@ function updateStanding(p,res){
     if(m.play&&!m.sub)d+=(m.r-exp)*5.5*w;else if(m.sub)d+=((m.r-exp)*2.5+.5)*w;else if(m.out)d-=1.5});
   const pl0=res.filter(m=>m.play);if(pl0.length){const av=pl0.reduce((x,m)=>x+m.r,0)/pl0.length;p.formBase=exp*.8+av*.2}
   if(p.season&&p.season.lastAppr==='attack')d+=res.filter(m=>m.play).length*1.2;   // 감독에게 적극 어필
-  d+=(ovr(p)-clubLv(p))*.3+styleFit(p)*.5+versBonus(p)*.5;
+  d+=(ovr(p)-clubLv(p))*.3+styleFit(p)*.5+versBonus(p)*.5+(hasT(p,'oneclub')&&(p.atClub||0)>=3?.6:0);
   d+=((ROLE_BASE[roleFor(p,p.club,p.u21)]||50)-p.standing)*.08;
   d=clamp(d,-8,9);   // 한 번(4경기)에 크게 출렁이지 않는다: 감독은 한두 경기로 판단하지 않는다
   if(p.strike)d-=10;
@@ -1831,9 +1853,9 @@ function playRound(p,key){
   s.last=res;s.round++;s.boost=0;s.fx=fx.slice(li);
   if(key==='attack'&&res.some(m=>m.play))s.pushRounds=(s.pushRounds||0)+1;
   if(key==='attack'&&!res.some(m=>m.play))s.streak=Math.max(0,s.streak-1);
-  if(ap.rest)p.morale=clamp(p.morale-3,0,100);
+  if(ap.rest)p.morale=clamp(p.morale-3-(hasT(p,'grinder')?1:0),0,100);
   roundMorale(p,res);
-  p.chem=clamp((p.chem==null?40:p.chem)+res.filter(m=>m.play).length*1.2,0,100);
+  p.chem=clamp((p.chem==null?40:p.chem)+res.filter(m=>m.play).length*1.2*(hasT(p,'oneclub')&&(p.atClub||0)>=2||hasT(p,'abroad')&&isEuro(p.club)?1.3:1),0,100);
   if((p.stage==='pro'||p.stage==='hs'||p.stage==='univ')&&!p.fa)updateStanding(p,res);
   rivalPlays(p,res.length);pressAfterRound(p,res);autoSack(p);
   const crossedHalf=startMi<half&&s.mi>=half,done=s.mi>=s.games;
@@ -1921,7 +1943,7 @@ function winterMove(p,i){
 const mor=(p,d)=>{p.morale=clamp(p.morale+d,0,100)};
 const chem=(p,d)=>{p.chem=clamp((p.chem==null?40:p.chem)+d,0,100)};
 const stand=(p,d)=>{if(p.standing!=null)p.standing=clamp(p.standing+d,0,100)};
-const repA=(p,d)=>{p.rep=clamp((p.rep==null?30:p.rep)+d,0,100)};
+const repA=(p,d)=>{if(hasT(p,'star'))d*=1.3;else if(hasT(p,'abroad')&&d>0&&p.stage==='pro'&&!isEuro(p.club))d*=.8;p.rep=clamp((p.rep==null?30:p.rep)+d,0,100)};
 const EVENTS=[
   {t:'야간 개인훈련',d:'경기가 끝난 뒤 동료가 같이 남아서 훈련하자고 한다.',o:[
     ['함께 남는다',p=>{const k=mainStat(p);p.fatigue+=12;if(Math.random()<.65){const g=ri(1,2);addStat(p,k,g);return `${lab(p,k)} +${g}, 피로 +12`}if(Math.random()<.5){p.fragile=Math.max(p.fragile||0,6);return '무리했는지 근육이 뭉쳤다. 피로 +12, 당분간 부상 위험 증가'}chem(p,6);return '훈련보다 수다가 길었다. 피로 +12, 팀 케미 +6'}],
@@ -2237,10 +2259,10 @@ function seasonMovements(p,rank,order){
   if(injStop==='stop'){p.chronic=true;if(injG>=25)p.pot=Math.max(ovr(p)+2,p.pot-2)}
   // 적극 어필로 뛴 묶음이 많을수록 훈련 강도가 높아 시즌 성장 보너스(최대 +40%)
   const pushB=1+Math.min(.4,(s.pushRounds||0)*.06);
-  const burst=!injStop&&burstSeason(p),pts=Math.round((1+full*3)*ageF(p)*potF(p)*1.5*moraleTrain(p.morale)*pushB*(burst?2.4:1)*roleGrowF(p)*euroAcad(p)*(injStop==='stop'?0:injStop==='slow'?.5:1));
+  const burst=!injStop&&burstSeason(p),pts=Math.round((1+full*3)*ageF(p)*potF(p)*1.5*moraleTrain(p.morale)*pushB*(burst?2.4:1)*roleGrowF(p)*euroAcad(p)*(injStop==='stop'?0:injStop==='slow'?.5:1)*traitGrow(p));
   for(let i=0;i<pts;i++)addStat(p,growthStat(p),1);
   if(p.age>=declineAge(p)){   // 에이징 커브: 속도·피지컬이 먼저, 나이가 들수록 가파르게
-    const gk=(p.pos==='GK'?.6:1)*(p.ageless?.5:1),yrs=p.age-declineAge(p)+1;
+    const gk=(p.pos==='GK'?.6:1)*(hasT(p,'ageless')?.5:1),yrs=p.age-declineAge(p)+1;
     STATS.forEach(k=>{const loss=Math.max(0,Math.round((gauss()*.7+yrs*.6*gOf(p).rate*(k==='pac'?1.4:k==='phy'?1.3:.35))*gk));addStat(p,k,-loss)});
   }
   // 34세 이상: 속도·피지컬은 빠지지만 경험으로 패스·슈팅(수비수는 수비, 골키퍼는 위치선정)이 조금씩 는다
@@ -2481,7 +2503,7 @@ function careerHighlights(p){
   // 가장 높은 무대
   const lv=n=>{const l=Object.values(LG).find(x=>x.name===n);return l&&!l.am?l.lv:0},stage=pro.slice().sort((a,b)=>lv(b.lg)-lv(a.lg))[0];
   if(stage&&lv(stage.lg))out.push({i:'🌍',k:'가장 높은 무대',v:stage.lg,d:`${pro.filter(h=>h.lg===stage.lg).reduce((a,h)=>a+h.apps,0)}경기 출장`});
-  if(p.ageless)out.push({i:'🧬',k:'숨은 특성 공개',v:'노익장',d:'나이가 들어도 몸이 쉽게 녹슬지 않는 체질이었다'});
+  {const T=TRAITS[traitOf(p)];if(T)out.push({i:T.i,k:'숨은 특성 공개',v:T.n,d:`. `})}
   if(p.caps>0)out.push({i:'🇰🇷',k:'국가대표',v:`A매치 ${p.caps}경기`,d:gk?'대한민국 골문을 지켰다':`${p.intlGoals}골`});
   return out;
 }
@@ -3368,7 +3390,7 @@ function playFinal(p,mode){
   const lv=clubLv(p),o=ovr(p)+sharpMod(p),allIn=mode==='all';
   const can=p.injury<=0&&!(p.susp>0)&&!p.strike;
   const play=can&&Math.random()<({'주전':.97,'로테이션':.65,'벤치':.25}[p.role]||.5);
-  const perf=play?5.72+(o-lv)/9+(allIn?.35:0)+moraleBonus(p.morale)+chemBonus(p)-fatiguePenalty(p.fatigue)+gauss()*.7:0;
+  const perf=play?5.72+(o-lv)/9+(allIn?.35:0)+moraleBonus(p.morale)+chemBonus(p)-fatiguePenalty(p.fatigue)+traitPerf(p,['final'])+gauss()*.7:0;
   const diff=lv+(play?(o-lv)*.45+(perf-6.5)*.4:0)-f.oppL;
   let gf=poisson(clamp(1.3+diff*.07,.3,3.2)),ga=poisson(clamp(1.3-diff*.07,.3,3.2));
   let g=0,a=0,r=null;
@@ -3492,7 +3514,7 @@ function resolveMoment(p,i){
 
 /* ---------- 업데이트 노트 (최신이 위, 버전마다 누적) ---------- */
 const UPDATES=[
-  {d:'2026.10.07 10:05',t:'같은 선수 중복 진행 수정',l:['다른 기기 선수를 이어하기로 가져온 뒤에도 같은 선수가 목록에 또 떠서 두 갈래로 진행되던 문제를 고쳤어요','같은 선수(이름·등번호·포지션·나이)는 하나로 합치고, 더 많이 진행한 쪽으로 이어가요']},  {d:'2026.10.07 09:53',t:'동기화 강화 · 내 선수 커리어 카드 · 새 랜덤 요소',l:['기기마다 다른 선수를 키워도 클라우드에 모두 남아요. 다른 기기에서 진행 중인 선수는 홈·계정 화면에서 \'이어하기\'로 바로 이어갈 수 있어요','명예의 전당·업적·해금은 기기끼리 자동으로 합쳐지고, 계정 화면의 \'지금 저장 · 동기화\'를 누르면 바로 맞추고 \'저장했습니다\'가 떠요','예전 버전이 휴대폰에 남아 있으면 홈에 \'새 버전이 나왔어요\' 버튼이 떠요','내 선수들: 선수를 누르면 은퇴 카드처럼 경력·트로피 진열장(대회별 횟수·연도)·은퇴 후 이야기를 볼 수 있어요','⏰ 이적시장 마감일 깜짝 오퍼: 드물게 한 단계 위 구단이 웃돈을 들고 막판에 뛰어들어요','🌧️ 날씨·원정: 가끔 폭우·폭설·무더위·강풍 경기가 있고, AFC 장거리 원정은 더 지쳐요','💸 구단 위기: 아주 가끔 재정난(주급 삭감 요청)이나 새 구단주 인수(팀 전력 상승) 소식이 있어요','👔 성적이 바닥이면 시즌 중 감독이 경질되고, 성향이 다른 새 감독이 와서 입지가 다시 정해져요']},  {d:'2026.10.07 09:37',t:'기기 간 동기화 · 몸값 현실화 · 결승 일정',l:['로그인하면 컴퓨터·폰 기록이 서로 덮어쓰지 않고 합쳐져요: 명예의 전당·업적·포지션 해금은 두 기기 것을 모두 남기고, 진행 중인 선수는 더 최근에 플레이한 쪽을 써요. 앱을 열거나 다시 볼 때마다 자동으로 맞춰요','한 번에 진행하는 4경기에 대륙대회 경기가 포함돼요 (예: 리그 3경기 + UEL 1경기)','대륙대회·컵대회 결승은 실제처럼 리그 일정이 모두 끝난 뒤에 치러요. 토너먼트 일정도 실제처럼 뒤로 옮겼어요','몸값이 실제 이적시장처럼 최상위로 갈수록 가파르게 올라요. 월드클래스는 700억~1,000억대도 (아주 드물게) 가능하고, 돈 많은 빅클럽은 가끔 웃돈을 얹어 영입해요','결정적 순간에 어떤 경기인지(리그 몇 라운드 · 대륙대회 단계 · 결승) 표시되고, 선택지 버튼 색이 모두 같아졌어요','병역 정보에 앞으로 열리는 아시안게임·올림픽이 몇 년 뒤인지, 그때 나이로 U23·와일드카드 중 어떻게 나갈 수 있는지 보여요','명예의 전당: 모두의 랭킹 · 주간 챌린지 · 내 선수들 탭, 선수마다 트로피·개인 수상 전체 목록','은퇴 하이라이트의 \'최고의 팀\'에 2군(U21) 기간은 나오지 않아요','새 이벤트 16개: 예능 섭외, 개인 트레이너, 훈련장 말다툼, 축구화 스폰서, 전술 실험, 열애설, 판정 논란, 라이벌 도발, 멘탈 코치, 단독 인터뷰 등','몸값 업적 기준을 새 몸값에 맞게 올렸어요 (500억 · 1,000억 사나이, 이적료 300억)']},  {d:'2026.10.07 00:59',t:'평균 평점 소수 둘째 자리 · 피드백',l:['시즌·통산 평균 평점이 7.36처럼 소수 둘째 자리까지 보여요 (경기 평점은 그대로 첫째 자리)','피드백은 로그인한 뒤에 보낼 수 있어요 (보낸 사람 닉네임이 함께 전달돼요)']},  {d:'2026.10.07 00:34',t:'은퇴·새 인생 버튼 위치',l:['시즌 화면 아래의 은퇴하기 · 새 인생 시작 버튼은 시즌 결산 화면에서만 보여요','홈 화면의 새 인생 시작 · 주간 챌린지는 언제든 쓸 수 있어요']},  {d:'2026.10.07 00:21',t:'평점 기준 조정 · 골키퍼 선방',l:['평점이 실제 축구처럼 바뀌었어요: 무난한 경기 6.6~6.8, 무실점이나 1골·1도움이면 7.1~7.4, 공격 포인트·결정적 수비·선방이 쌓일수록 더 올라가요','골키퍼는 경기마다 선방 수가 기록되고 평점에 반영돼요 (지난 경기 목록에 🧤 선방 표시)','평점이 올라간 만큼 재계약 제안 등 평점 기준도 함께 올렸어요 (구단 재계약 제안은 최근 평점 7.4 이상)','이적·상무 결과 카운트다운 중에는 뒤 화면이 가려져서 결과가 미리 보이지 않아요']},  {d:'2026.10.07 00:09',t:'대륙대회 · 다양한 기사 · 큰 순간 연출',l:['UCL·UEL·UECL·ACLE·ACL2를 실제로 치러요. 조 추첨(포트·같은 리그 회피) → 조별리그 6경기 → 16강(AFC는 8강)부터 홈·원정 토너먼트 → 결승','대륙대회 경기는 주중에 리그 사이사이 열리고, 시즌 기록과 피로에 더해져요. 조별 탈락·토너먼트 결과가 소식에 떠요','순위 탭에 대륙대회 탭이 생겼어요: 조별 순위표 · 토너먼트 추첨 결과와 합계 스코어','순위표에 승·무·패가 보여요 (게임 안에서 실제로 치른 경기 기록)','2군 리그 순위표에 대륙대회·강등 구역이 잘못 표시되던 문제를 고쳤어요','언론·라이벌 기사가 훨씬 다양해졌어요: 멀티골·결승골·연속골·골 가뭄·인터뷰·칼럼·순위 기사 등, 가상의 매체 이름과 함께','결정적 순간이 포지션마다 여러 상황으로 나오고, 선택지 4개가 매번 다른 조합으로 나와요','해트트릭은 축구공이 날아오고 세레머니가 보이고, 결정적 골·선방, 승격·강등에도 연출이 생겼어요','이적·상무 지원·재계약·임대 요청은 3·2·1 카운트다운 뒤 결과를 알려 줘요','구단이 이적을 막을 때 이유를 알려 줘요 (이적료 부족, 감독의 잔류 요청, 시즌 중 전력 공백 등)','활약이 좋으면 가끔 소속팀이 먼저 주급·계약 기간을 올린 재계약을 제안해요','골키퍼 평점은 무실점·실점, 수비수 평점은 수비 경기력·무실점에 더 크게 움직이고, 골·도움 비중은 조금 줄었어요','중간 난이도 업적 23개가 추가됐어요']},  {d:'2026.10.06 23:13',t:'짧은 부상 · 직접 만든 학교',l:['부상이 이번 묶음 안에 끝나면 넘어가기만 뜨지 않고 평소처럼 경기 방식을 고를 수 있어요 (복귀 후 경기에 반영)','연승·연패 때 배경색이 바뀌던 효과를 없앴어요 (화면 안 표시는 그대로)','출신 고교에서 ✏️ 직접 입력을 고르면 원하는 이름의 일반고로 시작해요 (모구단·우선지명 없음)','유스 고교 이름은 원래대로 고정돼요']},
+  {d:'2026.10.07 10:23',t:'숨은 시작 특성 7종',l:['선수의 약 45%가 숨은 특성을 하나 갖고 태어나요. 화면에는 보이지 않고 은퇴할 때 공개돼요','🧬 노익장(하락이 늦고 완만 · 대신 23세까지 성장 조금 느림) · 🔋 강철 체력(피로 덜 쌓임 · 대신 경기 감각이 천천히 오름) · 🔥 빅매치 강심장(빅매치·토너먼트·결승에 강함 · 대신 평범한 경기 집중력 소폭↓)','🌟 스타성(인지도 빨리 오름 · 대신 비판도 크게) · 🏋️ 연습벌레(동계 훈련 효과↑ · 대신 휴식 요청 시 사기↓) · ❤️ 원클럽 DNA(오래 있을수록 케미·감독 신뢰↑ · 대신 이적하면 적응 느림) · ✈️ 해외 체질(유럽 적응 빠름 · 대신 국내 인기는 천천히)']},  {d:'2026.10.07 10:05',t:'같은 선수 중복 진행 수정',l:['다른 기기 선수를 이어하기로 가져온 뒤에도 같은 선수가 목록에 또 떠서 두 갈래로 진행되던 문제를 고쳤어요','같은 선수(이름·등번호·포지션·나이)는 하나로 합치고, 더 많이 진행한 쪽으로 이어가요']},  {d:'2026.10.07 09:53',t:'동기화 강화 · 내 선수 커리어 카드 · 새 랜덤 요소',l:['기기마다 다른 선수를 키워도 클라우드에 모두 남아요. 다른 기기에서 진행 중인 선수는 홈·계정 화면에서 \'이어하기\'로 바로 이어갈 수 있어요','명예의 전당·업적·해금은 기기끼리 자동으로 합쳐지고, 계정 화면의 \'지금 저장 · 동기화\'를 누르면 바로 맞추고 \'저장했습니다\'가 떠요','예전 버전이 휴대폰에 남아 있으면 홈에 \'새 버전이 나왔어요\' 버튼이 떠요','내 선수들: 선수를 누르면 은퇴 카드처럼 경력·트로피 진열장(대회별 횟수·연도)·은퇴 후 이야기를 볼 수 있어요','⏰ 이적시장 마감일 깜짝 오퍼: 드물게 한 단계 위 구단이 웃돈을 들고 막판에 뛰어들어요','🌧️ 날씨·원정: 가끔 폭우·폭설·무더위·강풍 경기가 있고, AFC 장거리 원정은 더 지쳐요','💸 구단 위기: 아주 가끔 재정난(주급 삭감 요청)이나 새 구단주 인수(팀 전력 상승) 소식이 있어요','👔 성적이 바닥이면 시즌 중 감독이 경질되고, 성향이 다른 새 감독이 와서 입지가 다시 정해져요']},  {d:'2026.10.07 09:37',t:'기기 간 동기화 · 몸값 현실화 · 결승 일정',l:['로그인하면 컴퓨터·폰 기록이 서로 덮어쓰지 않고 합쳐져요: 명예의 전당·업적·포지션 해금은 두 기기 것을 모두 남기고, 진행 중인 선수는 더 최근에 플레이한 쪽을 써요. 앱을 열거나 다시 볼 때마다 자동으로 맞춰요','한 번에 진행하는 4경기에 대륙대회 경기가 포함돼요 (예: 리그 3경기 + UEL 1경기)','대륙대회·컵대회 결승은 실제처럼 리그 일정이 모두 끝난 뒤에 치러요. 토너먼트 일정도 실제처럼 뒤로 옮겼어요','몸값이 실제 이적시장처럼 최상위로 갈수록 가파르게 올라요. 월드클래스는 700억~1,000억대도 (아주 드물게) 가능하고, 돈 많은 빅클럽은 가끔 웃돈을 얹어 영입해요','결정적 순간에 어떤 경기인지(리그 몇 라운드 · 대륙대회 단계 · 결승) 표시되고, 선택지 버튼 색이 모두 같아졌어요','병역 정보에 앞으로 열리는 아시안게임·올림픽이 몇 년 뒤인지, 그때 나이로 U23·와일드카드 중 어떻게 나갈 수 있는지 보여요','명예의 전당: 모두의 랭킹 · 주간 챌린지 · 내 선수들 탭, 선수마다 트로피·개인 수상 전체 목록','은퇴 하이라이트의 \'최고의 팀\'에 2군(U21) 기간은 나오지 않아요','새 이벤트 16개: 예능 섭외, 개인 트레이너, 훈련장 말다툼, 축구화 스폰서, 전술 실험, 열애설, 판정 논란, 라이벌 도발, 멘탈 코치, 단독 인터뷰 등','몸값 업적 기준을 새 몸값에 맞게 올렸어요 (500억 · 1,000억 사나이, 이적료 300억)']},  {d:'2026.10.07 00:59',t:'평균 평점 소수 둘째 자리 · 피드백',l:['시즌·통산 평균 평점이 7.36처럼 소수 둘째 자리까지 보여요 (경기 평점은 그대로 첫째 자리)','피드백은 로그인한 뒤에 보낼 수 있어요 (보낸 사람 닉네임이 함께 전달돼요)']},  {d:'2026.10.07 00:34',t:'은퇴·새 인생 버튼 위치',l:['시즌 화면 아래의 은퇴하기 · 새 인생 시작 버튼은 시즌 결산 화면에서만 보여요','홈 화면의 새 인생 시작 · 주간 챌린지는 언제든 쓸 수 있어요']},  {d:'2026.10.07 00:21',t:'평점 기준 조정 · 골키퍼 선방',l:['평점이 실제 축구처럼 바뀌었어요: 무난한 경기 6.6~6.8, 무실점이나 1골·1도움이면 7.1~7.4, 공격 포인트·결정적 수비·선방이 쌓일수록 더 올라가요','골키퍼는 경기마다 선방 수가 기록되고 평점에 반영돼요 (지난 경기 목록에 🧤 선방 표시)','평점이 올라간 만큼 재계약 제안 등 평점 기준도 함께 올렸어요 (구단 재계약 제안은 최근 평점 7.4 이상)','이적·상무 결과 카운트다운 중에는 뒤 화면이 가려져서 결과가 미리 보이지 않아요']},  {d:'2026.10.07 00:09',t:'대륙대회 · 다양한 기사 · 큰 순간 연출',l:['UCL·UEL·UECL·ACLE·ACL2를 실제로 치러요. 조 추첨(포트·같은 리그 회피) → 조별리그 6경기 → 16강(AFC는 8강)부터 홈·원정 토너먼트 → 결승','대륙대회 경기는 주중에 리그 사이사이 열리고, 시즌 기록과 피로에 더해져요. 조별 탈락·토너먼트 결과가 소식에 떠요','순위 탭에 대륙대회 탭이 생겼어요: 조별 순위표 · 토너먼트 추첨 결과와 합계 스코어','순위표에 승·무·패가 보여요 (게임 안에서 실제로 치른 경기 기록)','2군 리그 순위표에 대륙대회·강등 구역이 잘못 표시되던 문제를 고쳤어요','언론·라이벌 기사가 훨씬 다양해졌어요: 멀티골·결승골·연속골·골 가뭄·인터뷰·칼럼·순위 기사 등, 가상의 매체 이름과 함께','결정적 순간이 포지션마다 여러 상황으로 나오고, 선택지 4개가 매번 다른 조합으로 나와요','해트트릭은 축구공이 날아오고 세레머니가 보이고, 결정적 골·선방, 승격·강등에도 연출이 생겼어요','이적·상무 지원·재계약·임대 요청은 3·2·1 카운트다운 뒤 결과를 알려 줘요','구단이 이적을 막을 때 이유를 알려 줘요 (이적료 부족, 감독의 잔류 요청, 시즌 중 전력 공백 등)','활약이 좋으면 가끔 소속팀이 먼저 주급·계약 기간을 올린 재계약을 제안해요','골키퍼 평점은 무실점·실점, 수비수 평점은 수비 경기력·무실점에 더 크게 움직이고, 골·도움 비중은 조금 줄었어요','중간 난이도 업적 23개가 추가됐어요']},  {d:'2026.10.06 23:13',t:'짧은 부상 · 직접 만든 학교',l:['부상이 이번 묶음 안에 끝나면 넘어가기만 뜨지 않고 평소처럼 경기 방식을 고를 수 있어요 (복귀 후 경기에 반영)','연승·연패 때 배경색이 바뀌던 효과를 없앴어요 (화면 안 표시는 그대로)','출신 고교에서 ✏️ 직접 입력을 고르면 원하는 이름의 일반고로 시작해요 (모구단·우선지명 없음)','유스 고교 이름은 원래대로 고정돼요']},
   {d:'2026.10.06 23:08',t:'유스 고교 추가 · 더 촘촘한 화면',l:['부산(개성고)·전남(광양제철고)·대구(현풍고)·대전(충남기계공고)·광주(금호고)·강원(강릉제일고)·경남(진주고)·안양(안양공고) 유스 고교가 생겼어요','유스가 없는 일반 고교는 없어졌어요','출신 고교 이름을 직접 정할 수 있어요 (비우면 원래 이름)','글자와 여백을 한 번 더 줄여 시즌 화면이 한 화면에 들어와요','새 인생 시작 · 은퇴하기 버튼을 작게 정리했어요']},
   {d:'2026.10.06 22:50',t:'결정적 순간',l:['빅매치(접전)와 결승전에 출전하면 경기 막판 결정적 순간을 직접 골라요','공격수는 슈팅 방향, 미드필더는 패스할 동료, 수비수는 막는 방법, 골키퍼는 페널티킥 방향을 골라요','성공 확률은 보이지 않고 장면마다 달라요. 상대 골키퍼·수비의 대응과 내 능력치에 따라 정해져요','성공하면 골·도움·선방이 실제 스코어와 평점에 반영되고, 결승 우승에도 영향을 줘요']},
   {d:'2026.10.06 22:40',t:'유럽대항전 · 구단 대표 색 · 촘촘한 화면',l:['UCL·UEL·UECL이 생겼어요. 지난 시즌 리그 순위로 출전권이 정해져요 (잉글랜드·스페인·독일·이탈리아 1~4위 UCL, 5~6위 UEL, 7위 UECL / 프랑스 1~4위 UCL, 5위 UEL, 6위 UECL)','K리그1은 1~2위 ACLE, 3위 ACL2에 나가요','대륙대회 결승은 실제로 출전 중인 대회에서만 오를 수 있어요','오퍼 카드에 그 팀이 나가는 대륙대회와 순위가 보여요','대륙대회에 나가는 시즌에는 시즌 시작 전에 알려 줘요','순위표에 대륙대회 출전권 구역이 표시돼요','구단 엠블럼이 실제 대표 색을 쓰고, 모양도 구단마다 다양해졌어요','팀 배경이 구단 대표 색으로 은은하게 바뀌어요','화면 전체를 더 촘촘하게 정리해 스크롤을 줄였어요']},
