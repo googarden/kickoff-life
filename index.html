@@ -545,6 +545,9 @@ details.panel summary .res{margin-left:0}
 .tog{flex:none;min-width:58px;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface-2);color:inherit;font:inherit;font-size:.82rem;font-weight:700;cursor:pointer}.tog[aria-pressed="true"]{background:var(--pitch);border-color:var(--pitch);color:#fff}
 .scoutchip{display:inline-block;padding:2px 9px;border-radius:999px;background:#eef3fb;border:1px solid #b9cdee;color:#1d4fa8;font-size:.78rem}.scoutchip b{font-weight:800}.scoutchip.none{background:transparent;border-color:var(--line);color:var(--muted)}
 .natlast{border:1.5px solid var(--pitch)}
+.verbar{display:block;width:100%;margin:0 0 10px;padding:9px 12px;border:0;border-radius:12px;background:var(--pitch);color:#fff;font:inherit;font-size:.86rem;font-weight:700;cursor:pointer}
+.betamtrow{align-items:center;flex-wrap:nowrap}.betamtrow .betamt{flex:none;width:74px!important;margin:0;padding:7px 8px;text-align:center;font-weight:800;font-size:1rem}.betopt.sm{min-width:44px;padding:6px 8px}
+.epil{margin:6px 0 12px;padding-left:18px;font-size:13px;line-height:1.55;color:var(--muted)}.epil li{margin:2px 0}
 .cardbtn{margin-bottom:10px;background:linear-gradient(90deg,#2f6fd6,#7c3aed)!important;color:#fff!important}
 .attbtn{background:linear-gradient(90deg,#f2c14e,#f7d77a)!important;color:#3a2a00!important;margin-top:8px}
 .earng{display:grid;grid-template-columns:1fr 1fr;gap:6px}
@@ -772,10 +775,10 @@ const repBonus=p=>((p.rep==null?30:p.rep)-45)/250;
 function iga(w){const c=w.charCodeAt(w.length-1);if(c<0xAC00||c>0xD7A3)return w+'이(가)';return w+((c-0xAC00)%28?'이':'가')}
 
 /* ---------- data ---------- */
-// 능력치 8개: 예전 '피지컬'을 민첩성(순발력·밸런스)과 체력(지구력·몸싸움)으로 나누고, 위치선정(오프 더 볼·수비 위치)을 더했다
-// 골키퍼는 같은 칸을 반응·다이빙·킥·핸들링·위치선정·민첩성·체력·공중볼로 읽는다
+// 능력치 8개: 예전 '피지컬'을 민첩성(순발력·밸런스)과 지구력(한 경기·한 시즌을 버티는 힘 · 높으면 피로가 덜 쌓임)으로 나누고, 위치선정(오프 더 볼·수비 위치)을 더했다
+// 골키퍼는 같은 칸을 반응·다이빙·킥·핸들링·위치선정·민첩성·지구력·공중볼로 읽는다
 const STATS=['pac','sho','pas','dri','def','agi','sta','psn'];
-const LABELS={field:{pac:'속도',sho:'슈팅',pas:'패스',dri:'드리블',def:'수비',agi:'민첩성',sta:'체력',psn:'위치선정',phy:'피지컬'},gk:{pac:'반응',sho:'다이빙',pas:'킥',dri:'핸들링',def:'위치선정',agi:'민첩성',sta:'체력',psn:'공중볼',phy:'피지컬'}};
+const LABELS={field:{pac:'속도',sho:'슈팅',pas:'패스',dri:'드리블',def:'수비',agi:'민첩성',sta:'지구력',psn:'위치선정',phy:'피지컬'},gk:{pac:'반응',sho:'다이빙',pas:'킥',dri:'핸들링',def:'위치선정',agi:'민첩성',sta:'지구력',psn:'공중볼',phy:'피지컬'}};
 const POS={
   FW:{name:'공격수',w:{pac:.15,sho:.3,pas:.1,dri:.15,def:0,agi:.1,sta:.05,psn:.15},goal:.30,ast:.13,
       types:{'골잡이형':{sho:6,psn:4,pac:1,pas:-3},'스피드형':{pac:8,agi:4,dri:2,sta:-4},'타겟형':{sta:7,psn:5,sho:3,pac:-5,agi:-3},'테크니션':{dri:7,agi:4,pas:3,sta:-4}}},
@@ -999,6 +1002,8 @@ const fatiguePenalty=f=>f<50?0:Math.min(.2,(f-50)*.01);
 const fatStatMod=f=>f>=FAT_NOPUSH?-Math.min(5,Math.round((f-62)/4)):0;
 let fatPerf=f=>fatiguePenalty(f)-fatStatMod(f)/9+(f>=50&&f<FAT_NOPUSH&&Math.random()<.2?.35:0);
 // 나이가 들수록 피로가 빨리 쌓이고 늦게 풀린다: 33세부터 조금 · 35세부터 확실히 · 40세부터는 해마다 훅훅
+// 지구력: 높으면 경기마다 쌓이는 피로가 줄고, 낮으면 늘어난다 (60 기준 · 골키퍼 제외)
+const staFat=p=>!p||p.pos==='GK'?1:clamp(1-((p.stats.sta||60)-60)*.004,.85,1.12);
 const ageFat=p=>!p?1:p.age>=40?1.35+(p.age-40)*.1:p.age>=35?1.2:p.age>=33?1.08:1,ageRec=p=>!p?1:p.age>=40?Math.max(.5,.75-(p.age-40)*.05):p.age>=35?.85:p.age>=33?.93:1;
 const matchRecovery=f=>1+f*.04;   // 평소대로 선발을 계속 뛰면 피로가 60 안팎까지 차오른다: 결국 쉬어 줘야 한다
 const pushMult=st=>Math.min(1.5,1+.15*(st||0));
@@ -1011,7 +1016,7 @@ function fatigueState(f,restLeft){
 }
 // 4경기를 모두 뛰었을 때의 예상 피로
 function fatigueAfter(f,ap,streak,p){
-  const per=(ap.rest?ap.fat*.25-8*.75:ap.fat*ageFat(p))*(ap===APPR.attack?pushMult(streak):1);
+  const per=(ap.rest?ap.fat*.25-8*.75:ap.fat*ageFat(p)*staFat(p))*(ap===APPR.attack?pushMult(streak):1);
   let x=f;for(let i=0;i<PER;i++){x=Math.max(0,x+(x>=FAT_SUB&&!ap.rest?per*.5:per));x=Math.max(0,x-matchRecovery(x)*ageRec(p));if(x>=FAT_REST)break}
   return Math.round(x);
 }
@@ -1036,7 +1041,8 @@ const isTop=ci=>LG[CLUBS[ci].lg].tier===1;
 // 지금 뛰는 리그가 몇 부인지
 function tierLabel(ci,u21){const l=LG[CLUBS[ci].lg];if(l.am)return '아마추어';if(u21)return `${l.nation} 2군 리그`;return `${l.nation} ${l.tier}부`}
 const teamLv=(ci,u21)=>{const c=CLUBS[ci],l=LG[c.lg];return u21?l.lv-13+Math.round(c.str*.4):l.lv+c.str};
-const teamName=(ci,u21)=>u21?`${CLUBS[ci].name} ${LG[CLUBS[ci].lg].u21}`:CLUBS[ci].name;
+// 네덜란드 2군은 이름 앞에 붙는다 (용 아약스)
+const teamName=(ci,u21)=>{if(!u21)return CLUBS[ci].name;const s=LG[CLUBS[ci].lg].u21;return s==='용'?`용 ${CLUBS[ci].name}`:`${CLUBS[ci].name} ${s}`};
 function leagueOf(ci,u21){const l=LG[CLUBS[ci].lg];if(!u21)return l;
   return {name:l.u21lg,lv:l.lv-13,games:24,teams:14,base:8000,cup:null,nation:l.nation,isU21:true}}
 const curLg=p=>leagueOf(p.club,p.u21);
@@ -1045,23 +1051,23 @@ const lab=(p,k)=>LABELS[p.pos==='GK'?'gk':'field'][k];
 const DPOS={
   // 8개 능력치 비중 (합 100%, 한 능력치 최대 30%): 실제 역할에서 무엇이 경기력을 가르는지 기준
   ST:{g:'FW',n:'스트라이커',w:{pac:.15,sho:.3,pas:.05,dri:.1,def:0,agi:.1,sta:.1,psn:.2},goal:.34,ast:.1,d:'박스 안에서 마무리하는 골잡이'},
-  TM:{g:'FW',n:'타겟맨',w:{pac:0,sho:.25,pas:.1,dri:.05,def:.05,agi:0,sta:.3,psn:.25},goal:.3,ast:.12,d:'몸싸움과 제공권으로 공을 지켜내는 기준점'},
-  WG:{g:'FW',n:'윙어',w:{pac:.25,sho:.1,pas:.15,dri:.25,def:0,agi:.15,sta:.05,psn:.05},goal:.2,ast:.2,d:'측면을 돌파하고 크로스와 컷인으로 위협'},
-  IF:{g:'FW',n:'인사이드 포워드',w:{pac:.15,sho:.25,pas:.05,dri:.25,def:0,agi:.15,sta:0,psn:.15},goal:.27,ast:.15,d:'측면에서 안으로 파고들어 감아 차는 득점원'},
-  SS:{g:'FW',n:'세컨드 스트라이커',w:{pac:.05,sho:.2,pas:.25,dri:.2,def:0,agi:.1,sta:0,psn:.2},goal:.22,ast:.22,d:'내려와서 연계하고 침투하는 가짜 9번'},
-  CAM:{g:'MF',n:'공격형 미드필더',w:{pac:0,sho:.15,pas:.3,dri:.25,def:0,agi:.1,sta:0,psn:.2},goal:.16,ast:.28,d:'마지막 패스와 중거리로 공격을 지휘'},
-  CM:{g:'MF',n:'중앙 미드필더',w:{pac:.05,sho:.05,pas:.25,dri:.1,def:.15,agi:.05,sta:.25,psn:.1},goal:.1,ast:.2,d:'공수 양면을 오가는 박스 투 박스'},
-  DLP:{g:'MF',n:'레지스타',w:{pac:0,sho:.05,pas:.3,dri:.15,def:.15,agi:.05,sta:.05,psn:.25},goal:.05,ast:.2,d:'깊은 곳에서 경기 템포를 조율하는 지휘자'},
-  DM:{g:'MF',n:'수비형 미드필더',w:{pac:0,sho:0,pas:.2,dri:0,def:.3,agi:.05,sta:.2,psn:.25},goal:.04,ast:.1,d:'포백 앞에서 끊고 배급하는 살림꾼'},
+  TM:{g:'FW',n:'타겟맨',w:{pac:0,sho:.3,pas:.1,dri:.05,def:.05,agi:.05,sta:.15,psn:.3},goal:.3,ast:.12,d:'몸싸움과 제공권으로 공을 지켜내는 기준점'},
+  WG:{g:'FW',n:'윙어',w:{pac:.25,sho:.1,pas:.15,dri:.2,def:0,agi:.15,sta:.1,psn:.05},goal:.2,ast:.2,d:'측면을 돌파하고 크로스와 컷인으로 위협'},
+  IF:{g:'FW',n:'인사이드 포워드',w:{pac:.15,sho:.25,pas:.05,dri:.2,def:0,agi:.15,sta:.1,psn:.1},goal:.27,ast:.15,d:'측면에서 안으로 파고들어 감아 차는 득점원'},
+  SS:{g:'FW',n:'세컨드 스트라이커',w:{pac:.05,sho:.2,pas:.25,dri:.2,def:0,agi:.1,sta:.1,psn:.1},goal:.22,ast:.22,d:'내려와서 연계하고 침투하는 가짜 9번'},
+  CAM:{g:'MF',n:'공격형 미드필더',w:{pac:0,sho:.15,pas:.3,dri:.2,def:0,agi:.1,sta:.1,psn:.15},goal:.16,ast:.28,d:'마지막 패스와 중거리로 공격을 지휘'},
+  CM:{g:'MF',n:'중앙 미드필더',w:{pac:.05,sho:.05,pas:.25,dri:.1,def:.15,agi:.05,sta:.2,psn:.15},goal:.1,ast:.2,d:'공수 양면을 오가는 박스 투 박스'},
+  DLP:{g:'MF',n:'레지스타',w:{pac:0,sho:.05,pas:.3,dri:.15,def:.15,agi:.05,sta:.1,psn:.2},goal:.05,ast:.2,d:'깊은 곳에서 경기 템포를 조율하는 지휘자'},
+  DM:{g:'MF',n:'수비형 미드필더',w:{pac:0,sho:0,pas:.2,dri:0,def:.3,agi:.05,sta:.15,psn:.3},goal:.04,ast:.1,d:'포백 앞에서 끊고 배급하는 살림꾼'},
   WM:{g:'MF',n:'측면 미드필더',w:{pac:.2,sho:.05,pas:.25,dri:.15,def:.05,agi:.1,sta:.2,psn:0},goal:.12,ast:.26,d:'측면에서 활동량과 크로스로 기여'},
-  CB:{g:'DF',n:'센터백',w:{pac:.1,sho:0,pas:.05,dri:0,def:.3,agi:.05,sta:.25,psn:.25},goal:.05,ast:.03,d:'공중볼과 대인 방어로 골문 앞을 지킴'},
+  CB:{g:'DF',n:'센터백',w:{pac:.1,sho:0,pas:.05,dri:0,def:.3,agi:.1,sta:.15,psn:.3},goal:.05,ast:.03,d:'공중볼과 대인 방어로 골문 앞을 지킴'},
   BPD:{g:'DF',n:'빌드업 센터백',w:{pac:.05,sho:0,pas:.3,dri:.05,def:.3,agi:.05,sta:.1,psn:.15},goal:.04,ast:.05,d:'후방에서 전진 패스로 공격을 시작'},
   FB:{g:'DF',n:'풀백',w:{pac:.2,sho:0,pas:.15,dri:.05,def:.3,agi:.1,sta:.15,psn:.05},goal:.03,ast:.1,d:'측면 수비가 우선, 기회가 나면 오버래핑'},
   WB:{g:'DF',n:'윙백',w:{pac:.25,sho:0,pas:.2,dri:.15,def:.15,agi:.1,sta:.15,psn:0},goal:.04,ast:.14,d:'측면 전체를 오르내리는 공격적 수비수'},
   GK:{g:'GK',n:'정통파 골키퍼',w:{pac:.25,sho:.25,pas:0,dri:.2,def:.1,agi:.1,sta:0,psn:.1},goal:0,ast:.005,d:'반사신경과 선방으로 골문을 지킴'},
   SK:{g:'GK',n:'스위퍼 키퍼',w:{pac:.2,sho:.1,pas:.2,dri:.1,def:.2,agi:.1,sta:0,psn:.1},goal:0,ast:.01,d:'뒷공간을 커버하고 발밑으로 빌드업'}
 };
-// 예전(능력치 6개) 기록 변환: 피지컬 → 민첩성·체력, 위치선정은 나머지 능력치 평균에서 시작.
+// 예전(능력치 6개) 기록 변환: 피지컬 → 민첩성·지구력, 위치선정은 나머지 능력치 평균에서 시작.
 // 진행 중인 커리어는 지금 역할 OVR이 그대로 유지되도록 위치선정(또는 가장 비중 큰 능력치)으로 맞춘다
 const OLD_W={ST:{pac:.2,sho:.35,pas:.1,dri:.15,def:0,phy:.2},TM:{pac:.05,sho:.3,pas:.2,dri:.05,def:.05,phy:.35},WG:{pac:.3,sho:.15,pas:.2,dri:.27,def:0,phy:.08},IF:{pac:.2,sho:.3,pas:.1,dri:.3,def:0,phy:.1},SS:{pac:.1,sho:.3,pas:.3,dri:.3,def:0,phy:0},CAM:{pac:.05,sho:.25,pas:.35,dri:.3,def:0,phy:.05},CM:{pac:.05,sho:.1,pas:.3,dri:.15,def:.2,phy:.2},DLP:{pac:.05,sho:.05,pas:.35,dri:.25,def:.2,phy:.1},DM:{pac:.05,sho:0,pas:.25,dri:.05,def:.35,phy:.3},WM:{pac:.3,sho:.1,pas:.3,dri:.25,def:.05,phy:0},CB:{pac:.15,sho:0,pas:.15,dri:.05,def:.35,phy:.3},BPD:{pac:.1,sho:0,pas:.35,dri:.05,def:.35,phy:.15},FB:{pac:.3,sho:0,pas:.2,dri:.1,def:.35,phy:.05},WB:{pac:.35,sho:0,pas:.25,dri:.2,def:.2,phy:0},GK:{pac:.3,sho:.3,pas:0,dri:.25,def:.15,phy:0},SK:{pac:.25,sho:.2,pas:.2,dri:.1,def:.25,phy:0}};
 function conv8(s){if(!s||s.agi!=null||s.phy==null)return s;const o={...s},ph=s.phy;o.agi=ph;o.sta=ph;o.psn=Math.round((s.pac+s.sho+s.pas+s.dri+s.def+ph)/6);delete o.phy;return o}
@@ -1122,7 +1128,7 @@ function badgePanel(p){const L=p.badges||[];
 const roleKeys=r=>STATS.slice().sort((a,b)=>DPOS[r].w[b]-DPOS[r].w[a]).slice(0,2);
 // 동계 훈련 추천은 하나만: 목표 역할에 중요한 능력치(비중 15% 이상) 중 지금 가장 낮은 것 (같은 능력치만 계속 올리지 않게)
 // 역할마다 개성이 드러나는 대표 능력치 2개 (스트라이커는 슈팅·속도, 타겟맨은 피지컬·슈팅 …) · 추천은 그중 지금 더 낮은 것
-const ROLE_FOCUS={ST:['sho','psn'],TM:['sta','psn'],WG:['pac','dri'],IF:['dri','sho'],SS:['pas','dri'],CAM:['pas','sho'],CM:['pas','sta'],DLP:['pas','dri'],DM:['def','psn'],WM:['pac','pas'],CB:['def','psn'],BPD:['pas','def'],FB:['def','pac'],WB:['pac','dri'],GK:['pac','sho'],SK:['def','pas']};
+const ROLE_FOCUS={ST:['sho','psn'],TM:['psn','sho'],WG:['pac','dri'],IF:['dri','sho'],SS:['pas','dri'],CAM:['pas','sho'],CM:['pas','sta'],DLP:['pas','dri'],DM:['def','psn'],WM:['pac','pas'],CB:['def','psn'],BPD:['pas','def'],FB:['def','pac'],WB:['pac','dri'],GK:['pac','sho'],SK:['def','pas']};
 const trainRec=p=>{const f=ROLE_FOCUS[dposOf(p)]||roleKeys(dposOf(p));return f.slice().sort((a,b)=>p.stats[a]-p.stats[b])[0]};
 // 포지션별 기록 요약: 골키퍼는 무실점·실점, 그 외는 골·도움
 function prodTxt(p,x){
@@ -1880,7 +1886,7 @@ function natPlay(p){const N=p.nat;if(!N||N.mo||N.res)return;
   // 접전인 토너먼트 경기: 결정적 순간
   if(play&&ko&&Math.abs(gk-go)<=1&&Math.random()<.6){N.mo={M,att:p.pos==='FW'||p.pos==='MF'};return}
   natFinish(p,M)}
-const NAT_MO={FW:[['골문 구석으로 감아 찬다','sho',0],['강하게 니어 포스트로','sho',-.05],['수비를 제치고 일대일','dri',.02]],MF:[['수비 뒷공간 스루패스','pas',.03],['과감한 중거리 슛','sho',-.08],['측면으로 벌려 크로스','pas',0]],DF:[['몸을 날려 태클','def',0],['끝까지 따라가 각도를 좁힌다','pac',.02],['파울로 끊는다 (경고 감수)','sta',.05]],GK:[['왼쪽으로 몸을 날린다','pac',0],['오른쪽으로 몸을 날린다','pac',0],['끝까지 버티고 선다','def',.03]]};
+const NAT_MO={FW:[['골문 구석으로 감아 찬다','sho',0],['강하게 니어 포스트로','sho',-.05],['수비를 제치고 일대일','dri',.02]],MF:[['수비 뒷공간 스루패스','pas',.03],['과감한 중거리 슛','sho',-.08],['측면으로 벌려 크로스','pas',0]],DF:[['몸을 날려 태클','def',0],['끝까지 따라가 각도를 좁힌다','pac',.02],['파울로 끊는다 (경고 감수)','def',.05]],GK:[['왼쪽으로 몸을 날린다','pac',0],['오른쪽으로 몸을 날린다','pac',0],['끝까지 버티고 선다','def',.03]]};
 function natMoment(p,i){const N=p.nat;if(!N||!N.mo)return;const {M,att}=N.mo,opt=NAT_MO[p.pos][+i]||NAT_MO[p.pos][0];
   const ok=Math.random()<clamp(.38+(p.stats[opt[1]]-70)*.012+opt[2],.15,.82);
   if(att){if(ok){M.gk++;if(p.pos==='FW')M.g++;else M.a++;M.note=`⚡ ${opt[0]} → 성공! ${p.pos==='FW'?'골':'도움'}`}else M.note=`⚡ ${opt[0]} → 아쉽게 무산`}
@@ -1992,7 +1998,7 @@ function enlistArmy(p){
   for(let i=1;i<=2;i++)p.history.push({year:p.year+i,age:p.age+i,club:'현역 복무',lg:'군 복무',pro:false,apps:0,goals:0,assists:0,cs:0,avg:0,rank:'-',N:'-',ovr:ovr(p)});
   p.mil={st:'done',why:'현역 복무'};p.age+=2;p.year+=2;p.contract.years=Math.max(0,p.contract.years-2);
   p.injury=0;p.fatigue=0;p.morale=55;p.sharp=10;
-  p.note=`현역 복무를 마치고 2년 만에 돌아왔습니다. 체력은 좋아졌지만 볼 감각이 무뎌졌어요 · ${ch.join(', ')} · OVR ${before} → ${ovr(p)}`;
+  p.note=`현역 복무를 마치고 2년 만에 돌아왔습니다. 지구력은 좋아졌지만 볼 감각이 무뎌졌어요 · ${ch.join(', ')} · OVR ${before} → ${ovr(p)}`;
 }
 
 /* ---------- season ---------- */
@@ -2130,7 +2136,7 @@ function simMatch(p,s,ap,no,f){
     else{const L=lgOf(s);L.g+=g;L.a+=a;L.apps++;if(ga===0&&def)L.cs++}   // 리그 기록은 개인상(득점왕·MVP …)에 쓴다
     s.apps++;if(sub)s.subs=(s.subs||0)+1;s.goals+=g;s.assists+=a;s.ratingSum+=r;if(ga===0&&def)s.cs++;if(r>=8.3)s.motm++;
     s.dk=(s.dk||0)+dk;if(clutch)s.clutch=(s.clutch||0)+1;s.conc=(s.conc||0)+ga;s.saves=(s.saves||0)+sv;s.kp=(s.kp||0)+kp;s.ds=(s.ds||0)+ds;s.sot=(s.sot||0)+sot;
-    p.fatigue+=((sub?ap.fat*.4:ap.fat*Math.max(.75,pm/90))*(s.mult||1)+(tg.includes('cup')?3:0)+wxF)*ageFat(p);if(badgeEff(p,'fat')<1)p.fatigue-=(sub?ap.fat*.4:ap.fat*Math.max(.75,pm/90))*(s.mult||1)*(1-badgeEff(p,'fat'));if(hasT(p,'iron'))p.fatigue-=(sub?ap.fat*.4:ap.fat*Math.max(.75,pm/90))*(s.mult||1)*.12;   // 선발은 많이, 교체는 조금 · 궂은 날씨·장거리 원정은 더 지친다
+    p.fatigue+=((sub?ap.fat*.4:ap.fat*Math.max(.75,pm/90))*(s.mult||1)+(tg.includes('cup')?3:0)+wxF)*ageFat(p)*staFat(p);if(badgeEff(p,'fat')<1)p.fatigue-=(sub?ap.fat*.4:ap.fat*Math.max(.75,pm/90))*(s.mult||1)*(1-badgeEff(p,'fat'));if(hasT(p,'iron'))p.fatigue-=(sub?ap.fat*.4:ap.fat*Math.max(.75,pm/90))*(s.mult||1)*.12;   // 선발은 많이, 교체는 조금 · 궂은 날씨·장거리 원정은 더 지친다
     if(tg.includes('big')&&!sub){if(r>=7.5){repA(p,1);p.morale=clamp(p.morale+3,0,100)}else if(r<6){p.rep=clamp(p.rep-1,0,100);p.morale=clamp(p.morale-3,0,100)}}
     if(tg.includes('scout')&&f.sc!=null&&r>=7.6){p.scouted={ci:f.sc,y:p.year};if(isEuro(f.sc))addEuroWatch(p,1,`${teamName(f.sc,false)} 스카우트 관전`);addNews(p,`[스카우트] ${teamName(f.sc,false)} 스카우트가 vs ${teamName(oi,p.u21)}전 활약을 인상 깊게 지켜봤다`,'good')}
     if(p.fragile>0)p.fragile--;
@@ -2159,7 +2165,7 @@ function injure(p){
   let r=Math.random()*tot,t=pool[0];for(const x of pool){r-=x.w;if(r<=0){t=x;break}}
   const g=ri(t.g[0],t.g[1]),loss={};
   Object.entries(t.loss).forEach(([k,v])=>{const l=Math.max(0,v+ri(-1,0)+(p.age>=30?1:0));if(l){addStat(p,k,-l);loss[k]=l}});
-  // 나이 들어 크게 다치면 신체 능력(속도·민첩성·체력)이 크게 무너진다: 35세부터, 장기 부상일수록 (재활로도 돌아오지 않는다)
+  // 나이 들어 크게 다치면 신체 능력(속도·민첩성·지구력)이 크게 무너진다: 35세부터, 장기 부상일수록 (재활로도 돌아오지 않는다)
   const ageL=p.age>=35&&g>=8?(g>=24?(p.age-32)*3:(p.age-34)):0,ageLoss={};
   if(ageL>0)['pac','agi','sta'].forEach(k=>{const l=Math.round(ageL*(p.pos==='GK'&&k==='pac'?.5:1)*rand(.75,1.25));if(l>0){addStat(p,k,-l);ageLoss[k]=l}});
   // 젊을 때 크게 다치면 잠재력 자체가 깎이고, 한동안 성장이 더뎌진다 (잠재력만으로 커리어가 정해지지 않게)
@@ -2832,11 +2838,11 @@ function endSeason(p){
   // 23세 이하인데 두 시즌 연속 거의 못 뛰면(리그 8경기 미만) 성장이 정체되고 잠재력이 조금씩 깎인다
   if(p.age<=23&&p.stage==='pro'&&!p.mil.st.startsWith('serv')){if(s.apps<8&&!longInj(p))p.stuck=(p.stuck||0)+1;else p.stuck=0;
     if(p.stuck>=2){p.pot=Math.max(ovr(p)+3,p.pot-1);addNews(p,'[성장] 출전 기회를 얻지 못해 성장이 정체되고 있다 · 임대나 이적으로 뛸 곳을 찾아야 한다','bad')}}else p.stuck=0;
-  if(p.age>=declineAge(p)){   // 에이징 커브: 속도·민첩성·체력이 먼저, 나이가 들수록 가파르게 · 위치선정은 거의 안 떨어진다
+  if(p.age>=declineAge(p)){   // 에이징 커브: 속도·민첩성·지구력이 먼저, 나이가 들수록 가파르게 · 위치선정은 거의 안 떨어진다
     const gk=(p.pos==='GK'?.6:1)*(hasT(p,'ageless')?.5:1),yrs=p.age-declineAge(p)+1,o40=p.age>=40?1+(p.age-39)*.6:1;   // 40세부터 신체 능력이 해마다 더 가파르게 무너진다
     STATS.forEach(k=>{const loss=Math.max(0,Math.round((gauss()*.7+yrs*.6*gOf(p).rate*(k==='pac'?1.5*o40:k==='agi'?1.4*o40:k==='sta'?1.3*o40:k==='psn'?.2:.45))*gk));addStat(p,k,-loss)});
   }
-  // 34세 이상: 속도·민첩성·체력은 빠지지만 경험으로 위치선정과 패스(수비수는 수비, 골키퍼는 위치선정)가 조금씩 는다
+  // 34세 이상: 속도·민첩성·지구력은 빠지지만 경험으로 위치선정과 패스(수비수는 수비, 골키퍼는 위치선정)가 조금씩 는다
   if(p.age>=34){const exp=p.pos==='DF'?['psn','def']:p.pos==='GK'?['def','psn']:['psn','pas'];exp.forEach(k=>{if(Math.random()<.75)addStat(p,k,ri(1,2))});p.vetNote=true}else p.vetNote=false;
   const after=ovr(p);if(after>=p.peak){p.peak=after;p.peakStats={...p.stats};p.peakRole=dposOf(p)}
 
@@ -3948,12 +3954,14 @@ const attToday=()=>G.lp.earn['at:'+kstDay()]!=null;
    여러 항목을 묶으면 배당을 곱하고, 하나라도 틀리면 전부 잃는다 */
 // 설정: 베팅 찬스 표시 (끄면 시즌·커리어 베팅 패널이 뜨지 않는다 · 이미 건 베팅은 그대로 진행)
 G.opt=load('kickoff-life-opt',{});const optBet=()=>G.opt.bet!==false;const optSave=()=>{try{localStorage.setItem('kickoff-life-opt',JSON.stringify(G.opt))}catch(e){}};
-const BET_SHOW=.3,BET_STAKES=[3,5,10,20],BET_MAX_PAY=9999,BET_EDGE=.8,BET_TGT=[.5,.3,.15,.06],BET_LEGS=2;   // 쉬운 기준선(70%)은 없애고 환급률 80% · 최대 2개 묶음
+const BET_SHOW=.3,BET_MIN=3,BET_MAX=30,BET_MAX_PAY=9999,BET_EDGE=.8,BET_TGT=[.5,.3,.15,.06],BET_LEGS=2;   // 쉬운 기준선(70%)은 없애고 환급률 80% · 최대 2개 묶음
 // 실제 진행(결정적 순간·전술 선택·특성)이 더하는 몫을 자동 플레이 비교로 맞춘 보정값
 const BET_CAL={g:1.1,a:1.1,ga:.9,form:.4,tm:.5};
 const BET_M={g:{n:'리그 골',i:'⚽'},a:{n:'리그 도움',i:'🅰️'},cs:{n:'리그 무실점',i:'🧤'},rk:{n:'팀 최종 순위',i:'📊'}};
 const betOk=p=>{const s=p&&p.season;return !!(s&&p.phase==='round'&&!s.done&&p.stage==='pro'&&!p.u21&&!p.fa&&!LG[CLUBS[p.club].lg].am)};
-const betOdd=pr=>clamp(Math.floor(BET_EDGE/pr*10)/10,1.4,20);
+// 팀 순위는 내가 잘 뛰면 팀 성적까지 끌어올릴 수 있어 더 엄격하게: 쉬운 선 없이 42% 이하만 · 환급률 72%
+const BET_TGT_RK=[.42,.25,.12,.05],BET_EDGE_RK=.72;
+const betOdd=(pr,e)=>clamp(Math.floor((e||BET_EDGE)/pr*10)/10,1.4,20);
 const betLbl=(m,x)=>m==='rk'?(x===1?'리그 우승':`${x}위 이내`):`${x}${m==='cs'?'경기':m==='g'?'골':'도움'} 이상`;
 // 이번 시즌 미리 돌려 보기: simMatch와 같은 식(출전 확률·경기력·득점 분배·실점)과 리그 순위표 계산을 그대로 쓴다
 function betSim(p,IT){
@@ -3987,21 +3995,21 @@ function betSim(p,IT){
 }
 // 확률 목표(70·45·22·8%)에 가장 가까운 기준선을 고르고 배당을 매긴다
 function betMarkets(p){
-  const s=p.season;if(s.betMk)return s.betMk;
+  const s=p.season;if(s.betMk&&s.betMkV===3)return s.betMk;   // 배당 규칙이 바뀌면 다시 계산
   const {R,T}=betSim(p),n=R.g.length,mk={};
   const over=(arr,x)=>arr.filter(v=>v>=x).length/n,under=(arr,x)=>arr.filter(v=>v<=x).length/n;
   const keys=p.pos==='GK'?['cs','rk']:p.pos==='DF'?['cs','a','g','rk']:['g','a','rk'];
   keys.forEach(m=>{const arr=R[m],cand=m==='rk'?[...Array(T).keys()].map(i=>i+1):[...Array(Math.max(...arr)+1).keys()].filter(x=>x>=1),pf=x=>m==='rk'?under(arr,x):over(arr,x);
     const used=new Set(),lines=[];
-    BET_TGT.forEach(t=>{let best=null,bd=1;cand.forEach(x=>{const pr=pf(x),d=Math.abs(pr-t);if(pr>=.03&&pr<=.58&&d<bd){bd=d;best=x}});
-      if(best!=null&&!used.has(best)&&bd<.15){used.add(best);const pr=pf(best);lines.push({x:best,o:betOdd(pr),p:Math.round(pr*1000)/1000})}});
+    const rk=m==='rk';(rk?BET_TGT_RK:BET_TGT).forEach(t=>{let best=null,bd=1;cand.forEach(x=>{const pr=pf(x),d=Math.abs(pr-t);if(pr>=.03&&pr<=(rk?.46:.58)&&d<bd){bd=d;best=x}});
+      if(best!=null&&!used.has(best)&&bd<.15){used.add(best);const pr=pf(best);lines.push({x:best,o:betOdd(pr,rk?BET_EDGE_RK:0),p:Math.round(pr*1000)/1000})}});
     lines.sort((a,b)=>a.o-b.o);if(lines.length)mk[m]=lines});
-  return s.betMk=mk;
+  s.betMkV=3;return s.betMk=mk;
 }
 const betLegs=()=>Object.entries((G.bet&&G.bet.sel)||{}).map(([m,i])=>{const L=G.p.season.betMk[m];return L&&L[i]?{m,x:L[i].x,o:L[i].o}:null}).filter(Boolean);
 const betTotOdd=legs=>Math.min(50,Math.round(legs.reduce((a,l)=>a*l.o,1)*10)/10);
 function betPlace(p){
-  const s=p.season,legs=betLegs(),stake=(G.bet&&G.bet.stake)||5;
+  const s=p.season,legs=betLegs(),stake=clamp(Math.round((G.bet&&G.bet.stake)||5),BET_MIN,BET_MAX);
   if(!betOk(p)||s.mi>0||!s.betOn||s.bet||!legs.length||lpBal()<stake)return;
   const id=newPid(),odd=betTotOdd(legs);
   G.lp.buy.push({id,k:'bet',c:stake});lpSave();betLog('season','bet',stake);
@@ -4029,10 +4037,11 @@ function betSettle(p){
 /* ---------- 커리어 베팅 ----------
    새 커리어를 시작할 때 30% 확률로 찬스가 온다. 첫 시즌 시작 전까지 최대 30 LP를 이 선수의 은퇴 등급에 건다.
    B 1.25배 · A 2배 · S 3배 · S+ 5배 (반올림) · C 이하면 잃는다. 중간에 새 인생을 시작하면 건 LP는 사라진다 */
-const CBET_P=.3,CBET_STAKES=[5,10,20,30],CBET_MULT={'B':1.25,'A':2,'S':3,'S+':5};
+G.cbetAmt=10;
+const CBET_P=.3,CBET_MULT={'B':1.25,'A':2,'S':3,'S+':5};
 const cbetOpen=p=>!!(p&&p.cbet&&p.cbet.offer&&!p.cbet.stake&&p.phase==='prep'&&!(p.history||[]).length&&!p.challenge);
 function cbetPlace(p,v){
-  const st=+v;if(!cbetOpen(p)||!CBET_STAKES.includes(st)||lpBal()<st)return;
+  const st=Math.round(+v);if(!cbetOpen(p)||!(st>=BET_MIN&&st<=BET_MAX)||lpBal()<st)return;
   const id=newPid();G.lp.buy.push({id,k:'cbet',c:st});lpSave();betLog('career','bet',st);
   p.cbet={id,stake:st,y:p.year};toast(`커리어 베팅 ${st} LP · S면 +${Math.round(st*3)} LP 🎰`);
 }
@@ -4081,7 +4090,9 @@ function cbetPanel(p){
   return `<section class="panel cbetp open"><span class="eyebrow">🎰 커리어 베팅 찬스 · 30% 확률로 등장</span>
     <h3 class="cbett">이 선수, 어디까지 클까?</h3>
     <p class="hint">• 은퇴 등급에 LP 걸기 · 첫 시즌 시작 전까지만<br>• <b>B 1.25배 · A 2배 · S 3배 · S+ 5배</b> · C 이하는 실패<br>• 새 인생으로 갈아타면 건 LP는 사라져요</p>
-    <div class="betopts">${CBET_STAKES.map(v=>`<button class="betopt" data-act="cbet" data-v="${v}"${bal<v?' disabled':''}><b>${v} LP</b><span>S면 +${v*3}</span></button>`).join('')}</div>
+    <div class="betopts betamtrow"><input id="cbet-amt" class="ainp betamt" type="number" inputmode="numeric" min="${BET_MIN}" max="${BET_MAX}" value="${G.cbetAmt}"><span class="small muted">LP (3~30)</span>${[5,10,20,30].map(v=>`<button class="betopt sm" data-act="cbet-amt" data-v="${v}" aria-pressed="${G.cbetAmt===v}"><b>${v}</b></button>`).join('')}</div>
+    <p class="small" id="cbet-pv">S면 <b class="betpay">+${G.cbetAmt*3}</b> · S+면 <b class="betpay">+${G.cbetAmt*5}</b> LP</p>
+    <button class="btn" id="cbet-go" data-act="cbet" data-v="${G.cbetAmt}"${bal<G.cbetAmt?' disabled':''}>🎰 ${G.cbetAmt} LP 걸기 <span class="arr">→</span></button>
     <div class="row" style="justify-content:space-between;align-items:center;margin-top:8px"><span class="hint">보유 ${bal} LP</span><button class="linkb" data-act="cbet-skip">이번엔 안 걸기</button></div></section>`;
 }
 function betStats(){const H=G.lp.bets||[];return {n:H.length,w:H.filter(x=>x.win).length,net:H.reduce((a,x)=>a+x.got-x.stake,0)}}
@@ -4098,9 +4109,9 @@ function betPanel(p){
   return `<section class="panel betp open"><div class="row" style="justify-content:space-between;align-items:baseline"><span class="eyebrow">🎲 시즌 베팅 슬립</span><button class="linkb" data-act="bet-close">닫기</button></div>
     <p class="hint">• 항목마다 기준선 하나 · 최대 2개 묶으면 배당 곱 (하나라도 틀리면 실패)<br>• 배당 = 이번 시즌을 미리 600번 돌려 본 확률 기준 · 리그 경기 기록만</p>
     ${Object.entries(mk).map(([m,L])=>`<div class="betmk"><span class="small"><b>${BET_M[m].i} ${BET_M[m].n}</b></span><div class="betopts">${L.map((l,i)=>`<button class="betopt" data-act="bet-pick" data-v="${m}:${i}" aria-pressed="${G.bet.sel[m]===i}"><span>${betLbl(m,l.x)}</span><b>${l.o.toFixed(1)}배</b></button>`).join('')}</div></div>`).join('')}
-    <div class="betmk"><span class="small"><b>💰 걸 LP</b> <span class="muted">보유 ${bal} LP</span></span><div class="betopts">${BET_STAKES.map(v=>`<button class="betopt" data-act="bet-stake" data-v="${v}" aria-pressed="${stake===v}"${bal<v?' disabled':''}><b>${v} LP</b></button>`).join('')}</div></div>
-    <div class="betsum"><span>${legs.length?`${legs.length}개 묶음 · <b>${odd}배</b>`:'항목을 골라 주세요'}</span><span>적중 시 <b class="betpay">+${legs.length?pay:0} LP</b></span></div>
-    <button class="btn" data-act="bet-go"${!legs.length||bal<stake?' disabled':''}>🎲 ${stake} LP 걸기 <span class="arr">→</span></button>
+    <div class="betmk"><span class="small"><b>💰 걸 LP</b> <span class="muted">3~30 직접 입력 · 보유 ${bal} LP</span></span><div class="betopts betamtrow"><input id="bet-amt" class="ainp betamt" type="number" inputmode="numeric" min="${BET_MIN}" max="${BET_MAX}" value="${stake}"><span class="small muted">LP</span>${[5,10,20,30].map(v=>`<button class="betopt sm" data-act="bet-stake" data-v="${v}" aria-pressed="${stake===v}"><b>${v}</b></button>`).join('')}</div></div>
+    <div class="betsum"><span>${legs.length?`${legs.length}개 묶음 · <b>${odd}배</b>`:'항목을 골라 주세요'}</span><span>적중 시 <b class="betpay" id="bet-pay">+${legs.length?pay:0} LP</b></span></div>
+    <button class="btn" id="bet-go-btn" data-act="bet-go"${!legs.length||bal<stake?' disabled':''}>🎲 ${stake} LP 걸기 <span class="arr">→</span></button>
     ${bal<stake?'<p class="hint">LP가 부족해요</p>':''}${rec?`<p class="hint">${rec.slice(3)}</p>`:''}</section>`;
 }
 /* ---------- 출석 · 보상 화면 ----------
@@ -4657,13 +4668,13 @@ const MOMENTS={
     {title:'결정적 패스',txt:'역습 찬스에서 공을 잡았다. 어떻게 할까?',pool:[['쇄도하는 스트라이커에게 스루패스','assist','pas',.42],['오른쪽 윙어에게','assist','pas',.4],['왼쪽으로 침투하는 동료에게','assist','pas',.4],['직접 슈팅','goal','sho',.25],['드리블로 돌파','goal','dri',.28],['뒤로 내준다','team','pas',.22],['템포를 늦춘다','keep','pas',.62]]},
     {title:'세컨드볼',txt:'박스 앞으로 흘러나온 공이 발 앞에 떨어졌다!',pool:[['중거리 슈팅','goal','sho',.28],['원터치 패스','assist','pas',.38],['감아 차기','goal','sho',.25],['반대쪽으로 전환','assist','pas',.3],['한 번 접고 슈팅','goal','dri',.3],['다시 뒤로 빼서 빌드업','keep','pas',.65]]},
     {title:'코너킥',txt:'코너킥 키커로 나섰다.',pool:[['니어포스트로 감아 올린다','assist','pas',.3],['파포스트로 길게','assist','pas',.3],['짧게 주고받기','team','pas',.28],['직접 골문을 노린다','goal','sho',.1],['박스 밖 동료에게','team','pas',.25],['낮고 빠르게','assist','pas',.27]]},
-    {title:'강한 압박',txt:'상대가 우리 진영에서 강하게 압박해 온다!',pool:[['개인기로 탈압박','keep','dri',.55],['원터치로 빼낸다','keep','pas',.6],['뒷공간으로 롱패스','assist','pas',.26],['몸으로 버티며 파울 유도','keep','sta',.52],['골키퍼에게 백패스','keep','pas',.68],['과감하게 전진 드리블','goal','dri',.16]]}
+    {title:'강한 압박',txt:'상대가 우리 진영에서 강하게 압박해 온다!',pool:[['개인기로 탈압박','keep','dri',.55],['원터치로 빼낸다','keep','pas',.6],['뒷공간으로 롱패스','assist','pas',.26],['몸으로 버티며 파울 유도','keep','agi',.52],['골키퍼에게 백패스','keep','pas',.68],['과감하게 전진 드리블','goal','dri',.16]]}
   ],
   df:[
-    {title:'실점 위기',txt:'상대 공격수가 수비 뒷공간으로 빠져 들어온다!',pool:[['과감한 슬라이딩 태클','block','def',.38],['패스 길목 차단','block','def',.36],['지연하며 버틴다','block','def',.44],['골키퍼와 협력','block','def',.42],['오프사이드 트랩','block','def',.32],['어깨 싸움','block','sta',.4],['파울로 끊는다','foul','def',.66]]},
+    {title:'실점 위기',txt:'상대 공격수가 수비 뒷공간으로 빠져 들어온다!',pool:[['과감한 슬라이딩 태클','block','def',.38],['패스 길목 차단','block','def',.36],['지연하며 버틴다','block','def',.44],['골키퍼와 협력','block','def',.42],['오프사이드 트랩','block','def',.32],['어깨 싸움','block','def',.4],['파울로 끊는다','foul','def',.66]]},
     {title:'크로스 방어',txt:'문전으로 위협적인 크로스가 날아온다!',pool:[['헤딩으로 걷어낸다','block','psn',.46],['상대 공격수 밀착 마크','block','def',.42],['먼저 발을 뻗어 걷어낸다','block','pac',.4],['몸을 날려 블록','block','agi',.4],['골키퍼에게 맡긴다','block','def',.3],['뒤에서 끌어안는다','foul','def',.6]]},
     {title:'세트피스 공격',txt:'코너킥, 공격에 가담했다.',pool:[['니어포스트로 쇄도','goal','psn',.24],['파포스트 헤딩','goal','psn',.25],['상대 수비를 끌어낸다','team','psn',.3],['세컨드볼을 노린다','goal','sho',.2],['골키퍼 시야를 가린다','team','psn',.28],['헤딩으로 떨궈 준다','assist','psn',.26]]},
-    {title:'1대1 수비',txt:'드리블러가 정면으로 달려든다!',pool:[['과감하게 달려든다','block','def',.38],['한쪽으로 몰아간다','block','def',.45],['거리를 유지한다','block','pac',.42],['몸싸움으로 밀어낸다','block','sta',.4],['동료와 협력 수비','block','def',.43],['파울로 끊는다','foul','def',.66]]}
+    {title:'1대1 수비',txt:'드리블러가 정면으로 달려든다!',pool:[['과감하게 달려든다','block','def',.38],['한쪽으로 몰아간다','block','def',.45],['거리를 유지한다','block','pac',.42],['몸싸움으로 밀어낸다','block','def',.4],['동료와 협력 수비','block','def',.43],['파울로 끊는다','foul','def',.66]]}
   ],
   gk:[
     {title:'페널티킥 위기',txt:'상대에게 페널티킥이 주어졌다. 어떻게 막을까?',dirK:'gkpen',pool:[['왼쪽으로 다이빙','save','pac',0,0],['가운데에서 버틴다','save','def',0,1],['오른쪽으로 다이빙','save','pac',0,2],['끝까지 보고 반응','save','def',.24],['키커와 신경전','save','def',.2]]},
@@ -4674,10 +4685,10 @@ const MOMENTS={
 };
 // 장면 추가: 포지션마다 상황이 더 다양하게 나온다
 MOMENTS.fw.push(
-  {title:'골문 앞 혼전',txt:'코너킥 뒤 공이 골문 앞에서 튀어 오른다!',pool:[['발리로 밀어 넣는다','goal','sho',.4],['몸으로 밀어 넣는다','goal','sta',.42],['침착하게 트래핑','goal','dri',.35],['바이시클 킥','goal','dri',.18],['옆 동료에게 내준다','assist','pas',.35],['뒤꿈치로 방향만 바꾼다','goal','dri',.22]]},
-  {title:'골키퍼 실수',txt:'골키퍼가 공을 놓쳤다! 빈 골문이 보인다.',pool:[['바로 차 넣는다','goal','sho',.62],['한 번 더 치고 들어간다','goal','dri',.55],['로빙슛','goal','sho',.45],['더 좋은 위치의 동료에게','assist','pas',.5],['골키퍼와 몸싸움','goal','sta',.45]]},
+  {title:'골문 앞 혼전',txt:'코너킥 뒤 공이 골문 앞에서 튀어 오른다!',pool:[['발리로 밀어 넣는다','goal','sho',.4],['몸으로 밀어 넣는다','goal','psn',.42],['침착하게 트래핑','goal','dri',.35],['바이시클 킥','goal','dri',.18],['옆 동료에게 내준다','assist','pas',.35],['뒤꿈치로 방향만 바꾼다','goal','dri',.22]]},
+  {title:'골키퍼 실수',txt:'골키퍼가 공을 놓쳤다! 빈 골문이 보인다.',pool:[['바로 차 넣는다','goal','sho',.62],['한 번 더 치고 들어간다','goal','dri',.55],['로빙슛','goal','sho',.45],['더 좋은 위치의 동료에게','assist','pas',.5],['골키퍼와 몸싸움','goal','psn',.45]]},
   {title:'2대1 역습',txt:'2대1 역습 찬스! 막는 수비는 한 명뿐이다.',pool:[['직접 슈팅','goal','sho',.42],['패스하는 척하고 슈팅','goal','dri',.4],['동료에게 패스','assist','pas',.5],['수비를 끌어낸 뒤 패스','assist','pas',.45],['드리블로 제친다','goal','dri',.38]]},
-  {title:'공중볼 경합',txt:'높이 뜬 크로스, 수비수와 공중에서 맞붙는다!',pool:[['헤딩슛','goal','psn',.38],['머리로 떨궈 준다','assist','psn',.36],['다이빙 헤딩','goal','psn',.3],['가슴으로 받아 슈팅','goal','dri',.32],['부딪히며 파울 유도','team','sta',.3]]}
+  {title:'공중볼 경합',txt:'높이 뜬 크로스, 수비수와 공중에서 맞붙는다!',pool:[['헤딩슛','goal','psn',.38],['머리로 떨궈 준다','assist','psn',.36],['다이빙 헤딩','goal','psn',.3],['가슴으로 받아 슈팅','goal','dri',.32],['부딪히며 파울 유도','team','agi',.3]]}
 );
 MOMENTS.mf.push(
   {title:'박스 앞 프리킥',txt:'페널티 박스 바로 밖에서 프리킥을 얻었다.',pool:[['직접 감아 찬다','goal','sho',.26],['문전으로 띄운다','assist','pas',.32],['짧게 내주고 슈팅','goal','sho',.22],['벽 위로 넘긴다','goal','sho',.24],['약속된 세트피스','assist','pas',.3],['낮게 깔아 찬다','goal','sho',.22]]},
@@ -4686,9 +4697,9 @@ MOMENTS.mf.push(
   {title:'원투 패스',txt:'동료와 원투 패스로 박스 안까지 파고들었다!',pool:[['그대로 슈팅','goal','sho',.32],['한 번 더 주고받기','assist','pas',.36],['칩슛','goal','dri',.24],['뒤로 빼 주기','team','pas',.3],['수비를 끌고 옆으로','assist','dri',.3]]}
 );
 MOMENTS.df.push(
-  {title:'최후방 1대1',txt:'최후방 수비수로 상대 공격수와 단둘이 남았다!',pool:[['태클 타이밍을 노린다','block','def',.4],['골키퍼 쪽으로 몰아간다','block','def',.42],['어깨로 밀어낸다','block','sta',.38],['전술적 파울','foul','def',.62],['속도로 따라잡는다','block','pac',.42]]},
+  {title:'최후방 1대1',txt:'최후방 수비수로 상대 공격수와 단둘이 남았다!',pool:[['태클 타이밍을 노린다','block','def',.4],['골키퍼 쪽으로 몰아간다','block','def',.42],['어깨로 밀어낸다','block','def',.38],['전술적 파울','foul','def',.62],['속도로 따라잡는다','block','pac',.42]]},
   {title:'골라인 수비',txt:'골키퍼가 나간 사이 공이 빈 골문으로 굴러간다!',pool:[['몸을 날려 걷어낸다','block','pac',.45],['골라인 위에서 헤딩','block','psn',.42],['발을 뻗어 막는다','block','def',.44],['끝까지 따라가 걷어낸다','block','pac',.4]]},
-  {title:'빌드업 위기',txt:'강한 압박 속에 백패스가 짧았다! 상대가 달려든다.',pool:[['길게 걷어낸다','keep','def',.6],['침착하게 탈압박','keep','dri',.45],['골키퍼에게 백패스','keep','pas',.55],['몸싸움으로 버틴다','keep','sta',.48],['파울로 끊는다','foul','def',.6]]},
+  {title:'빌드업 위기',txt:'강한 압박 속에 백패스가 짧았다! 상대가 달려든다.',pool:[['길게 걷어낸다','keep','def',.6],['침착하게 탈압박','keep','dri',.45],['골키퍼에게 백패스','keep','pas',.55],['몸싸움으로 버틴다','keep','agi',.48],['파울로 끊는다','foul','def',.6]]},
   {title:'중거리 기회',txt:'공격에 올라갔다가 박스 밖에서 세컨드볼을 잡았다.',pool:[['중거리 슈팅','goal','sho',.15],['크로스를 올린다','assist','pas',.22],['다시 뒤로 돌린다','keep','pas',.65],['침투 패스','assist','pas',.2],['한 번 접고 슈팅','goal','dri',.13]]}
 );
 MOMENTS.gk.push(
@@ -4766,6 +4777,7 @@ function resolveMoment(p,i){
 
 /* ---------- 업데이트 노트 (최신이 위, 버전마다 누적) ---------- */
 const UPDATES=[
+  {d:'2026.10.08 12:08',t:'지구력 · 업데이트 알림',l:['체력 → 지구력으로 이름 변경 · 골키퍼를 뺀 모든 역할에 10~20% 반영','지구력이 높으면 경기마다 쌓이는 피로가 줄어요 (능력치 화면에 피로 −% 표시)','팀 순위 베팅 더 엄격하게 (쉬운 순위 선 삭제 · 환급률 72%)','새 버전 알림이 모든 화면 위에 뜨고, 앱을 다시 열 때도 확인 · 누르면 확실히 새 버전으로','네덜란드 2군 이름 표기 (용 아약스)','시즌 · 커리어 베팅 금액을 3~30 LP 사이에서 직접 입력 (빠른 버튼 5 · 10 · 20 · 30)','은퇴 화면 아래 소식 문구 정리 (제목 · 작은 글씨)']},
   {d:'2026.10.08 11:37',t:'성장 · 베팅 · 국대 화면 정리',l:['24세 이하에 크게 다치면 잠재력이 깎이고 1~2시즌 성장 속도 -40%','23세 이하인데 두 시즌 연속 리그 8경기 미만이면 성장 정체 · 잠재력 조금씩 하락 (임대·이적으로 뛸 곳 찾기)','시즌 베팅 조정: 쉬운 기준선 삭제 · 환급률 80% · 최대 2개 묶음 · 진행 중인 베팅은 시즌 화면 맨 아래','국가대표 대회: 방금 끝난 경기가 맨 위에 · 지난 경기는 최근부터','스카우트권 남은 장수 크게 표시','LP 최대치 9999 (선물 · 베팅)','40세 이후 오퍼 조건 완화: 주전이거나 선발 15경기 이상이면 평점 7.0 · 선발 8경기 이상이면 평점 7.3 (로테이션 노익장 가능)','홈에 다녀오면 명예의 전당 · 랭킹 · 친구 화면이 각 탭의 첫 화면부터 보여요']},
   {d:'2026.10.08 11:00',t:'베팅 표시 정리',l:['시즌 베팅은 반짝이는 한 줄로만 표시 · 누르면 베팅 슬립이 열려요','홈 화면 ⚙️ 설정에서 베팅 찬스 표시를 끌 수 있어요 (이미 건 베팅은 그대로 진행)','커리어 베팅 찬스 확률 25% → 30%']},
   {d:'2026.10.08 10:45',t:'국대 · 부상 · 피로 · 스카우트 조정',l:['국가대표 전력 상향: 아시안게임 조별 탈락 약 5% · 금메달 약 40% / 아시안컵 · 월드컵은 성적 좋은 3위도 토너먼트 진출','시즌 베팅은 시즌의 약 30%에서만 열려요','부상·재활 중에는 이벤트가 뜨지 않아요','35세 이후 큰 부상: 속도·민첩성·체력이 크게 떨어지고 재활로도 회복 안 됨','33세부터 피로가 더 빨리 쌓이고 늦게 풀려요 (35세부터 확실히 · 40세부터 해마다 더 가파르게)','스카우트 잠재력 더 정확하게 (최소 D 62% → 40%) · 잠재력 등급 기준 조정','주간 챌린지 초기화 시각 표시 (매주 월요일 00시)','로그인 1시간 뒤 닉네임을 다시 정하라고 뜨던 문제 수정']},
@@ -4945,7 +4957,7 @@ function challengeSetup(c){
 /* ---------- views ---------- */
 function header(){
   return `<header class="bar"><button class="logo" data-act="home" aria-label="홈으로"><span class="mark">KL</span><span><small>KICKOFF LIFE</small><b>킥오프 라이프</b></span></button>
-  <span class="bar-r">${sharedOn()&&G.screen!=='acct'?(G.auth?`${G.fbNew?`<button class="fbbadge" data-act="feedback" aria-label="새 피드백 ${G.fbNew}개">📥 <b>${G.fbNew>=99?"99+":G.fbNew}</b></button>`:""}<button class="ghost acctb" data-act="acct" data-v="me">${myNb()?nickTag(G.auth.nick||G.auth.name,myNb()):`☁️ ${esc(G.auth.nick||G.auth.name)}`}</button>`:'<button class="ghost acctb" data-act="acct" data-v="login">로그인</button>'):''}${G.screen==='game'?'<button class="ghost" data-act="home">홈</button>':''}</span></header>`;
+  <span class="bar-r">${sharedOn()&&G.screen!=='acct'?(G.auth?`${G.fbNew?`<button class="fbbadge" data-act="feedback" aria-label="새 피드백 ${G.fbNew}개">📥 <b>${G.fbNew>=99?"99+":G.fbNew}</b></button>`:""}<button class="ghost acctb" data-act="acct" data-v="me">${myNb()?nickTag(G.auth.nick||G.auth.name,myNb()):`☁️ ${esc(G.auth.nick||G.auth.name)}`}</button>`:'<button class="ghost acctb" data-act="acct" data-v="login">로그인</button>'):''}${G.screen==='game'?'<button class="ghost" data-act="home">홈</button>':''}</span></header>${G.newVer&&G.screen!=='home'?'<button class="verbar" data-act="reload-app">🔄 새 버전이 나왔어요 · 눌러서 업데이트</button>':''}`;
 }
 function homeView(){
   const p=G.p,live=p&&p.phase!=='retired',best=G.hof.reduce((a,x)=>!a||x.score>a.score?x:a,null);
@@ -5067,8 +5079,8 @@ function guideView(){
     '적극 어필은 평소대로·휴식과 섞어서'
   ])}
   ${sec('stat','④ 능력치 · 역할 · 입지',[
-    '<b>능력치 8개</b> · 필드: 속도·슈팅·패스·드리블·수비·민첩성·체력·위치선정 / 골키퍼: 반응·다이빙·킥·핸들링·위치선정·민첩성·체력·공중볼',
-    '<b>나이</b> · 속도·민첩성·체력은 일찍 떨어짐 · 위치선정은 오래 유지 (노장의 무기)',
+    '<b>능력치 8개</b> · 필드: 속도·슈팅·패스·드리블·수비·민첩성·지구력·위치선정 / 골키퍼: 반응·다이빙·킥·핸들링·위치선정·민첩성·지구력·공중볼',
+    '<b>나이</b> · 속도·민첩성·지구력은 일찍 떨어짐 · 위치선정은 오래 유지 (노장의 무기)',
     '<b>OVR</b> · 지금 역할의 핵심 능력치(● 표시, 비중 15%+) 위주로 반영',
     '<b>목표 역할</b> · 선수 › 역할에서 변경 / 1부 리그 25경기·평균 7.4+ 시즌 → 숙련도 ★ / ★3 → 역할 배지',
     '<b>노장 전환</b> · 30대에 다른 자리가 더 맞으면 감독이 포지션 전환 제안',
@@ -5466,7 +5478,7 @@ function seasonTab(p){
       ${m.burst?'<div class="note small"><b>포텐 폭발!</b> · 이번 시즌 기량이 한 단계 올라섰어요.</div>':''}
       ${m.injStop?`<div class="warn small"><b>${m.injStop==='stop'?'성장 정지':'성장 둔화'}</b> · 이번 시즌 부상으로 ${m.injG}경기를 빠져 ${m.injStop==='stop'?'성장이 멈췄고, 다음 시즌 훈련 효과도 절반으로 떨어집니다':'성장이 절반으로 줄었어요'}. 피로 관리로 부상을 줄이세요.</div>`:''}
       ${m.statD?`<div class="statd">${m.statD.map(([k,dv,v])=>`<div><span class="muted">${lab(p,k)}</span><b class="num">${v}</b><em class="${dv>0?'up':dv<0?'down':''}">${dv>0?'▲'+dv:dv<0?'▼'+(-dv):'-'}</em></div>`).join('')}</div>`:''}
-      <p class="small">OVR <b style="color:${d>0?'var(--pitch)':d<0?'var(--red)':'inherit'}">${d>0?'+'+d:d<0?d:'변화 없음'}</b>${p.age>=34?' <span class="muted">· 속도·민첩성·체력은 떨어지지만 경험으로 '+(p.pos==='DF'?'수비·위치선정':p.pos==='GK'?'위치선정·공중볼':'위치선정·패스')+'이 조금 늘었어요</span>':p.age>=declineAge(p)&&d<0?' <span class="muted">· 나이가 들며 신체 능력이 떨어지고 있어요</span>':''}</p>
+      <p class="small">OVR <b style="color:${d>0?'var(--pitch)':d<0?'var(--red)':'inherit'}">${d>0?'+'+d:d<0?d:'변화 없음'}</b>${p.age>=34?' <span class="muted">· 속도·민첩성·지구력은 떨어지지만 경험으로 '+(p.pos==='DF'?'수비·위치선정':p.pos==='GK'?'위치선정·공중볼':'위치선정·패스')+'이 조금 늘었어요</span>':p.age>=declineAge(p)&&d<0?' <span class="muted">· 나이가 들며 신체 능력이 떨어지고 있어요</span>':''}</p>
       ${m.mv&&m.mv.my?`<div class="${m.mv.my==='down'?'warn':'note'}"><b>${m.mv.my==='down'?'강등':'승격'}</b> · ${m.mv.my==='down'?'다음 시즌은 2부에서 뜁니다. 강등 조항 덕분에 이번 이적시장에서는 구단이 이적을 덜 막아요.':'다음 시즌은 1부에서 뜁니다!'}</div>`:''}
       ${m.mv&&m.mv.myPo?`<div class="${/승격/.test(m.mv.myPo.result)?'note':'warn'} small"><b>승격 플레이오프 · ${m.mv.myPo.result}</b><br>${m.mv.myPo.lines.map(esc).join('<br>')}</div>`:''}
       ${m.repD!=null?`<p class="small">인지도 <b>${repLabel(p.rep)}</b>${m.repD?` <span class="muted">(${m.repD>0?'상승':'하락'})</span>`:''}</p>`:''}
@@ -5515,7 +5527,7 @@ function seasonTab(p){
         ${f.chal?`<section class="panel"><span class="eyebrow">🗓️ 주간 챌린지 ${f.chal}</span><div class="chlpban">${f.chalLp==='got'?'🎁 오늘의 챌린지 보상 <b>+20 LP</b>!':f.chalLp==='done'?'✅ 오늘 보상은 이미 받았어요 · 내일 다시 받을 수 있어요':'B등급 미만이라 오늘의 보상(20 LP)은 받지 못했어요 · B등급 이상으로 은퇴하면 받아요'}</div><p class="small">이번 챌린지 점수 <b>${f.score}점</b> · 내 이번 주 최고 ${G.chal[f.chal]}점. 친구 화면의 챌린지 순위에 올라가요.</p></section>`:''}
         <section class="panel">
         ${f.unlocked?`<div class="note"><b>🔓 ${POS[f.unlocked].name} 해금!</b><br><span class="small">${POS[p.pos].name} S등급 커리어를 달성해 이제 ${POS[f.unlocked].name}(으)로도 선수를 키울 수 있어요.</span></div>`:(()=>{const nx=UNLOCK_ORDER[UNLOCK_ORDER.indexOf(p.pos)+1];return nx&&!isUnlocked(nx)?`<p class="small muted">🔒 ${POS[nx].name}는 ${POS[p.pos].name} S등급(80점 이상) 커리어를 만들면 해금</p>`:''})()}
-        <div class="list small">${f.epilogue.map(t=>`<div class="li"><span>${esc(t)}</span></div>`).join('')}</div>
+        <span class="eyebrow">📰 그 뒤의 소식</span><ul class="epil">${f.epilogue.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>
         ${f.saved===true||(!f.rec&&h)?`<p class="small"><span class="chip good">명예의 전당에 저장됨</span></p>${h?`<button class="btn" data-act="card-img" data-v="${h.id}">📸 커리어 카드 이미지 저장 · 공유</button>`:''}`:f.saved===false?'<p class="small muted">이 커리어는 저장하지 않음</p>':'<p class="small muted">아래에서 명예의 전당 저장 여부 선택 · 저장하면 모두의 랭킹 자동 등록 · 베스트 11에 사용</p>'}
         ${h?shareBtn(h):''}<button class="ghost" data-act="hof">명예의 전당 보기</button></section>`})():''}`;
   }
@@ -5531,7 +5543,7 @@ function offerCard(p,o,i,act){
   if(o.kind==='retire')return card('은퇴',o.forced?'받아주는 팀이 없습니다':'현역 은퇴','커리어를 마치고 명예의 전당에 기록',b('은퇴한다','danger'));
   if(o.kind==='sangmu'){const el=o.elig||{ok:true},ch=el.ok?oddWord(sangmuChance(p)):'';return card(`병역 · ${o.forced?'입대 기한':'조기 입대'}`,'김천 상무 지원',el.ok?`18개월 K리그1에서 뛰며 복무하고, 전역하면 원소속팀으로 돌아갑니다.<br>지원 자격 충족 · 서류·체력 테스트를 거쳐 합격 가능성 <b>${ch}</b>${o.blocked?` · <b style="color:var(--red)">${esc(o.why)}</b>`:''}`:`<b style="color:var(--red)">지원 불가 · ${esc(el.why)}</b><br><span class="muted">자격: 입대 시 만 27세 이하 · K리그 소속 · 직전 시즌 10경기 이상 출전 · 징계 없음</span>`,b(!el.ok?'자격 미달':o.blocked?'불합격':'지원','',!el.ok||o.blocked),!el.ok||o.blocked?'blocked':'')}
   if(o.kind==='raise')return card('현 소속팀','재계약 협상 (주급 인상)',o.done||o.blocked?`<b style="color:${o.done?'var(--pitch)':'var(--red)'}">${esc(o.why)}</b>`:`지금 ${wageTxt(p.contract.salary)} · 계약 ${p.contract.years}년 남음. 활약을 근거로 주급을 올린 새 계약을 요구합니다(${p.age<=23?'4~5년':p.age<=29?'2~5년':'1~3년'}). 거절당하면 사기가 떨어져요.`,b(o.done?'완료':o.blocked?'거절됨':'요청하기','alt',o.blocked),o.blocked&&!o.done?'blocked':'');
-  if(o.kind==='army')return card(`병역 · ${o.forced?'입대 기한':'조기 입대'}`,'현역 입대','2시즌 공백 · 체력 소폭↑ · 기술 소폭↓',b('입대','alt'));
+  if(o.kind==='army')return card(`병역 · ${o.forced?'입대 기한':'조기 입대'}`,'현역 입대','2시즌 공백 · 지구력 소폭↑ · 기술 소폭↓',b('입대','alt'));
   if(o.kind==='loan'){const r=roleFor(p,o.club,false);return card(esc(o.label),esc(CLUBS[o.club].name),`${LG[CLUBS[o.club].lg].name} · ${tierLabel(o.club,false)} ${clubStatusTxt(p,o.club)}<br><span class="chip ${r==='주전'?'good':r==='벤치'?'bad':''}">예상 ${r}</span> ${r==='벤치'?'임대 가서도 출전이 어려울 수 있어요':r==='주전'?'꾸준히 뛸 수 있어요':'경쟁하며 기회를 노려요'} · 시즌 뒤 복귀`,b('임대 간다',r==='벤치'?'alt':''),'',o.club)}
   if(o.kind==='loanreq')return card('임대','임대 요청',o.blocked?`<b style="color:${o.done?'var(--pitch)':'var(--red)'}">${esc(o.why)}</b>`:'출전 기회를 찾아 한 시즌 임대를 요청해요. 주전일수록 구단이 잘 안 보내줍니다.',b(o.done?'수락됨':o.blocked?'거절됨':'요청하기','alt',o.blocked),o.blocked&&!o.done?'blocked':'');
   if(o.kind==='refuse')return card('거부','매각 거부하고 버티기',o.money?'구단과 관계가 틀어짐':'이번 시즌 1군 훈련 제외',b('버틴다','danger'));
@@ -5645,7 +5657,7 @@ function playerTab(p){
   if(t==='ability')h+=`<section class="panel"><div class="row" style="gap:14px;flex-wrap:nowrap">${pitchSvg(p.pos)}<div style="min-width:0;flex:1" class="list small">
       <div class="li"><span class="muted">포지션</span><b>${POS[p.pos].name} · ${DPOS[dposOf(p)].n}</b></div><div class="li"><span class="muted">주발</span><b>${p.foot}</b></div>${p.dual?'<div class="li"><span class="muted">국적</span><b>대한민국 · 유럽 이중국적</b></div>':''}<div class="li"><span class="muted">최고 OVR</span><b>${p.peak}</b></div></div></div>
     ${(()=>{const sh=p.phase==='retired'?0:Math.round(sharpMod(p)),fm=p.phase==='retired'?0:fatStatMod(p.fatigue),sm=sh+fm;return (fm?`<div class="warn small"><b>지쳐 있어요</b> · 모든 능력치 일시적으로 ${fm} · 쉬면 돌아와요</div>`:'')+(sh?`<div class="note small">${sh>0?`<b style="color:var(--pitch)">경기 감각이 살아 있어요</b> · 모든 능력치 일시적으로 +${sh}`:`<b style="color:var(--red)">경기 감각이 떨어져 있어요</b> · 모든 능력치 일시적으로 ${sh} · 경기에 나서야 회복돼요`}</div>`:'')+
-    STATS.map(k=>{const v=p.stats[k],w=DPOS[dposOf(p)].w[k];return `<div class="stat"><span>${lab(p,k)}${w>=.15?' <span class="muted small">●</span>':''}</span><div class="track"><div class="fill ${v>=75?'hi':v>=55?'mid':''}" style="width:${Math.min(100,v/STAT_MAX*100*1.5)}%"></div></div><span class="n">${v}${sm?`<em class="smod ${sm>0?'up':'down'}">${sm>0?'+':''}${sm}</em>`:''}</span></div>`}).join('')})()}
+    STATS.map(k=>{const v=p.stats[k],w=DPOS[dposOf(p)].w[k];return `<div class="stat"><span>${lab(p,k)}${w>=.15?' <span class="muted small">●</span>':''}${k==='sta'&&p.pos!=='GK'&&staFat(p)!==1?` <span class="muted small">피로 ${staFat(p)<1?'−':'+'}${Math.abs(Math.round((1-staFat(p))*100))}%</span>`:''}</span><div class="track"><div class="fill ${v>=75?'hi':v>=55?'mid':''}" style="width:${Math.min(100,v/STAT_MAX*100*1.5)}%"></div></div><span class="n">${v}${sm?`<em class="smod ${sm>0?'up':'down'}">${sm>0?'+':''}${sm}</em>`:''}</span></div>`}).join('')})()}
     <p class="hint">● ${DPOS[dposOf(p)].n} OVR에 크게 반영되는 능력치 (비중 15% 이상)</p></section>`;
   if(t==='role')h+=`<section class="panel"><div class="row" style="justify-content:space-between;align-items:center"><span class="eyebrow">목표 역할</span><span class="chip ${p.dposAuto?'good':''}">${p.dposAuto?'자동':'고정'}</span></div>
     <p class="hint">1부 리그에서 한 역할로 시즌 <b>25경기 · 평균 7.4+</b> → 숙련도 ★ +1 · ★3이면 배지 (시즌 중 바꾸면 그 시즌 미인정)</p>
@@ -5751,7 +5763,7 @@ const detOpen=(k,def)=>G.det&&k in G.det?G.det[k]:def;function act(a,v){
     case 'acct-logout':clearTimeout(cloudTimer);G.auth=null;saveAuth();G.acct.saved=null;G.acct.mode='login';break;
     case 'acct-save':G.acct.msg='저장하는 중…';cloudSync().then(ok=>{toast(ok?'저장했습니다 ✓':'저장하지 못했어요');G.acct.msg=ok?`저장했습니다 ✓ (${new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})})`:`저장하지 못했어요 · ${G.acct.saveErr||'인터넷 연결을 확인해 주세요'}`;render()});break;
     case 'switch-p':switchPlayer(v);break;
-    case 'reload-app':location.reload();break;
+    case 'reload-app':location.replace(location.pathname+'?v='+Date.now());break;   // 캐시를 피해서 새 버전을 확실히 불러온다
     case 'promo-hide':try{localStorage.setItem('kickoff-life-promo',JSON.stringify(Date.now()))}catch(e){}break;
     case 'promo-share':{const url=location.href.split('?')[0],txt='킥오프 라이프 · 열여덟 살 축구선수의 인생을 키워 보세요 ⚽';if(navigator.share)navigator.share({title:'킥오프 라이프',text:txt,url}).catch(()=>{});else if(navigator.clipboard)navigator.clipboard.writeText(url).then(()=>toast('링크를 복사했어요! 친구에게 보내 주세요')).catch(()=>toast(url));else toast(url);break}
     case 'acct-done':G.acct.newCode=null;if(needNick()){G.acct.mode='nick';G.screen='acct'}else G.screen='home';break;
@@ -5809,7 +5821,8 @@ const detOpen=(k,def)=>G.det&&k in G.det?G.det[k]:def;function act(a,v){
     case 'bet-open':G.bet={sel:{},stake:lpBal()>=5?5:3};break;
     case 'bet-close':G.bet=null;break;
     case 'bet-pick':{if(!G.bet)break;const [m,i]=v.split(':');if(G.bet.sel[m]===+i)delete G.bet.sel[m];else if(G.bet.sel[m]==null&&Object.keys(G.bet.sel).length>=BET_LEGS)toast(`최대 ${BET_LEGS}개까지 묶을 수 있어요`);else G.bet.sel[m]=+i;break}
-    case 'bet-stake':if(G.bet)G.bet.stake=+v;break;
+    case 'bet-stake':if(G.bet)G.bet.stake=clamp(+v,BET_MIN,BET_MAX);break;
+    case 'cbet-amt':G.cbetAmt=clamp(+v,BET_MIN,BET_MAX);break;
     case 'bet-go':betPlace(p);break;
     case 'opt-bet':G.opt.bet=!optBet();optSave();toast(optBet()?'베팅 찬스 표시 켬':'베팅 찬스 표시 끔 · 이미 건 베팅은 그대로 진행');break;
     case 'bet-adm':if(isAdmin())betAdminLoad();break;
@@ -5895,6 +5908,12 @@ const detOpen=(k,def)=>G.det&&k in G.det?G.det[k]:def;function act(a,v){
 }
 document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(b&&!b.disabled)act(b.dataset.act,b.dataset.v)});
 document.addEventListener('input',e=>{if(e.target.id==='cname')G.create.name=e.target.value;if(e.target.id==='cschool')G.create.schoolName=e.target.value;if(e.target.id==='a-id')G.acct.id=e.target.value;if(e.target.id==='a-pw')G.acct.pw=e.target.value;if(e.target.id==='a-pw2')G.acct.pw2=e.target.value;if(e.target.id==='a-code')G.acct.code=e.target.value;if(e.target.id==='a-nick')G.acct.nick=e.target.value;if(e.target.id==='f-q')G.fr.q=e.target.value;if(e.target.id==='fb-text')G.fb.text=e.target.value;if(e.target.id==='nt-nick')G.nt.nick=e.target.value;if(e.target.id==='nt-title')G.nt.title=e.target.value;if(e.target.id==='nt-body')G.nt.body=e.target.value;if(e.target.id==='nt-lp')G.nt.lp=e.target.value;if(e.target.id==='cnum')G.create.num=e.target.value});
+// 베팅 금액 직접 입력: 화면을 다시 그리지 않고(입력 중 포커스 유지) 금액·수령 예정만 바로 고친다
+document.addEventListener('input',e=>{const id=e.target.id;if(id!=='bet-amt'&&id!=='cbet-amt')return;
+  const raw=parseInt(e.target.value),v=clamp(isNaN(raw)?BET_MIN:raw,BET_MIN,BET_MAX),bal=lpBal(),$=x=>document.getElementById(x);
+  if(id==='bet-amt'&&G.bet){G.bet.stake=v;const legs=betLegs(),pay=Math.min(BET_MAX_PAY,Math.round(v*betTotOdd(legs)));if($('bet-pay'))$('bet-pay').textContent=`+${legs.length?pay:0} LP`;const b=$('bet-go-btn');if(b){b.innerHTML=`🎲 ${v} LP 걸기 <span class="arr">→</span>`;b.disabled=!legs.length||bal<v}}
+  if(id==='cbet-amt'){G.cbetAmt=v;if($('cbet-pv'))$('cbet-pv').innerHTML=`S면 <b class="betpay">+${v*3}</b> · S+면 <b class="betpay">+${v*5}</b> LP`;const b=$('cbet-go');if(b){b.dataset.v=v;b.innerHTML=`🎰 ${v} LP 걸기 <span class="arr">→</span>`;b.disabled=bal<v}}
+  document.querySelectorAll(`[data-act="${id==='bet-amt'?'bet-stake':'cbet-amt'}"]`).forEach(x=>x.setAttribute('aria-pressed',String(+x.dataset.v===v)))});
 // 새로고침·앱 전환 뒤에도 보던 화면으로 돌아온다
 {const ui=load('kickoff-life-ui',null);if(ui&&ui.screen&&ui.screen!=='create'&&(ui.screen!=='game'||G.p)){G.screen=ui.screen;G.tab=ui.tab||'season';G.ptab=ui.ptab}}
 render();
@@ -5917,6 +5936,8 @@ async function checkVersion(){
     const m=/const UPDATES=\[\s*\{d:'([^']+)'/.exec(t);if(m&&m[1]!==UPDATES[0].d&&!G.newVer){G.newVer=m[1];render()}}catch(e){}
 }
 setTimeout(checkVersion,3000);
+// 휴대폰에서 앱을 다시 열거나(백그라운드 → 화면) 오래 켜 두면 새 버전을 다시 확인한다
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkVersion()});setInterval(checkVersion,5*60*1000);
 setTimeout(rankRewardCheck,6000);
 </script>
 
