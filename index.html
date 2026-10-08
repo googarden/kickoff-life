@@ -535,6 +535,12 @@ details.panel summary .res{margin-left:0}
 .betlegs{display:flex;flex-direction:column;gap:4px;margin-top:8px}
 .betleg{display:flex;justify-content:space-between;font-size:.85rem;padding:5px 8px;border-radius:8px;background:rgba(127,127,127,.08)}.betleg.hit{background:rgba(47,158,68,.14)}
 .cbetp{border:1.5px solid #ae3ec9}.cbetp .eyebrow{color:#ae3ec9}.cbetp.open{background:linear-gradient(135deg,rgba(174,62,201,.08),rgba(242,193,78,.1))}.cbett{margin:4px 0 6px;font-size:1.05rem}.cbetp .betopt span{font-size:.72rem;opacity:.75}
+.betline{position:relative;display:flex;align-items:center;gap:6px;width:100%;margin:0 0 12px;padding:10px 14px;border:1.5px solid #e6c34f;border-radius:14px;background:linear-gradient(110deg,rgba(242,193,78,.1) 30%,rgba(255,236,160,.55) 50%,rgba(242,193,78,.1) 70%);background-size:250% 100%;animation:betShine 2.6s linear infinite;color:inherit;font:inherit;font-size:.9rem;text-align:left;cursor:pointer;overflow:hidden}
+.betline .arr{margin-left:auto;font-weight:800;color:#9a7a12}.betline .spk{display:inline-block;animation:betSpk 1.4s ease-in-out infinite}
+@keyframes betShine{0%{background-position:100% 0}100%{background-position:-150% 0}}@keyframes betSpk{0%,100%{transform:scale(.8) rotate(0);opacity:.6}50%{transform:scale(1.25) rotate(20deg);opacity:1}}
+@media (prefers-reduced-motion:reduce){.betline,.betline .spk{animation:none}}
+.setp .row{flex-wrap:nowrap;gap:10px}.setp .row>span{flex:1;min-width:0}.setp .eyebrow{display:block;margin-bottom:2px}
+.tog{flex:none;min-width:58px;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface-2);color:inherit;font:inherit;font-size:.82rem;font-weight:700;cursor:pointer}.tog[aria-pressed="true"]{background:var(--pitch);border-color:var(--pitch);color:#fff}
 .cardbtn{margin-bottom:10px;background:linear-gradient(90deg,#2f6fd6,#7c3aed)!important;color:#fff!important}
 .attbtn{background:linear-gradient(90deg,#f2c14e,#f7d77a)!important;color:#3a2a00!important;margin-top:8px}
 .earng{display:grid;grid-template-columns:1fr 1fr;gap:6px}
@@ -3924,6 +3930,8 @@ const attToday=()=>G.lp.earn['at:'+kstDay()]!=null;
    시즌 첫 경기 전에 LP를 걸고 이번 시즌 리그 기록(골·도움·무실점)과 팀 순위를 맞힌다.
    배당은 실제 경기 계산식으로 이번 시즌을 미리 수백 번 돌려 본 확률에서 나온다 (환급률 88%).
    여러 항목을 묶으면 배당을 곱하고, 하나라도 틀리면 전부 잃는다 */
+// 설정: 베팅 찬스 표시 (끄면 시즌·커리어 베팅 패널이 뜨지 않는다 · 이미 건 베팅은 그대로 진행)
+G.opt=load('kickoff-life-opt',{});const optBet=()=>G.opt.bet!==false;const optSave=()=>{try{localStorage.setItem('kickoff-life-opt',JSON.stringify(G.opt))}catch(e){}};
 const BET_SHOW=.3,BET_STAKES=[3,5,10,20],BET_MAX_PAY=200,BET_EDGE=.88,BET_TGT=[.7,.45,.22,.08];
 // 실제 진행(결정적 순간·전술 선택·특성)이 더하는 몫을 자동 플레이 비교로 맞춘 보정값
 const BET_CAL={g:1.1,a:1.1,ga:.9,form:.4,tm:.5};
@@ -4003,9 +4011,9 @@ function betSettle(p){
   else celebrate('🎲',`베팅 실패 · -${b.stake} LP`,txt,'down');
 }
 /* ---------- 커리어 베팅 ----------
-   새 커리어를 시작할 때 25% 확률로 찬스가 온다. 첫 시즌 시작 전까지 최대 30 LP를 이 선수의 은퇴 등급에 건다.
+   새 커리어를 시작할 때 30% 확률로 찬스가 온다. 첫 시즌 시작 전까지 최대 30 LP를 이 선수의 은퇴 등급에 건다.
    B 1.25배 · A 2배 · S 3배 · S+ 5배 (반올림) · C 이하면 잃는다. 중간에 새 인생을 시작하면 건 LP는 사라진다 */
-const CBET_P=.25,CBET_STAKES=[5,10,20,30],CBET_MULT={'B':1.25,'A':2,'S':3,'S+':5};
+const CBET_P=.3,CBET_STAKES=[5,10,20,30],CBET_MULT={'B':1.25,'A':2,'S':3,'S+':5};
 const cbetOpen=p=>!!(p&&p.cbet&&p.cbet.offer&&!p.cbet.stake&&p.phase==='prep'&&!(p.history||[]).length&&!p.challenge);
 function cbetPlace(p,v){
   const st=+v;if(!cbetOpen(p)||!CBET_STAKES.includes(st)||lpBal()<st)return;
@@ -4052,9 +4060,9 @@ function cbetPreview(p){
 }
 function cbetPanel(p){
   if(p.cbet&&p.cbet.stake)return '';   // 건 뒤에는 시즌 중에 보이지 않고, 시즌이 끝나 은퇴를 고를 때 보여 준다
-  if(!cbetOpen(p))return '';
+  if(!cbetOpen(p)||!optBet())return '';
   const bal=lpBal();
-  return `<section class="panel cbetp open"><span class="eyebrow">🎰 커리어 베팅 찬스 · 25% 확률로 등장</span>
+  return `<section class="panel cbetp open"><span class="eyebrow">🎰 커리어 베팅 찬스 · 30% 확률로 등장</span>
     <h3 class="cbett">이 선수, 어디까지 클까?</h3>
     <p class="hint">• 은퇴 등급에 LP 걸기 · 첫 시즌 시작 전까지만<br>• <b>B 1.25배 · A 2배 · S 3배 · S+ 5배</b> · C 이하는 실패<br>• 새 인생으로 갈아타면 건 LP는 사라져요</p>
     <div class="betopts">${CBET_STAKES.map(v=>`<button class="betopt" data-act="cbet" data-v="${v}"${bal<v?' disabled':''}><b>${v} LP</b><span>S면 +${v*3}</span></button>`).join('')}</div>
@@ -4066,9 +4074,10 @@ function betPanel(p){
   if(s.bet){const b=s.bet;return `<section class="panel betp"><div class="row" style="justify-content:space-between;align-items:baseline"><span class="eyebrow">🎲 시즌 베팅${b.done?' · 정산 완료':' · 진행 중'}</span><span class="small"><b>${b.stake} LP</b> × ${b.odd}배 → <b class="betpay">${b.pay} LP</b></span></div>
     <div class="betlegs">${b.legs.map(l=>{const r=betNow(p,l);return `<div class="betleg${r.void?'':r.hit?' hit':''}"><span>${BET_M[l.m].i} ${BET_M[l.m].n} <b>${betLbl(l.m,l.x)}</b></span><span class="num">${r.void?'무효 (이적)':l.m==='rk'?`현재 ${r.v||'-'}위`:`${r.v} / ${l.x}`}${r.hit&&!r.void?(l.m==='rk'?' ✓':' ✅'):''}</span></div>`}).join('')}</div>
     ${b.done?`<p class="small">${b.win?`🎉 적중 · +${b.got} LP`:b.got?`환불 · +${b.got} LP`:'❌ 실패'}</p>`:'<p class="hint">기록·순위는 리그 경기만 · 시즌 종료 때 정산 · 순위 항목은 시즌 중 이적하면 무효</p>'}</section>`}
-  if(!betOk(p)||s.mi>0||!s.betOn)return '';
+  if(!betOk(p)||s.mi>0||!s.betOn||!optBet())return '';
   const st=betStats(),bal=lpBal(),rec=st.n?` · 내 전적 ${st.n}전 ${st.w}승 · 순수익 ${st.net>=0?'+':''}${st.net} LP`:'';
-  if(!G.bet)return `<section class="panel betp"><div class="row" style="justify-content:space-between;align-items:center"><span><span class="eyebrow">🎲 시즌 베팅 · 첫 경기 전까지</span><span class="hint">LP 걸고 이번 시즌 리그 기록 맞히기 · 여러 개 묶으면 배당 곱${rec}</span></span><button class="btn alt betopen" data-act="bet-open">베팅하기</button></div></section>`;
+  // 접힌 상태는 반짝이는 한 줄만 (누르면 베팅 슬립이 열린다)
+  if(!G.bet)return `<button class="betline" data-act="bet-open"><span class="spk">✨</span>🎲 <b>이번 시즌 베팅 가능</b><span class="muted small"> · 첫 경기 전까지${rec?' · '+st.n+'전 '+st.w+'승':''}</span><span class="arr">›</span></button>`;
   const mk=betMarkets(p),legs=betLegs(),odd=betTotOdd(legs),stake=G.bet.stake,pay=Math.min(BET_MAX_PAY,Math.round(stake*odd));
   return `<section class="panel betp open"><div class="row" style="justify-content:space-between;align-items:baseline"><span class="eyebrow">🎲 시즌 베팅 슬립</span><button class="linkb" data-act="bet-close">닫기</button></div>
     <p class="hint">• 항목마다 기준선 하나 · 여러 항목 묶으면 배당 곱 (하나라도 틀리면 실패)<br>• 배당 = 이번 시즌을 미리 600번 돌려 본 확률 기준 · 리그 경기 기록만</p>
@@ -4741,6 +4750,7 @@ function resolveMoment(p,i){
 
 /* ---------- 업데이트 노트 (최신이 위, 버전마다 누적) ---------- */
 const UPDATES=[
+  {d:'2026.10.08 11:00',t:'베팅 표시 정리',l:['시즌 베팅은 반짝이는 한 줄로만 표시 · 누르면 베팅 슬립이 열려요','홈 화면 ⚙️ 설정에서 베팅 찬스 표시를 끌 수 있어요 (이미 건 베팅은 그대로 진행)','커리어 베팅 찬스 확률 25% → 30%']},
   {d:'2026.10.08 10:45',t:'국대 · 부상 · 피로 · 스카우트 조정',l:['국가대표 전력 상향: 아시안게임 조별 탈락 약 5% · 금메달 약 40% / 아시안컵 · 월드컵은 성적 좋은 3위도 토너먼트 진출','시즌 베팅은 시즌의 약 30%에서만 열려요','부상·재활 중에는 이벤트가 뜨지 않아요','35세 이후 큰 부상: 속도·민첩성·체력이 크게 떨어지고 재활로도 회복 안 됨','31세부터 피로가 더 빨리 쌓이고 늦게 풀려요 (38세: 쌓임 +35% · 회복 -25%)','스카우트 잠재력 더 정확하게 (최소 D 62% → 40%) · 잠재력 등급 기준 조정','주간 챌린지 초기화 시각 표시 (매주 월요일 00시)','로그인 1시간 뒤 닉네임을 다시 정하라고 뜨던 문제 수정']},
   {d:'2026.10.08 02:30',t:'능력치 8개 · 커리어 베팅 · 베테랑',l:['능력치 8개: 피지컬 → 민첩성 · 체력으로 나누고 위치선정 추가 (골키퍼는 공중볼) · 역할별 OVR 비중 새로 정리 (한 능력치 최대 30%)','진행 중인 커리어는 OVR이 그대로 유지되도록 자동 변환','나이: 속도·민첩성·체력은 일찍 떨어지고 위치선정은 오래 유지','🎰 커리어 베팅: 새 커리어 시작 때 25% 확률 · 최대 30 LP · 은퇴 등급 B 1.25배 · A 2배 · S 3배 · S+ 5배','40세 이후: 주전 · 평점 7.2 이상이면 소속팀 연장 · 같은 리그 · 하부 리그(유럽이면 K리그 복귀) 1년 제안 · 나이 한도 없음 (40세부터 신체 능력 급격히 하락)','🏆 랭킹 시즌 보상: 시즌 끝나면 1위 100 · 2위 50 · 3위 20 LP (여러 자리 차지하면 모두)','업적 추가: 철인의 마지막 춤 (42세 시즌 주전)','커리어 베팅은 시즌 결산 · 이적시장 화면(은퇴 버튼 위)에서 "지금 은퇴하면 몇 등급 · 몇 LP" 미리보기']},
   {d:'2026.10.08 02:30',t:'🎲 시즌 베팅',l:['시즌 첫 경기 전 LP를 걸고 이번 시즌 리그 골 · 도움 · 무실점 · 팀 최종 순위 맞히기','배당은 이번 시즌을 미리 600번 돌려 본 확률로 계산 · 항목마다 쉬움~대박 기준선','여러 항목 묶으면 배당 곱 (하나라도 틀리면 실패) · 3 / 5 / 10 / 20 LP · 최대 200 LP','시즌 중 진행 상황 실시간 표시 · 시즌 종료 때 자동 정산']},
@@ -4949,7 +4959,8 @@ function homeView(){
     ${tile('shop','LP SHOP','LP 상점',`보유 ${lpBal()} LP`)}
     ${tile('dex','CLUB DEX','구단 도감',`${dexCount()}곳 수집 · 휘장 ${DEX_BADGES.filter(b=>b.c()).length}개`)}
     ${'' && tile('updates','UPDATES','업데이트 노트',`${UPDATES[0].d.slice(5)} · ${UPDATES[0].t}`)}
-  </div>`;
+  </div>
+  <section class="panel compact setp"><div class="row" style="justify-content:space-between;align-items:center"><span><span class="eyebrow">⚙️ 설정</span><span class="small">🎲 베팅 찬스 표시</span><span class="hint"> · 시즌 베팅 30% · 커리어 베팅 30%</span></span><button class="tog" data-act="opt-bet" aria-pressed="${optBet()}">${optBet()?'켜짐':'꺼짐'}</button></div></section>`;
   return h;
 }function createView(){
   const c=G.create;if(!isUnlocked(c.pos)&&!c.challenge){c.pos='FW';c.type=rolesOf('FW')[0];c.cands=null}
@@ -5084,7 +5095,7 @@ function guideView(){
     '<b>꾸미기</b> · 카드 테두리 · 은퇴식 연출 (영구) / 랭킹·친구 화면에도 보임',
     '<b>구단 도감</b> · 뛰어 본 구단 수집 → 휘장 → 닉네임 테두리',
     '<b>🎲 시즌 베팅</b> · 첫 경기 전 LP 걸기 → 리그 골·도움·무실점·순위 · 묶으면 배당 곱 · 길게 보면 조금 손해 (환급 약 88%)',
-    '<b>🎰 커리어 베팅</b> · 새 커리어 25% 확률 · 최대 30 LP · 은퇴 등급 B 1.25 · A 2 · S 3 · S+ 5배'
+    '<b>🎰 커리어 베팅</b> · 새 커리어 30% 확률 · 최대 30 LP · 은퇴 등급 B 1.25 · A 2 · S 3 · S+ 5배'
   ],[
     '출석 체크와 주간 챌린지(B등급+)로 매일 LP 모으기'
   ])}
@@ -5781,6 +5792,7 @@ const detOpen=(k,def)=>G.det&&k in G.det?G.det[k]:def;function act(a,v){
     case 'bet-pick':{if(!G.bet)break;const [m,i]=v.split(':');if(G.bet.sel[m]===+i)delete G.bet.sel[m];else G.bet.sel[m]=+i;break}
     case 'bet-stake':if(G.bet)G.bet.stake=+v;break;
     case 'bet-go':betPlace(p);break;
+    case 'opt-bet':G.opt.bet=!optBet();optSave();toast(optBet()?'베팅 찬스 표시 켬':'베팅 찬스 표시 끔 · 이미 건 베팅은 그대로 진행');break;
     case 'bet-adm':if(isAdmin())betAdminLoad();break;
     case 'cbet':cbetPlace(p,v);break;
     case 'cbet-skip':if(p&&p.cbet)p.cbet.offer=false;break;
