@@ -3954,13 +3954,13 @@ const attToday=()=>G.lp.earn['at:'+kstDay()]!=null;
    여러 항목을 묶으면 배당을 곱하고, 하나라도 틀리면 전부 잃는다 */
 // 설정: 베팅 찬스 표시 (끄면 시즌·커리어 베팅 패널이 뜨지 않는다 · 이미 건 베팅은 그대로 진행)
 G.opt=load('kickoff-life-opt',{});const optBet=()=>G.opt.bet!==false;const optSave=()=>{try{localStorage.setItem('kickoff-life-opt',JSON.stringify(G.opt))}catch(e){}};
-const BET_SHOW=.3,BET_MIN=3,BET_MAX=30,BET_MAX_PAY=9999,BET_EDGE=.8,BET_TGT=[.5,.3,.15,.06],BET_LEGS=2;   // 쉬운 기준선(70%)은 없애고 환급률 80% · 최대 2개 묶음
+const BET_SHOW=.3,BET_MIN=3,BET_MAX=30,BET_MAX_PAY=9999,BET_EDGE=.84,BET_TGT=[.55,.32,.16,.06],BET_LEGS=2;   // 쉬운 기준선(70%)은 없애고 환급률 80% · 최대 2개 묶음
 // 실제 진행(결정적 순간·전술 선택·특성)이 더하는 몫을 자동 플레이 비교로 맞춘 보정값
 const BET_CAL={g:1.1,a:1.1,ga:.9,form:.4,tm:.5};
 const BET_M={g:{n:'리그 골',i:'⚽'},a:{n:'리그 도움',i:'🅰️'},cs:{n:'리그 무실점',i:'🧤'},rk:{n:'팀 최종 순위',i:'📊'}};
 const betOk=p=>{const s=p&&p.season;return !!(s&&p.phase==='round'&&!s.done&&p.stage==='pro'&&!p.u21&&!p.fa&&!LG[CLUBS[p.club].lg].am)};
 // 팀 순위는 내가 잘 뛰면 팀 성적까지 끌어올릴 수 있어 더 엄격하게: 쉬운 선 없이 42% 이하만 · 환급률 72%
-const BET_TGT_RK=[.42,.25,.12,.05],BET_EDGE_RK=.72;
+const BET_TGT_RK=[.46,.27,.13,.05],BET_EDGE_RK=.76;
 const betOdd=(pr,e)=>clamp(Math.floor((e||BET_EDGE)/pr*10)/10,1.4,20);
 const betLbl=(m,x)=>m==='rk'?(x===1?'리그 우승':`${x}위 이내`):`${x}${m==='cs'?'경기':m==='g'?'골':'도움'} 이상`;
 // 이번 시즌 미리 돌려 보기: simMatch와 같은 식(출전 확률·경기력·득점 분배·실점)과 리그 순위표 계산을 그대로 쓴다
@@ -3995,16 +3995,16 @@ function betSim(p,IT){
 }
 // 확률 목표(70·45·22·8%)에 가장 가까운 기준선을 고르고 배당을 매긴다
 function betMarkets(p){
-  const s=p.season;if(s.betMk&&s.betMkV===3)return s.betMk;   // 배당 규칙이 바뀌면 다시 계산
+  const s=p.season;if(s.betMk&&s.betMkV===4)return s.betMk;   // 배당 규칙이 바뀌면 다시 계산
   const {R,T}=betSim(p),n=R.g.length,mk={};
   const over=(arr,x)=>arr.filter(v=>v>=x).length/n,under=(arr,x)=>arr.filter(v=>v<=x).length/n;
   const keys=p.pos==='GK'?['cs','rk']:p.pos==='DF'?['cs','a','g','rk']:['g','a','rk'];
   keys.forEach(m=>{const arr=R[m],cand=m==='rk'?[...Array(T).keys()].map(i=>i+1):[...Array(Math.max(...arr)+1).keys()].filter(x=>x>=1),pf=x=>m==='rk'?under(arr,x):over(arr,x);
     const used=new Set(),lines=[];
-    const rk=m==='rk';(rk?BET_TGT_RK:BET_TGT).forEach(t=>{let best=null,bd=1;cand.forEach(x=>{const pr=pf(x),d=Math.abs(pr-t);if(pr>=.03&&pr<=(rk?.46:.58)&&d<bd){bd=d;best=x}});
+    const rk=m==='rk';(rk?BET_TGT_RK:BET_TGT).forEach(t=>{let best=null,bd=1;cand.forEach(x=>{const pr=pf(x),d=Math.abs(pr-t);if(pr>=.03&&pr<=(rk?.5:.62)&&d<bd){bd=d;best=x}});
       if(best!=null&&!used.has(best)&&bd<.15){used.add(best);const pr=pf(best);lines.push({x:best,o:betOdd(pr,rk?BET_EDGE_RK:0),p:Math.round(pr*1000)/1000})}});
     lines.sort((a,b)=>a.o-b.o);if(lines.length)mk[m]=lines});
-  s.betMkV=3;return s.betMk=mk;
+  s.betMkV=4;return s.betMk=mk;
 }
 const betLegs=()=>Object.entries((G.bet&&G.bet.sel)||{}).map(([m,i])=>{const L=G.p.season.betMk[m];return L&&L[i]?{m,x:L[i].x,o:L[i].o}:null}).filter(Boolean);
 const betTotOdd=legs=>Math.min(50,Math.round(legs.reduce((a,l)=>a*l.o,1)*10)/10);
@@ -4035,10 +4035,10 @@ function betSettle(p){
   else celebrate('🎲',`베팅 실패 · -${b.stake} LP`,txt,'down');
 }
 /* ---------- 커리어 베팅 ----------
-   새 커리어를 시작할 때 30% 확률로 찬스가 온다. 첫 시즌 시작 전까지 최대 30 LP를 이 선수의 은퇴 등급에 건다.
+   새 커리어를 시작할 때 40% 확률로 찬스가 온다. 첫 시즌 시작 전까지 최대 30 LP를 이 선수의 은퇴 등급에 건다.
    B 1.25배 · A 2배 · S 3배 · S+ 5배 (반올림) · C 이하면 잃는다. 중간에 새 인생을 시작하면 건 LP는 사라진다 */
 G.cbetAmt=10;
-const CBET_P=.3,CBET_MULT={'B':1.25,'A':2,'S':3,'S+':5};
+const CBET_P=.4,CBET_MULT={'B':1.25,'A':2,'S':3,'S+':5};
 const cbetOpen=p=>!!(p&&p.cbet&&p.cbet.offer&&!p.cbet.stake&&p.phase==='prep'&&!(p.history||[]).length&&!p.challenge);
 function cbetPlace(p,v){
   const st=Math.round(+v);if(!cbetOpen(p)||!(st>=BET_MIN&&st<=BET_MAX)||lpBal()<st)return;
@@ -4087,7 +4087,7 @@ function cbetPanel(p){
   if(p.cbet&&p.cbet.stake)return '';   // 건 뒤에는 시즌 중에 보이지 않고, 시즌이 끝나 은퇴를 고를 때 보여 준다
   if(!cbetOpen(p)||!optBet())return '';
   const bal=lpBal();
-  return `<section class="panel cbetp open"><span class="eyebrow">🎰 커리어 베팅 찬스 · 30% 확률로 등장</span>
+  return `<section class="panel cbetp open"><span class="eyebrow">🎰 커리어 베팅 찬스 · 40% 확률로 등장</span>
     <h3 class="cbett">이 선수, 어디까지 클까?</h3>
     <p class="hint">• 은퇴 등급에 LP 걸기 · 첫 시즌 시작 전까지만<br>• <b>B 1.25배 · A 2배 · S 3배 · S+ 5배</b> · C 이하는 실패<br>• 새 인생으로 갈아타면 건 LP는 사라져요</p>
     <div class="betopts betamtrow"><input id="cbet-amt" class="ainp betamt" type="number" inputmode="numeric" min="${BET_MIN}" max="${BET_MAX}" value="${G.cbetAmt}"><span class="small muted">LP (3~30)</span>${[5,10,20,30].map(v=>`<button class="betopt sm" data-act="cbet-amt" data-v="${v}" aria-pressed="${G.cbetAmt===v}"><b>${v}</b></button>`).join('')}</div>
@@ -4777,6 +4777,7 @@ function resolveMoment(p,i){
 
 /* ---------- 업데이트 노트 (최신이 위, 버전마다 누적) ---------- */
 const UPDATES=[
+  {d:'2026.10.08 13:49',t:'베팅 조정',l:['커리어 베팅 찬스 확률 30% → 40%','시즌 베팅 난이도 살짝 완화 (가장 쉬운 선 약 55% · 환급률 84% · 팀 순위 76%)']},
   {d:'2026.10.08 12:08',t:'지구력 · 업데이트 알림',l:['체력 → 지구력으로 이름 변경 · 골키퍼를 뺀 모든 역할에 10~20% 반영','지구력이 높으면 경기마다 쌓이는 피로가 줄어요 (능력치 화면에 피로 −% 표시)','팀 순위 베팅 더 엄격하게 (쉬운 순위 선 삭제 · 환급률 72%)','새 버전 알림이 모든 화면 위에 뜨고, 앱을 다시 열 때도 확인 · 누르면 확실히 새 버전으로','네덜란드 2군 이름 표기 (용 아약스)','시즌 · 커리어 베팅 금액을 3~30 LP 사이에서 직접 입력 (빠른 버튼 5 · 10 · 20 · 30)','은퇴 화면 아래 소식 문구 정리 (제목 · 작은 글씨)']},
   {d:'2026.10.08 11:37',t:'성장 · 베팅 · 국대 화면 정리',l:['24세 이하에 크게 다치면 잠재력이 깎이고 1~2시즌 성장 속도 -40%','23세 이하인데 두 시즌 연속 리그 8경기 미만이면 성장 정체 · 잠재력 조금씩 하락 (임대·이적으로 뛸 곳 찾기)','시즌 베팅 조정: 쉬운 기준선 삭제 · 환급률 80% · 최대 2개 묶음 · 진행 중인 베팅은 시즌 화면 맨 아래','국가대표 대회: 방금 끝난 경기가 맨 위에 · 지난 경기는 최근부터','스카우트권 남은 장수 크게 표시','LP 최대치 9999 (선물 · 베팅)','40세 이후 오퍼 조건 완화: 주전이거나 선발 15경기 이상이면 평점 7.0 · 선발 8경기 이상이면 평점 7.3 (로테이션 노익장 가능)','홈에 다녀오면 명예의 전당 · 랭킹 · 친구 화면이 각 탭의 첫 화면부터 보여요']},
   {d:'2026.10.08 11:00',t:'베팅 표시 정리',l:['시즌 베팅은 반짝이는 한 줄로만 표시 · 누르면 베팅 슬립이 열려요','홈 화면 ⚙️ 설정에서 베팅 찬스 표시를 끌 수 있어요 (이미 건 베팅은 그대로 진행)','커리어 베팅 찬스 확률 25% → 30%']},
@@ -4989,7 +4990,7 @@ function homeView(){
     ${tile('dex','CLUB DEX','구단 도감',`${dexCount()}곳 수집 · 휘장 ${DEX_BADGES.filter(b=>b.c()).length}개`)}
     ${'' && tile('updates','UPDATES','업데이트 노트',`${UPDATES[0].d.slice(5)} · ${UPDATES[0].t}`)}
   </div>
-  <section class="panel compact setp"><div class="row" style="justify-content:space-between;align-items:center"><span><span class="eyebrow">⚙️ 설정</span><span class="small">🎲 베팅 찬스 표시</span><span class="hint"> · 시즌 베팅 30% · 커리어 베팅 30%</span></span><button class="tog" data-act="opt-bet" aria-pressed="${optBet()}">${optBet()?'켜짐':'꺼짐'}</button></div></section>`;
+  <section class="panel compact setp"><div class="row" style="justify-content:space-between;align-items:center"><span><span class="eyebrow">⚙️ 설정</span><span class="small">🎲 베팅 찬스 표시</span><span class="hint"> · 시즌 베팅 30% · 커리어 베팅 40%</span></span><button class="tog" data-act="opt-bet" aria-pressed="${optBet()}">${optBet()?'켜짐':'꺼짐'}</button></div></section>`;
   return h;
 }function createView(){
   const c=G.create;if(!isUnlocked(c.pos)&&!c.challenge){c.pos='FW';c.type=rolesOf('FW')[0];c.cands=null}
@@ -5124,7 +5125,7 @@ function guideView(){
     '<b>꾸미기</b> · 카드 테두리 · 은퇴식 연출 (영구) / 랭킹·친구 화면에도 보임',
     '<b>구단 도감</b> · 뛰어 본 구단 수집 → 휘장 → 닉네임 테두리',
     '<b>🎲 시즌 베팅</b> · 첫 경기 전 LP 걸기 → 리그 골·도움·무실점·순위 · 묶으면 배당 곱 · 길게 보면 손해 (환급 약 80%) · 최대 2개 묶음',
-    '<b>🎰 커리어 베팅</b> · 새 커리어 30% 확률 · 최대 30 LP · 은퇴 등급 B 1.25 · A 2 · S 3 · S+ 5배'
+    '<b>🎰 커리어 베팅</b> · 새 커리어 40% 확률 · 최대 30 LP · 은퇴 등급 B 1.25 · A 2 · S 3 · S+ 5배'
   ],[
     '출석 체크와 주간 챌린지(B등급+)로 매일 LP 모으기'
   ])}
