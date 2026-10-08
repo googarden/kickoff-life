@@ -49,7 +49,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--card);outline-o
 .ghost{background:none;border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:13px}
 
 /* blocks */
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.panel{background:var(--surface);border:1px solid transparent;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px}
 .hero{background:var(--ink);color:var(--bg);border:0;padding:22px 18px;gap:14px}
 .hero .eyebrow{color:var(--card)}
 .hero h1{font-family:var(--f-display);font-weight:400;font-size:30px;line-height:1.2}
@@ -94,7 +94,7 @@ input[type=text],input[type=number]{width:100%;padding:11px 12px;border-radius:1
 .tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg);font-weight:700}
 
 /* stats */
-.stat{display:grid;grid-template-columns:62px 1fr 34px;align-items:center;gap:10px;font-size:14px}
+.stat{display:grid;grid-template-columns:minmax(62px,max-content) 1fr 34px;align-items:center;gap:10px;font-size:14px}
 .stat .track{height:8px;background:var(--surface-2);border:1px solid var(--line);border-radius:99px;overflow:hidden}
 .stat .fill{height:100%;background:var(--muted);border-radius:99px}
 .stat .fill.hi{background:var(--pitch)}
@@ -753,7 +753,85 @@ p.hint{margin:0}
 .awrows{display:flex;flex-direction:column;gap:3px}
 .awr{display:flex;align-items:baseline;gap:6px;font-size:13px}.awi{width:18px;text-align:center}
 .awrace{display:flex;flex-direction:column;gap:1px;padding:5px 8px;border-radius:8px;background:var(--surface-2)}
-.awlog summary{cursor:pointer;padding:4px 0}</style>
+.awlog summary{cursor:pointer;padding:4px 0}
+/* ===== UI 다듬기: 모바일 게임처럼 (깊이감 있는 카드 · 눌리는 버튼 · 금빛 OVR · 잔디 무늬 배경) ===== */
+:root{
+  --muted:#4d5869;
+  --shadow:0 1px 0 rgba(20,33,61,.05),0 8px 18px -8px rgba(20,33,61,.22);
+  --shadow-lg:0 14px 30px -12px rgba(20,33,61,.45);
+  --btn-grad:linear-gradient(180deg,#2c4479 0%,#14213d 100%);--btn-edge:#0a1224;
+  --gold-grad:linear-gradient(180deg,#ffdd73 0%,#eab21f 100%);--gold-edge:#a8770a;
+  --bg-pat:radial-gradient(130% 55% at 50% -8%,#f7faf2 0%,rgba(247,250,242,0) 62%),repeating-linear-gradient(180deg,#e6ece1 0 64px,#e0e7da 64px 128px);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --muted:#a3aec2;--shadow:0 1px 0 rgba(0,0,0,.3),0 10px 22px -10px rgba(0,0,0,.7);--shadow-lg:0 16px 34px -12px rgba(0,0,0,.8);
+  --btn-grad:linear-gradient(180deg,#ffd970 0%,#e3a919 100%);--btn-edge:#8a5f05;
+  --bg-pat:radial-gradient(130% 55% at 50% -8%,#1c2c4f 0%,rgba(28,44,79,0) 62%),repeating-linear-gradient(180deg,#0e1527 0 64px,#0c1322 64px 128px);
+}}
+:root[data-theme="dark"]{
+  --muted:#a3aec2;--shadow:0 1px 0 rgba(0,0,0,.3),0 10px 22px -10px rgba(0,0,0,.7);--shadow-lg:0 16px 34px -12px rgba(0,0,0,.8);
+  --btn-grad:linear-gradient(180deg,#ffd970 0%,#e3a919 100%);--btn-edge:#8a5f05;
+  --bg-pat:radial-gradient(130% 55% at 50% -8%,#1c2c4f 0%,rgba(28,44,79,0) 62%),repeating-linear-gradient(180deg,#0e1527 0 64px,#0c1322 64px 128px);
+}
+body{background:var(--bg-pat),var(--bg);background-attachment:fixed}
+.bar{background:color-mix(in srgb,var(--bg) 84%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.logo .mark{background:linear-gradient(150deg,#2c4479,#0f1a33);color:#f2c14e;box-shadow:0 4px 10px -3px rgba(15,26,51,.55),inset 0 1px 0 rgba(255,255,255,.18)}
+.ghost{background:var(--surface);border-color:transparent;box-shadow:var(--shadow);border-radius:10px}
+/* 카드 */
+.panel{border-radius:18px;box-shadow:var(--shadow)}
+.panel>.eyebrow:first-child::before{content:"";display:inline-block;width:3px;height:10px;margin-right:6px;border-radius:2px;background:linear-gradient(180deg,#3cc47a,var(--pitch));vertical-align:-1px}
+.hero{position:relative;overflow:hidden;background:radial-gradient(85% 120% at 105% -10%,rgba(242,193,78,.32),rgba(242,193,78,0) 55%),linear-gradient(150deg,#22386b 0%,#14213d 52%,#0f3b2c 100%);color:#fff;box-shadow:var(--shadow-lg)}
+.hero::after{content:"";position:absolute;right:-56px;bottom:-70px;width:200px;height:200px;border:2px solid rgba(255,255,255,.09);border-radius:50%;pointer-events:none}
+.hero::before{content:"";position:absolute;right:43px;top:0;bottom:0;width:2px;background:rgba(255,255,255,.07);pointer-events:none}
+/* 버튼: 아래 테두리로 두께감, 누르면 꾹 눌림 */
+.btn{background:var(--btn-grad);box-shadow:0 3px 0 var(--btn-edge),0 8px 16px -8px rgba(10,18,36,.55);transition:transform .08s,box-shadow .08s;margin-bottom:3px}
+.btn:active:not(:disabled){transform:translateY(3px);box-shadow:0 0 0 var(--btn-edge)}
+.hero .btn{background:var(--gold-grad);color:#2a1d00;box-shadow:0 3px 0 var(--gold-edge),0 8px 16px -8px rgba(168,119,10,.6)}
+.btn.alt{background:var(--surface);border:1px solid var(--line);box-shadow:0 2px 0 var(--line)}
+.btn.danger{background:linear-gradient(180deg,#e85a45,#b9301f);box-shadow:0 3px 0 #7c1d12}
+.sbtn{background:var(--btn-grad);box-shadow:0 2px 0 var(--btn-edge)}
+.sbtn.alt{background:var(--surface);box-shadow:0 2px 0 var(--line)}
+.sbtn:active:not(:disabled),.dbtn:active:not(:disabled),.mtile:active{transform:translateY(2px)}
+/* 하단 결정 버튼 */
+.dock{border-top:0;border-radius:20px 20px 0 0;box-shadow:0 -12px 30px -10px rgba(10,20,40,.35)}
+.dbtn{border-color:transparent;background:var(--surface-2);box-shadow:0 2px 0 var(--line);transition:transform .08s}
+.dbtn.pri{background:var(--btn-grad);box-shadow:0 3px 0 var(--btn-edge)}
+/* 선수 카드 · 금빛 OVR */
+.jersey{background:linear-gradient(160deg,#2f4a8a 0%,#14213d 100%);color:#fff;box-shadow:inset 0 -7px 0 rgba(0,0,0,.18),0 5px 12px -5px rgba(15,26,51,.6)}
+.ovr{position:relative;overflow:hidden;background:linear-gradient(165deg,#fff3c2 0%,#f5c94a 38%,#d89b10 100%);color:#2a1d00;border:1px solid #c78a0b;box-shadow:inset 0 1px 0 rgba(255,255,255,.75),0 4px 10px -3px rgba(160,110,0,.55)}
+.ovr::after{content:"";position:absolute;inset:-20% -60%;background:linear-gradient(110deg,rgba(255,255,255,0) 40%,rgba(255,255,255,.65) 50%,rgba(255,255,255,0) 60%);transform:translateX(-70%);animation:ovrShine 5s ease-in-out infinite;pointer-events:none}
+@keyframes ovrShine{0%,70%{transform:translateX(-70%)}100%{transform:translateX(70%)}}
+.chip{border-color:transparent;background:color-mix(in srgb,var(--ink) 7%,var(--surface))}
+.chip.gold{background:var(--gold-grad);color:#2a1d00}
+/* 탭 */
+.tabs{border-color:transparent;box-shadow:var(--shadow);border-radius:14px}
+.tabs button{font-weight:600}
+.tabs button[aria-selected="true"]{background:var(--btn-grad);color:var(--btn-fg);box-shadow:0 2px 0 var(--btn-edge)}
+.seg button{border-color:transparent;background:var(--surface-2);box-shadow:0 1px 0 var(--line)}
+.seg button[aria-pressed="true"]{background:var(--btn-grad);color:var(--btn-fg);box-shadow:0 2px 0 var(--btn-edge)}
+/* 홈 타일: 위쪽 색 띠 */
+.mtile{position:relative;overflow:hidden;border-color:transparent;box-shadow:var(--shadow);border-radius:16px;transition:transform .1s;padding-top:15px}
+.mtile::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,var(--pitch),#3cc47a 60%,#f2c14e)}
+.mtile b{font-size:15.5px}
+/* 능력치 막대 */
+.stat .track{height:9px;border:0;background:color-mix(in srgb,var(--ink) 9%,transparent)}
+.stat .fill{background:linear-gradient(90deg,#8d97aa,#b3bccb)}
+.stat .fill.mid{background:linear-gradient(90deg,#24386a,#4a68ad)}
+.stat .fill.hi{background:linear-gradient(90deg,#1e7a4c,#41cf83)}
+.cond .track{border:0;background:color-mix(in srgb,var(--ink) 9%,transparent)}
+/* 경기 줄 · 목록 */
+.m{background:transparent}
+.li{border-top-color:color-mix(in srgb,var(--line) 70%,transparent)}
+.note{border-left:3px solid var(--pitch)}.note.bad,.warn{border-left:3px solid var(--red)}
+/* 엠블럼 그림자 */
+.crest{filter:drop-shadow(0 1px 1.2px rgba(0,0,0,.28));flex:none}
+/* 가독성: 설명 글씨 조금 키우고 진하게 */
+.hint{font-size:12px;line-height:1.45}
+.small.muted,.muted.small,.muted .small,.f .small{font-size:12px;line-height:1.45}
+.note,.warn{font-size:13px;line-height:1.45}
+.note.small,.warn.small{font-size:12px}
+.eyebrow{letter-spacing:.1em}
+@media (prefers-reduced-motion:reduce){.ovr::after{animation:none;display:none}.btn,.dbtn,.mtile{transition:none}}</style>
 
 <div id="app"></div>
 
@@ -1466,13 +1544,71 @@ const CREST_SHAPES=[
   'M3 2H29L29 24L16 35L3 24Z',                                                          // 뾰족 방패
   'M16 1C25 1 30 8 30 18C30 28 24 35 16 35C8 35 2 28 2 18C2 8 7 1 16 1Z',               // 타원
   'M16 1L20 12L31 12L22 19L26 31L16 24L6 31L10 19L1 12L12 12Z',                         // 별
-  'M2 6Q16 -2 30 6V22Q30 32 16 35Q2 32 2 22Z'                                           // 아치 방패
+  'M2 6Q16 -2 30 6V22Q30 32 16 35Q2 32 2 22Z',                                          // 아치 방패
+  'M10 1H22L31 10V27L22 36H10L1 27V10Z',                                                // 팔각형
+  'M2 2H12L16 6L20 2H30V20C30 29 22 33 16 35C10 33 2 29 2 20Z',                         // 홈 파인 방패
+  'M2 14C2 6 8 1 16 1S30 6 30 14V34H2Z',                                                // 둥근 머리 방패
+  'M1 3H31L28 22C26 30 21 33 16 36C11 33 6 30 4 22Z',                                   // 넓은 방패
+  'M16 1L29 6V19C29 28 23 33 16 36C9 33 3 28 3 19V6Z',                                  // 기사 방패
+  'M9 2H23A7 7 0 0 1 30 9V28A7 7 0 0 1 23 35H9A7 7 0 0 1 2 28V9A7 7 0 0 1 9 2Z',        // 알약형
+  'M16 1L31 7L27 30L16 36L5 30L1 7Z',                                                   // 방패형 육각
+  'M2 2H30V16Q30 24 24 28L16 35L8 28Q2 24 2 16Z'                                        // 뾰족 아치 방패
 ];
 function lum(c){const m=/^#([0-9a-f]{6})$/i.exec(c);if(!m)return .3;const n=parseInt(m[1],16),r=(n>>16&255)/255,g=(n>>8&255)/255,b=(n&255)/255;return .2126*r+.7152*g+.0722*b}
+/* 실제 엠블럼과 비슷하게: 구단별 [모양, 바탕 무늬, 가운데 문양] (-1 = 무늬 없음). 없는 구단은 이름으로 정해진 조합
+   모양 0방패 1원 2육각 3마름모 4오각 5둥근사각 6물결방패 7성벽방패 8뾰족방패 9타원 10별 11아치방패 12팔각 13홈파인방패 14둥근머리방패 15넓은방패 16기사방패 17알약 18방패육각 19뾰족아치
+   무늬 0가로띠 1세로띠 2사선 3좌우반반 4사분할 5셰브런 6가로줄 7세로줄 8가운데원 9아랫단 10체크 11X자 12윗단 13사선줄
+   문양 0공 1별 2왕관 3번개 4닻 5성탑 6십자 7불꽃 8날개 9태양 10방패 11셰브런 12산 13물결 14삼지창 15보석 16나무 17교차검 18초승달 19고리 20사자 21대포 22늑대 23황소 24클로버 25백합 */
+const CREST_FIX={
+  // K리그
+  '전북 현대':[16,-1,1],'울산 HD':[1,-1,20],'포항 스틸러스':[0,7,1],'FC 서울':[0,7,10],'김천 상무':[0,-1,1],'대전 하나 시티즌':[0,3,1],'강원 FC':[0,-1,12],'광주 FC':[0,-1,7],
+  '제주 SK':[1,-1,9],'인천 유나이티드':[0,7,8],'FC 안양':[0,-1,15],'수원 FC':[0,3,5],'수원 삼성':[0,-1,8],'부산 아이파크':[0,-1,0],'전남 드래곤즈':[0,-1,7],'서울 이랜드':[0,-1,5],
+  '대구 FC':[0,-1,8],'부천 FC 1995':[0,-1,1],'성남 FC':[0,-1,8],'충남 아산':[0,-1,10],'김포 FC':[0,-1,13],'경남 FC':[0,-1,1],'충북 청주':[0,-1,1],'천안 시티':[0,-1,19],'안산 그리너스':[0,-1,16],'화성 FC':[0,-1,7],
+  // 프리미어리그 · 챔피언십
+  '맨체스터 시티':[1,-1,4],'리버풀':[0,-1,8],'아스널':[0,-1,21],'첼시':[1,-1,20],'토트넘 홋스퍼':[9,-1,8],'맨체스터 유나이티드':[0,-1,14],'뉴캐슬 유나이티드':[0,7,5],'애스턴 빌라':[0,-1,20],
+  '브라이턴':[1,-1,8],'크리스털 팰리스':[0,-1,8],'풀럼':[0,9,10],'브렌트퍼드':[1,-1,1],'울버햄튼':[0,-1,22],'에버턴':[0,-1,5],'노팅엄 포레스트':[0,-1,16],'본머스':[0,7,10],
+  '웨스트햄 유나이티드':[0,-1,17],'선덜랜드':[0,7,20],'레스터 시티':[1,-1,22],'입스위치 타운':[0,-1,5],'리즈 유나이티드':[0,-1,24],'번리':[0,-1,1],'더비 카운티':[0,-1,23],
+  '웨스트 브로미치':[0,7,8],'스완지 시티':[0,-1,8],'왓퍼드':[0,-1,23],'버밍엄 시티':[1,-1,0],'밀월':[0,-1,20],'렉섬':[0,-1,7],'사우샘프턴':[0,3,9],'셰필드 유나이티드':[0,7,17],'셰필드 웬즈데이':[1,-1,8],
+  // 라리가
+  '레알 마드리드':[1,-1,2],'FC 바르셀로나':[13,7,6],'아틀레티코 마드리드':[16,7,16],'아틀레틱 빌바오':[0,7,16],'비야레알':[9,-1,10],'레알 소시에다드':[1,-1,2],'레알 베티스':[8,7,2],
+  '세비야':[0,4,6],'발렌시아':[0,-1,8],'마요르카':[0,3,2],'셀타 비고':[16,-1,6],'라요 바예카노':[0,2,3],'지로나':[0,7,10],'에스파뇰':[1,6,1],
+  // 분데스리가
+  '바이에른 뮌헨':[1,10,19],'바이어 레버쿠젠':[0,-1,6],'보루시아 도르트문트':[1,-1,19],'RB 라이프치히':[9,-1,23],'VfB 슈투트가르트':[9,0,12],'아인트라흐트 프랑크푸르트':[1,-1,8],
+  'VfL 볼프스부르크':[5,-1,22],'베르더 브레멘':[3,-1,10],'FC 쾰른':[0,-1,23],'묀헨글라트바흐':[3,-1,10],'함부르크 SV':[3,-1,15],'샬케 04':[1,-1,19],'헤르타 베를린':[0,0,13],'장크트 파울리':[0,-1,17],
+  // 세리에 A
+  '인테르':[1,-1,19],'나폴리':[1,-1,19],'유벤투스':[17,7,1],'AC 밀란':[9,7,6],'AS 로마':[0,-1,22],'라치오':[0,-1,8],'피오렌티나':[16,-1,25],'토리노':[0,-1,23],'볼로냐':[0,3,6],'제노아':[0,4,8],'아탈란타':[1,-1,10],
+  // 리그 1
+  '파리 생제르맹':[1,-1,5],'마르세유':[0,-1,1],'AS 모나코':[0,2,2],'올랭피크 리옹':[9,-1,20],'OGC 니스':[0,4,8],'RC 랑스':[0,-1,20],'낭트':[1,-1,8],'스트라스부르':[0,-1,10],
+  // 포르투갈 · 네덜란드 · 스코틀랜드 · 튀르키예 · 벨기에
+  '벤피카':[1,-1,8],'FC 포르투':[1,-1,7],'스포르팅 CP':[16,-1,20],'브라가':[0,-1,6],'아약스':[1,-1,10],'PSV 에인트호번':[0,6,0],'페예노르트':[1,4,10],
+  '셀틱':[1,-1,24],'레인저스':[1,-1,20],'갈라타사라이':[9,3,19],'페네르바체':[9,1,10],'베식타스':[0,6,8],'트라브존스포르':[0,7,0],'클럽 브뤼헤':[1,-1,20],'안더레흐트':[1,-1,2],
+  // 2부 리그 전부 · 나머지 1부 구단
+  '미들즈브러':[0,-1,20],'노리치 시티':[1,-1,8],'코번트리 시티':[0,-1,5],'브리스톨 시티':[1,-1,8],'블랙번 로버스':[0,3,24],'스토크 시티':[0,7,19],'프레스턴 노스엔드':[0,-1,1],'QPR':[0,6,10],
+  '헐 시티':[0,-1,20],'포츠머스':[0,-1,18],'옥스퍼드 유나이티드':[1,-1,23],'찰턴 애슬레틱':[1,-1,17],
+  '레알 사라고사':[0,-1,20],'스포르팅 히혼':[0,7,6],'데포르티보 라코루냐':[1,2,0],'말라가':[0,-1,5],'라싱 산탄데르':[1,-1,10],'그라나다':[0,4,15],'카디스':[0,-1,20],'알메리아':[0,7,9],
+  '레가네스':[0,7,1],'레알 바야돌리드':[0,7,2],'라스 팔마스':[1,-1,9],'에이바르':[0,7,21],'우에스카':[0,7,6],'코르도바':[0,7,1],'부르고스':[0,-1,5],'알바세테':[0,-1,17],'미란데스':[0,7,10],
+  '카스테욘':[0,7,5],'세우타':[1,-1,4],'쿨투랄 레오네사':[0,-1,20],'FC 안도라':[0,4,1],'테네리페':[0,3,12],
+  '포르투나 뒤셀도르프':[0,0,10],'카이저슬라우테른':[1,-1,14],'하노버 96':[1,-1,24],'뉘른베르크':[1,-1,10],'파더보른':[0,-1,10],'다름슈타트':[0,-1,25],'엘버스베르크':[0,-1,6],'마그데부르크':[1,-1,5],
+  '그로이터 퓌르트':[0,-1,24],'아르미니아 빌레펠트':[0,-1,10],'VfL 보훔':[1,-1,19],'아인트라흐트 브라운슈바이크':[0,-1,20],'카를스루에':[3,-1,10],'프로이센 뮌스터':[0,-1,8],'디나모 드레스덴':[0,7,10],
+  '삼프도리아':[0,0,4],'팔레르모':[0,-1,8],'베네치아':[0,-1,20],'엠폴리':[1,-1,1],'바리':[0,-1,8],'모데나':[0,-1,2],'스페치아':[1,-1,8],'몬차':[0,-1,2],'체세나':[1,-1,13],'프로시노네':[0,-1,1],
+  '카탄차로':[0,-1,8],'쥐트티롤':[0,-1,12],'레지아나':[0,-1,6],'페스카라':[0,-1,13],'만토바':[0,-1,6],'유베 스타비아':[0,7,4],'아벨리노':[0,-1,22],'파도바':[0,-1,6],'카라레세':[0,7,15],'살레르니타나':[0,-1,13],
+  '생테티엔':[1,-1,1],'몽펠리에':[0,-1,1],'스타드 드 랭스':[0,-1,10],'갱강':[0,-1,1],'아미앵':[0,-1,10],'그르노블':[0,-1,12],'바스티아':[0,-1,10],'로데즈':[0,-1,1],'클레르몽':[0,-1,12],
+  '됭케르크':[1,-1,4],'파우 FC':[0,-1,1],'안시':[0,-1,12],'낭시':[0,-1,1],'트루아':[0,-1,1],'르 망':[0,-1,10],'레드 스타':[0,-1,1],'불로뉴':[0,-1,4],'아작시오':[0,-1,22],
+  '오사수나':[0,-1,10],'헤타페':[0,-1,10],'알라베스':[0,1,5],'레반테':[0,7,1],'엘체':[0,0,16],'레알 오비에도':[0,-1,2],
+  'SC 프라이부르크':[0,-1,8],'마인츠':[0,-1,6],'우니온 베를린':[0,-1,10],'호펜하임':[0,-1,10],'아우크스부르크':[0,-1,16],'하이덴하임':[0,-1,10],'홀슈타인 킬':[0,-1,4],
+  '우디네세':[0,7,10],'칼리아리':[0,4,6],'레체':[0,7,22],'사수올로':[0,7,10],'코모':[0,-1,13],'파르마':[0,-1,6],'엘라스 베로나':[0,-1,5],'피사':[0,-1,6],'크레모네세':[0,-1,10],
+  '릴':[0,-1,22],'스타드 렌':[0,-1,10],'브레스트':[1,-1,4],'툴루즈':[0,-1,6],'오세르':[0,-1,6],'앙제':[0,-1,10],'르아브르':[0,-1,4],'로리앙':[0,-1,13],'메스':[0,-1,7],'파리 FC':[0,-1,5],
+  'AZ 알크마르':[0,-1,10],'FC 트벤테':[0,-1,23],'FC 위트레흐트':[0,-1,6],'헤이렌베인':[0,-1,24],'NEC 네이메헌':[0,4,10],'스파르타 로테르담':[0,7,10],'고어헤드 이글스':[1,-1,8],
+  '비토리아 기마랑이스':[0,-1,17],'파말리캉':[0,-1,6],'에스토릴':[0,-1,13],'모레이렌스':[0,-1,10],'히우 아브':[0,7,13],'질 비센트':[0,-1,10],
+  '위니옹 생질루아즈':[0,-1,10],'헹크':[0,-1,12],'헨트':[0,-1,8],'앤트워프':[0,-1,10],'스탕다르 리에주':[0,3,10],'세르클러 브뤼허':[0,-1,6],'메헬렌':[0,0,10],'베스테를로':[0,-1,1],
+  '하츠':[0,-1,10],'애버딘':[1,-1,1],'히버니언':[0,-1,4],'던디 유나이티드':[0,-1,10],'마더웰':[0,-1,7],'킬마녹':[0,-1,6],'세인트 미렌':[0,7,10],'던디 FC':[0,-1,6],
+  '바샥셰히르':[1,-1,1],'삼순스포르':[0,-1,1],'괴즈테페':[0,-1,10],'카심파샤':[1,-1,4],'알란야스포르':[1,-1,9],'시바스스포르':[0,-1,15]
+};
 function crest(ci,size){
   if(ci==null||ci==='')return `<span class="crest blank" style="width:${size||22}px"></span>`;
   size=size||22;const byName=typeof ci==='string',n=byName?ci:CLUBS[ci].name,h=hashStr(n),ini=crestInitial(n),[c1,c2]=byName?(TEAM_COL[n]||(()=>{const hue=h%360;return [`hsl(${hue} 52% 34%)`,`hsl(${(hue+50+(h>>9)%120)%360} 62% 56%)`]})()):teamCol(ci);
-  const shape=CREST_SHAPES[h%CREST_SHAPES.length],pat=(h>>4)%10,star=(h>>8)%5===0;
+  const fx=CREST_FIX[n]||(!byName&&CLUBS[ci].parent!=null&&CLUBS[CLUBS[ci].parent]&&CREST_FIX[CLUBS[CLUBS[ci].parent].name])||null;   // 유스팀은 모구단 엠블럼을 따른다
+  const shape=CREST_SHAPES[fx?fx[0]:h%CREST_SHAPES.length],pat=fx?fx[1]:(h>>>4)%14,star=(h>>>8)%5===0;   // >>> : 부호 없는 이동 (음수가 나와 무늬가 빠지던 문제)
   const deco=[
     `<rect x="0" y="12" width="32" height="8" fill="${c2}"/>`,                                                   // 가로 띠
     `<rect x="12" y="0" width="8" height="37" fill="${c2}"/>`,                                                   // 세로 띠
@@ -1483,11 +1619,51 @@ function crest(ci,size){
     `<rect x="0" y="6" width="32" height="4" fill="${c2}"/><rect x="0" y="16" width="32" height="4" fill="${c2}"/><rect x="0" y="26" width="32" height="4" fill="${c2}"/>`, // 가로줄
     `<rect x="4" y="0" width="5" height="37" fill="${c2}"/><rect x="14" y="0" width="5" height="37" fill="${c2}"/><rect x="24" y="0" width="5" height="37" fill="${c2}"/>`, // 세로줄
     `<circle cx="16" cy="18" r="10" fill="${c2}"/>`,                                                              // 가운데 원
-    `<rect x="0" y="24" width="32" height="13" fill="${c2}"/>`                                                    // 아랫단
-  ][pat];
+    `<rect x="0" y="24" width="32" height="13" fill="${c2}"/>`,                                                   // 아랫단
+    [0,1,2,3,4].map(r=>[0,1,2,3].map(c=>(r+c)%2?`<rect x="${c*8}" y="${r*8}" width="8" height="8" fill="${c2}"/>`:'').join('')).join(''),   // 체크
+    `<path d="M-2 0L34 37M34 0L-2 37" stroke="${c2}" stroke-width="5.5"/>`,                                         // X자
+    `<rect x="0" y="0" width="32" height="10" fill="${c2}"/>`,                                                     // 윗단
+    `<path d="M-6 10L14 -6M-6 22L26 -6M-2 34L34 4M10 40L38 14" stroke="${c2}" stroke-width="2.6"/>`                 // 사선 줄무늬
+  ][pat]||'';   // -1: 무늬 없는 단색
   const txtFill=pat===8?(lum(c2)>.6?'#111':'#fff'):(lum(c1)>.6?'#111':'#fff'),edge=lum(c1)>.85?'rgba(0,0,0,.55)':'rgba(0,0,0,.4)';
+  // 가운데 상징: 글자 대신 구단마다 다른 문양 (공·별·왕관·번개·닻·성탑·십자·불꽃·날개·태양·방패 속 줄·사자 발톱 대신 단순 도형)
+  // 색은 구단 색만: 바탕(c1)과 가장 잘 대비되는 쪽(c2 · 흰색 · 검정)을 고른다
+  // 무늬가 가운데를 덮으면(가로·세로 띠, 가운데 원) 그 색 위에 그린다
+  const cdiff=(a,b)=>Math.abs(lum(a)-lum(b)),bgc=[0,1,8,11].includes(pat)?c2:c1,alt=bgc===c1?c2:c1,sc=cdiff(alt,bgc)>.32?alt:(lum(bgc)>.55?'#111111':'#ffffff');
+  const so=sc==='#111111'||lum(sc)<.35?'rgba(255,255,255,.35)':'rgba(0,0,0,.4)',st=`fill="${sc}" stroke="${so}" stroke-width=".8" stroke-linejoin="round"`,sl=`fill="none" stroke="${sc}" stroke-width="2.2" stroke-linecap="round"`;
+  const SYM=[
+    `<circle cx="16" cy="19" r="7.4" ${st}/><path d="M16 15.4l3.1 2.3-1.2 3.7h-3.8l-1.2-3.7Z" fill="${so==='rgba(0,0,0,.4)'?'#111':'#fff'}" opacity=".85"/>`,               // 공
+    `<path d="M16 10.5l2.4 5 5.4.7-4 3.7 1 5.4-4.8-2.6-4.8 2.6 1-5.4-4-3.7 5.4-.7Z" ${st}/>`,                                                                                // 별
+    `<path d="M9.5 24.5h13l1.2-10-4.2 3.4-3.5-5.5-3.5 5.5-4.2-3.4Z" ${st}/><circle cx="16" cy="11.6" r="1.3" ${st}/>`,                                                       // 왕관
+    `<path d="M18.5 9.5l-8 11h5.2l-2.2 8 8.6-12h-5.4Z" ${st}/>`,                                                                                                             // 번개
+    `<circle cx="16" cy="12.2" r="2" ${sl}/><path d="M16 14.4v12.4M12 18h8M10 22.2c1 3.6 3.6 5 6 5s5-1.4 6-5" ${sl}/>`,                                                       // 닻
+    `<path d="M10.5 27V15.5h2v-3h2.2v3h2.6v-3h2.2v3h2v11.5h-3.6v-4a1.9 1.9 0 0 0-3.8 0v4Z" ${st}/>`,                                                                         // 성탑
+    `<path d="M13.8 10.5h4.4v5.8h5.8v4.4h-5.8v7h-4.4v-7H8v-4.4h5.8Z" ${st}/>`,                                                                                               // 십자
+    `<path d="M16 9.5c3.6 4 6.2 6.6 6.2 11a6.2 6.2 0 0 1-12.4 0c0-3 1.6-5 3-6.8.2 2 1 3.2 2.2 3.6-.4-3 .2-5.4 1-7.8Z" ${st}/>`,                                               // 불꽃
+    `<path d="M16 25.5c-2.2-3-8.6-3.8-10.5-9.6 4 1 6.4 2.2 8.4 4.2-1-3.2-.2-6.2 2.1-8.6 2.3 2.4 3.1 5.4 2.1 8.6 2-2 4.4-3.2 8.4-4.2-1.9 5.8-8.3 6.6-10.5 9.6Z" ${st}/>`,     // 날개
+    `<circle cx="16" cy="19" r="3.8" ${st}/><path d="M16 10.5v3M16 24.5v3M7.5 19h3M21.5 19h3M10 13l2.1 2.1M19.9 22.9L22 25M22 13l-2.1 2.1M12.1 22.9L10 25" ${sl}/>`,         // 태양
+    `<path d="M11 11.5h10v7.5c0 4-2.6 6.4-5 7.5-2.4-1.1-5-3.5-5-7.5Z" ${st}/><path d="M16 12v14" stroke="${so}" stroke-width="1.6"/>`,                                         // 작은 방패
+    `<path d="M10 13.5l6 4 6-4v4l-6 4-6-4Zm0 6l6 4 6-4v4l-6 4-6-4Z" ${st}/>`,                                                                                                // 이중 셰브런
+    `<path d="M7.5 26.5l6-11 3.4 5.2 2.4-3.6 5.2 9.4Z" ${st}/><circle cx="21.5" cy="12.5" r="1.8" ${st}/>`,                                                                  // 산
+    `<path d="M8 15.5c2.7-2.4 5.3 2.4 8 0s5.3 2.4 8 0M8 20.5c2.7-2.4 5.3 2.4 8 0s5.3 2.4 8 0M8 25.5c2.7-2.4 5.3 2.4 8 0s5.3 2.4 8 0" ${sl}/>`,                                  // 물결
+    `<path d="M16 10v17.5M11 12v4.2a5 5 0 0 0 10 0V12" ${sl}/><path d="M16 9l1.6 3h-3.2Z" ${st}/>`,                                                                        // 삼지창
+    `<path d="M11 13.5h10l3 4-8 9.5-8-9.5Z" ${st}/><path d="M8 17.5h16M13.5 13.5l2.5 4 2.5-4M16 17.5v9.5" stroke="${so}" stroke-width=".8" fill="none"/>`,                    // 보석
+    `<path d="M16 9.5l6.5 8.5h-3.6l4.6 6.4h-5.5v3.4h-4v-3.4H8.5l4.6-6.4H9.5Z" ${st}/>`,                                                                                     // 나무
+    `<path d="M10 10.5l12 15M22 10.5l-12 15" ${sl}/><path d="M8.5 23l3.5 3.5M23.5 23L20 26.5" stroke="${sc}" stroke-width="3" stroke-linecap="round"/>`,                         // 교차한 검
+    `<path d="M18.5 11a7.8 7.8 0 1 0 0 15.4 6.2 6.2 0 1 1 0-15.4Z" ${st}/><path d="M22.5 15.2l.9 1.8 2 .3-1.4 1.4.3 2-1.8-.9-1.8.9.3-2-1.4-1.4 2-.3Z" ${st}/>`,                // 초승달과 별
+    `<circle cx="16" cy="19" r="7.6" fill="none" stroke="${sc}" stroke-width="2.4"/><circle cx="16" cy="19" r="2.8" ${st}/>`,                                               // 고리
+    `<path d="M16 9.6l2.1 2.5 3-1.1.3 3.2 3.1 1.1-1.7 2.7 1.7 2.7-3.1 1.1-.3 3.2-3-1.1-2.1 2.5-2.1-2.5-3 1.1-.3-3.2-3.1-1.1 1.7-2.7-1.7-2.7 3.1-1.1.3-3.2 3 1.1Z" ${st}/><circle cx="16" cy="19.3" r="4.2" fill="${bgc}" stroke="${so}" stroke-width=".7"/><path d="M14.4 18.4h.01M17.6 18.4h.01M14.8 21.2q1.2 1 2.4 0" stroke="${sc}" stroke-width="1.3" stroke-linecap="round" fill="none"/>`,   // 사자
+    `<rect x="8" y="14.6" width="14.5" height="4.6" rx="2.2" transform="rotate(-16 15 17)" ${st}/><circle cx="12.6" cy="23.2" r="3.4" ${st}/><circle cx="12.6" cy="23.2" r="1" fill="${bgc}"/><path d="M8 27.2h15" ${sl}/>`,   // 대포
+    `<path d="M9 10.5l4.4 4.3h5.2l4.4-4.3v8.6L16 27.5l-7-8.4Z" ${st}/><path d="M13.2 18.6h.01M18.8 18.6h.01" stroke="${bgc}" stroke-width="1.8" stroke-linecap="round"/>`,   // 늑대
+    `<path d="M7.5 11c.8 3.2 2.8 4.4 5 4.4h7c2.2 0 4.2-1.2 5-4.4 1.2 4.2-.8 7.2-3.1 7.6V22c0 3.1-2.2 5.3-5.4 5.3s-5.4-2.2-5.4-5.3v-3.4C8.3 18.2 6.3 15.2 7.5 11Z" ${st}/><path d="M13.6 19.6h.01M18.4 19.6h.01" stroke="${bgc}" stroke-width="1.8" stroke-linecap="round"/>`,   // 황소
+    `<circle cx="16" cy="14.6" r="3.7" ${st}/><circle cx="11.7" cy="20.2" r="3.7" ${st}/><circle cx="20.3" cy="20.2" r="3.7" ${st}/><path d="M16 21v6.5" ${sl}/>`,          // 클로버
+    `<path d="M16 9.4c2.4 3.1 2.4 6.3 0 9.8-2.4-3.5-2.4-6.7 0-9.8Z" ${st}/><path d="M15.2 19.6c-1.6-3-6-3.4-6.6-.4-.3 1.9 1.4 3.1 3.2 2.3M16.8 19.6c1.6-3 6-3.4 6.6-.4.3 1.9-1.4 3.1-3.2 2.3M11 22.6h10M16 22.6v4.8" ${sl}/>`   // 백합
+  ];
+  const sym=size>=13?SYM[fx?fx[2]:(h>>>12)%SYM.length]:'';
   const id=byName?`cn${h}`:`cl${ci}`;
-  return `<svg class="crest" width="${size}" height="${Math.round(size*1.15)}" viewBox="0 0 32 37" aria-hidden="true"><clipPath id="${id}"><path d="${shape}"/></clipPath><g clip-path="url(#${id})"><rect width="32" height="37" fill="${c1}"/>${deco}</g><path d="${shape}" fill="none" stroke="${edge}" stroke-width="1.6"/>${star?`<path d="M16 3.5l1.2 2.4 2.6.4-1.9 1.8.5 2.6-2.4-1.2-2.4 1.2.5-2.6-1.9-1.8 2.6-.4Z" fill="#f2c14e" stroke="rgba(0,0,0,.35)" stroke-width=".5"/>`:''}<text x="16" y="${star?26:25}" text-anchor="middle" font-size="${ini.length>1?10.5:14}" font-weight="800" fill="${txtFill}" stroke="${txtFill==='#fff'?'rgba(0,0,0,.45)':'rgba(255,255,255,.5)'}" stroke-width="2" paint-order="stroke" style="font-family:'IBM Plex Sans KR',sans-serif">${esc(ini)}</text></svg>`;
+  // 입체감: 위는 빛(광택), 아래는 그림자 · 안쪽 테두리 한 줄 더 (작은 크기에서도 엠블럼처럼 보이게)
+  const ring=lum(c1)>.55?'rgba(0,0,0,.28)':'rgba(255,255,255,.6)';
+  return `<svg class="crest" width="${size}" height="${Math.round(size*1.15)}" viewBox="0 0 32 37" aria-hidden="true"><defs><clipPath id="${id}"><path d="${shape}"/></clipPath><linearGradient id="g${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".28"/></linearGradient></defs><g clip-path="url(#${id})"><rect width="32" height="37" fill="${c1}"/>${deco}<rect width="32" height="37" fill="url(#g${id})"/></g>${size>=20?`<path d="${shape}" fill="none" stroke="${ring}" stroke-width="1.1" transform="translate(16 18) scale(.82) translate(-16 -18)"/>`:''}<path d="${shape}" fill="none" stroke="${edge}" stroke-width="1.6"/>${sym}</svg>`;
 }
 // 유럽 관심도: 유럽 구단 스카우트 관전·이적 루머·국제대회 활약으로 쌓이고, 시즌마다 조금씩 식는다
 const euroBuzz=p=>Math.min(5,p.euroWatch||0);
@@ -1858,7 +2034,7 @@ const AC_POOL=[['일본',76],['이란',72],['호주',71],['사우디아라비아
 const NAT_T={
   wc:{n:'FIFA 월드컵',kr:74,ko:['16강','8강','4강','결승'],top:[5,3],mvp:'골든볼',pool:WC_POOL},
   ac:{n:'AFC 아시안컵',kr:76,ko:['16강','8강','4강','결승'],top:[4,3],mvp:'MVP',pool:AC_POOL},
-  ag:{n:'아시안게임',kr:72,ko:['16강','8강','4강','결승'],top:[4,3],mvp:'MVP',bronze:true,pool:AC_POOL.map(([n,s])=>[n+' U23',s-7])},
+  ag:{n:'아시안게임',kr:77,ko:['16강','8강','4강','결승'],top:[4,3],mvp:'MVP',bronze:true,pool:AC_POOL.map(([n,s])=>[n+' U23',s-7])},
   oly:{n:'올림픽',kr:71,ko:['8강','4강','결승'],top:[4,3],mvp:'MVP',bronze:true,pool:WC_POOL.map(([n,s])=>[n+' U23',s-9])}};
 const NAT_ORDER=['ag','oly','ac','wc'];
 const NAT_BIG=['우승','금메달','준우승','은메달','동메달'];
@@ -3157,10 +3333,18 @@ function epilogue(p,score){
 function careerHighlights(p){
   const out=[],gk=p.pos==='GK',pro=p.history.filter(h=>h.pro&&h.apps>0);
   const clubOf=h=>h.ci!=null?teamName(h.ci,h.u21):(h.club||'').split(' → ').pop();
-  // 최고의 팀: 그 팀에서 쌓은 평점·출장·트로피로 가장 빛난 팀
+  // 최고의 팀: 구단 위상 + 그 팀에서의 평점 + 주요 지표(골·도움·키패스·수비·무실점…) + 뛴 기간 + 트로피를 모두 더해 고른다
   // 2군(U21)·유스 기간은 '최고의 팀' 후보에서 뺀다
-  const by={};pro.filter(h=>!h.u21&&!/ (U21|U23|B|II|리저브|프리마베라)$/.test(clubOf(h))).forEach(h=>{const n=clubOf(h),b=by[n]=by[n]||{n,ci:h.ci,apps:0,goals:0,assists:0,cs:0,rs:0,seasons:0};b.apps+=h.apps;b.goals+=h.goals;b.assists+=h.assists;b.cs+=h.cs||0;b.rs+=h.avg*h.apps;b.seasons++});
-  const clubs=Object.values(by).map(b=>{const tr=p.trophies.filter(t=>t.club===b.n).length;return {...b,tr,avg:b.rs/b.apps,sc:b.rs/b.apps+Math.min(tr,6)*.06+Math.min(b.apps,200)/800}}).filter(b=>b.apps>=15);
+  const by={};pro.filter(h=>!h.u21&&!/ (U21|U23|U19|B|II|리저브|프리마베라)$|^용 /.test(clubOf(h))).forEach(h=>{const n=clubOf(h),b=by[n]=by[n]||{n,ci:h.ci,apps:0,goals:0,assists:0,cs:0,kp:0,ds:0,dk:0,sot:0,saves:0,conc:0,rs:0,seasons:0};
+    b.apps+=h.apps;b.goals+=h.goals;b.assists+=h.assists;b.cs+=h.cs||0;b.kp+=h.kp||0;b.ds+=h.ds||0;b.dk+=h.dk||0;b.sot+=h.sot||0;b.saves+=h.saves||0;b.conc+=h.conc||0;b.rs+=h.avg*h.apps;b.seasons++;if(h.ci!=null)b.ci=h.ci});
+  const clubs=Object.values(by).filter(b=>b.apps>=15).map(b=>{
+    const tr=p.trophies.filter(t=>t.club===b.n),avg=b.rs/b.apps,per=x=>x/b.apps*30;   // 30경기당 기록
+    const pres=b.ci!=null&&CLUBS[b.ci]?clamp((teamLv(b.ci,false)-60)*.8,0,25):0;     // 구단 위상 (빅클럽 ≈ 20점, K리그1 ≈ 5점)
+    const perf=clamp((drv(avg)-6.5)*20,0,30);                                          // 평점
+    const prod=clamp(gk?per(b.cs)+per(b.saves)*.05-per(b.conc)*.15:p.pos==='DF'?per(b.ds)*.4+per(b.dk)*.03+per(b.cs)*.3+per(b.goals)+per(b.assists)*.8:per(b.goals)+per(b.assists)*.8+per(b.kp)*.05+per(b.sot)*.03,0,20);   // 주요 지표
+    const stay=clamp(b.seasons*2.5+b.apps/40,0,25);                                    // 뛴 기간
+    const tro=Math.min(20,tr.reduce((a,t)=>a+(t.k==='indiv'?1.5:CONT_RE.test(t.n)?5:LEAGUE_RE.test(t.n)?4:2.5),0));   // 트로피 (대륙대회·리그 우승 가중)
+    return {...b,tr:tr.length,avg,pres,sc:pres+perf+prod+stay+tro}});
   if(clubs.length){const b=clubs.sort((x,y)=>y.sc-x.sc)[0];
     out.push({i:'🏟️',k:'최고의 팀',v:b.n,ci:b.ci,d:`${b.seasons}시즌 · ${b.apps}경기 ${gk?`무실점 ${b.cs}`:`${b.goals}골 ${b.assists}도움`} · 평균 평점 ${dr2(b.avg)}${b.tr?` · 트로피 ${b.tr}개`:''}`})}
   // 커리어 하이 시즌
@@ -4777,6 +4961,7 @@ function resolveMoment(p,i){
 
 /* ---------- 업데이트 노트 (최신이 위, 버전마다 누적) ---------- */
 const UPDATES=[
+  {d:'2026.10.08 15:57',t:'디자인 업그레이드 · 아시안게임',l:['화면 디자인 새 단장: 잔디 무늬 배경 · 입체 카드 · 눌리는 버튼 · 금빛 OVR 배지','구단 엠블럼 새 디자인: 글자 대신 문양 20가지(공·별·왕관·번개·닻·성탑·불꽃·날개·산·물결·삼지창·초승달 등) × 모양 20가지 × 무늬 14가지 · 구단 색만 사용 · 구단마다 고정 · 무늬가 빠지던 엠블럼 수정','모든 프로 구단(1부 · 2부 리그 전체)을 실제 엠블럼 특징대로 (아스널 대포 · 레알 마드리드 왕관 · 첼시 사자 · 셀틱 클로버 · 유벤투스 줄무늬 · 울산 호랑이 · 강원 산 · 제주 태양 등) · 유스팀은 모구단 엠블럼','지구력 표시: "피로 8% 덜 쌓임" · "피로 2% 더 쌓임"','은퇴 화면 최고의 팀: 구단 위상 · 평점 · 주요 기록(골·도움·키패스·수비·무실점) · 뛴 기간 · 트로피를 모두 반영','설명 글씨 조금 크고 진하게 (가독성)','아시안게임 대한민국 전력 상향 · 금메달 확률 약 50~65% · 조별리그 탈락 2~3%']},
   {d:'2026.10.08 13:49',t:'베팅 조정',l:['커리어 베팅 찬스 확률 30% → 40%','시즌 베팅 난이도 살짝 완화 (가장 쉬운 선 약 55% · 환급률 84% · 팀 순위 76%)']},
   {d:'2026.10.08 12:08',t:'지구력 · 업데이트 알림',l:['체력 → 지구력으로 이름 변경 · 골키퍼를 뺀 모든 역할에 10~20% 반영','지구력이 높으면 경기마다 쌓이는 피로가 줄어요 (능력치 화면에 피로 −% 표시)','팀 순위 베팅 더 엄격하게 (쉬운 순위 선 삭제 · 환급률 72%)','새 버전 알림이 모든 화면 위에 뜨고, 앱을 다시 열 때도 확인 · 누르면 확실히 새 버전으로','네덜란드 2군 이름 표기 (용 아약스)','시즌 · 커리어 베팅 금액을 3~30 LP 사이에서 직접 입력 (빠른 버튼 5 · 10 · 20 · 30)','은퇴 화면 아래 소식 문구 정리 (제목 · 작은 글씨)']},
   {d:'2026.10.08 11:37',t:'성장 · 베팅 · 국대 화면 정리',l:['24세 이하에 크게 다치면 잠재력이 깎이고 1~2시즌 성장 속도 -40%','23세 이하인데 두 시즌 연속 리그 8경기 미만이면 성장 정체 · 잠재력 조금씩 하락 (임대·이적으로 뛸 곳 찾기)','시즌 베팅 조정: 쉬운 기준선 삭제 · 환급률 80% · 최대 2개 묶음 · 진행 중인 베팅은 시즌 화면 맨 아래','국가대표 대회: 방금 끝난 경기가 맨 위에 · 지난 경기는 최근부터','스카우트권 남은 장수 크게 표시','LP 최대치 9999 (선물 · 베팅)','40세 이후 오퍼 조건 완화: 주전이거나 선발 15경기 이상이면 평점 7.0 · 선발 8경기 이상이면 평점 7.3 (로테이션 노익장 가능)','홈에 다녀오면 명예의 전당 · 랭킹 · 친구 화면이 각 탭의 첫 화면부터 보여요']},
@@ -5658,7 +5843,7 @@ function playerTab(p){
   if(t==='ability')h+=`<section class="panel"><div class="row" style="gap:14px;flex-wrap:nowrap">${pitchSvg(p.pos)}<div style="min-width:0;flex:1" class="list small">
       <div class="li"><span class="muted">포지션</span><b>${POS[p.pos].name} · ${DPOS[dposOf(p)].n}</b></div><div class="li"><span class="muted">주발</span><b>${p.foot}</b></div>${p.dual?'<div class="li"><span class="muted">국적</span><b>대한민국 · 유럽 이중국적</b></div>':''}<div class="li"><span class="muted">최고 OVR</span><b>${p.peak}</b></div></div></div>
     ${(()=>{const sh=p.phase==='retired'?0:Math.round(sharpMod(p)),fm=p.phase==='retired'?0:fatStatMod(p.fatigue),sm=sh+fm;return (fm?`<div class="warn small"><b>지쳐 있어요</b> · 모든 능력치 일시적으로 ${fm} · 쉬면 돌아와요</div>`:'')+(sh?`<div class="note small">${sh>0?`<b style="color:var(--pitch)">경기 감각이 살아 있어요</b> · 모든 능력치 일시적으로 +${sh}`:`<b style="color:var(--red)">경기 감각이 떨어져 있어요</b> · 모든 능력치 일시적으로 ${sh} · 경기에 나서야 회복돼요`}</div>`:'')+
-    STATS.map(k=>{const v=p.stats[k],w=DPOS[dposOf(p)].w[k];return `<div class="stat"><span>${lab(p,k)}${w>=.15?' <span class="muted small">●</span>':''}${k==='sta'&&p.pos!=='GK'&&staFat(p)!==1?` <span class="muted small">피로 ${staFat(p)<1?'−':'+'}${Math.abs(Math.round((1-staFat(p))*100))}%</span>`:''}</span><div class="track"><div class="fill ${v>=75?'hi':v>=55?'mid':''}" style="width:${Math.min(100,v/STAT_MAX*100*1.5)}%"></div></div><span class="n">${v}${sm?`<em class="smod ${sm>0?'up':'down'}">${sm>0?'+':''}${sm}</em>`:''}</span></div>`}).join('')})()}
+    STATS.map(k=>{const v=p.stats[k],w=DPOS[dposOf(p)].w[k];return `<div class="stat"><span>${lab(p,k)}${w>=.15?' <span class="muted small">●</span>':''}${k==='sta'&&p.pos!=='GK'&&staFat(p)!==1?` <span class="small" style="color:${staFat(p)<1?'var(--pitch)':'var(--red)'}">피로 ${Math.abs(Math.round((1-staFat(p))*100))}% ${staFat(p)<1?'덜':'더'} 쌓임</span>`:''}</span><div class="track"><div class="fill ${v>=75?'hi':v>=55?'mid':''}" style="width:${Math.min(100,v/STAT_MAX*100*1.5)}%"></div></div><span class="n">${v}${sm?`<em class="smod ${sm>0?'up':'down'}">${sm>0?'+':''}${sm}</em>`:''}</span></div>`}).join('')})()}
     <p class="hint">● ${DPOS[dposOf(p)].n} OVR에 크게 반영되는 능력치 (비중 15% 이상)</p></section>`;
   if(t==='role')h+=`<section class="panel"><div class="row" style="justify-content:space-between;align-items:center"><span class="eyebrow">목표 역할</span><span class="chip ${p.dposAuto?'good':''}">${p.dposAuto?'자동':'고정'}</span></div>
     <p class="hint">1부 리그에서 한 역할로 시즌 <b>25경기 · 평균 7.4+</b> → 숙련도 ★ +1 · ★3이면 배지 (시즌 중 바꾸면 그 시즌 미인정)</p>
