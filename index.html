@@ -1764,7 +1764,19 @@ function pixScene(kits,opt){
   const ck=JSON.stringify([kits,opt||0]);if(PX_CACHE[ck])return PX_CACHE[ck];const m=opt&&opt.mode;
   return PX_CACHE[ck]=['goalfront','savefront','missfront','gkcatch','concede'].includes(m)?pixFront(kits[0],opt.opp||['#9aa3b2','#4b5563'],opt):['assist','passfail','tackled'].includes(m)?pixSide(kits[0],m):pixSceneRaw(kits,opt)}
 const PX_KICK=['....HHHH....','...HHHHHH...','...SSSSSS...','...SESSES...','....SSSS....','..AJJJJJJA..','.AAJJJJJJAA.','S..JJJJJJ..S','...JJJJJJ...','...JJJJJJ...','...AAAAAA...','...AA..AAA..','...SS....SS.','...KK.....KK','...KK.......','..BBB.....BB'];
+// 무소속: 경기장이 아니라 해 질 녘 집 앞에서 혼자 리프팅하며 개인 훈련 (소속팀 유니폼 대신 회색 트레이닝복)
+function pixFa(opt){const W=opt.w||96,cx=Math.round(W/2)+8,LK=opt.look||null,hx=Math.round(W*.18);
+  let sky='';[['#2b2f5c',0],['#4b3f72',6],['#8a4f6d',12],['#d0735a',17]].forEach(([c,y])=>sky+=`<rect x="0" y="${y}" width="${W}" height="${23-y}" fill="${c}"/>`);
+  let grass='';for(let y=31;y<44;y+=3)grass+=`<rect x="0" y="${y}" width="${W}" height="3" fill="${(y/3)%2<1?'#3f8f4e':'#37814a'}"/>`;
+  const house=`<rect x="${hx}" y="16" width="22" height="15" fill="#e8d5b5"/><path d="M${hx-2} 17L${hx+11} 8L${hx+24} 17Z" fill="#9b3b2f"/><rect x="${hx+3}" y="20" width="5" height="4" fill="#ffd36b"/><rect x="${hx+14}" y="23" width="5" height="8" fill="#6b4226"/><rect x="${hx+5}" y="21.8" width="1" height="0.4" fill="#c99a2e"/><rect x="${hx+17}" y="9" width="3" height="5" fill="#7a2e24"/>`;
+  const tree=`<rect x="${W-14}" y="20" width="2" height="11" fill="#5b3a1a"/><rect x="${W-18}" y="12" width="10" height="9" fill="#2f6b3a"/><rect x="${W-16}" y="10" width="6" height="3" fill="#2f6b3a"/>`;
+  const fence=Array.from({length:Math.ceil(W/6)},(_,i)=>`<rect x="${i*6}" y="27" width="1" height="4" fill="#cbb89a"/>`).join('')+`<rect x="0" y="28" width="${W}" height=".7" fill="#cbb89a"/>`;
+  const stars=Array.from({length:5},(_,i)=>`<rect class="pxtw" style="animation-delay:${i*.4}s" x="${(i*31+40)%W}" y="${2+(i*3)%5}" width="1" height="1" fill="#fff"/>`).join('');
+  const me=`<g class="pxf1">${pxSprite(PX_RUN,'#9aa3b2','#4b5563',cx,25,LK)}</g><g class="pxf2">${pxSprite(PX_RUN2,'#9aa3b2','#4b5563',cx,25,LK)}</g>`;
+  const ball=`<g style="animation:pxjug .6s ease-in-out infinite alternate"><rect x="${cx+9}" y="36" width="3" height="3" fill="#fff"/><rect x="${cx+10}" y="37" width="1" height="1" fill="#222"/></g>`;
+  return `<svg class="pxscene" viewBox="0 0 ${W} 44" preserveAspectRatio="xMidYMax slice" shape-rendering="crispEdges" aria-hidden="true"><style>@keyframes pxjug{from{transform:translateY(0)}to{transform:translateY(-9px)}}</style>${sky}${stars}<circle cx="${W-30}" cy="19" r="4" fill="#ffb26b" opacity=".85"/>${house}${tree}${fence}${grass}${me}${ball}<rect x="${cx-2}" y="41" width="16" height="1.4" fill="#000" opacity=".25"/></svg>`}
 function pixSceneRaw(kits,opt){
+  if(opt&&opt.mode==='fa')return pixFa(opt);
   // opt.w: 장면 너비(넓을수록 선수가 작게 보인다) · opt.mode: run 드리블 · cheer 환호 · shoot 슈팅 · pass 패스 · tackle 태클 · dive 골키퍼 선방 · hurt 부상
   opt=opt||{};const mode=opt.mode||'run',N=Math.max(1,kits.length),T=2.4,W=opt.w||96,cx=Math.round(W/2)-6,GREY=['#9aa3b2','#4b5563'];
   const LK=opt.look||null,pxMe=(m,a,b,x,y)=>pxSprite(m,a,b,x,y,LK),OPP=opt.opp||GREY,GKC=['#16a34a','#064e3b'],D=opt.dur||2.6;
@@ -1910,11 +1922,12 @@ function careerKits(p){const seen=[],out=[];[...p.history.filter(h=>h.pro&&h.ci!
 function gameBanner(p){
   if(p.phase==='retired'||p.nat)return '';
   const kit=p.fa?['#9aa3b2','#4b5563']:teamCol(p.club),s=p.season,gk=p.pos==='GK';
-  const tag=p.phase==='round'&&s?`${s.mi||0}/${s.games}경기${myRank(p)?` · ${myRank(p)}위`:''}`:p.phase==='prep'?`${p.year} 시즌 준비`:p.phase==='summary'?`${p.year} 시즌 결산`:'이적시장';
+  const tag=p.fa&&p.phase==='round'?'개인 훈련 중':p.phase==='round'&&s?`${s.mi||0}/${s.games}경기${myRank(p)?` · ${myRank(p)}위`:''}`:p.phase==='prep'?`${p.year} 시즌 준비`:p.phase==='summary'?`${p.year} 시즌 결산`:'이적시장';
   const head=`<div class="pxtag">${p.fa?'🏠':crest(p.club,14)}<b>${p.fa?'무소속':esc(teamName(p.club,p.u21))}</b><span>${tag}</span></div>`;
   // 지금 꼭 보여 줄 상황: 부상 · 결정적 순간 · 시즌 결산
   let fixed=null;
   if(p.rehab||p.injury>0)fixed='hurt';
+  else if(p.fa)fixed='fa';   // 무소속: 집 앞에서 개인 훈련
   else if(p.moment){const t=p.moment.type;fixed=t==='shot'?'shoot':t==='pass'?'pass':t==='pk'?(gk?'dive':'shoot'):(gk?'dive':'tackle')}
   else if(p.phase==='summary')fixed='cheer';
   else if(p.phase==='prep'&&p.stage==='pro'&&!p.fa&&(p.atClub||0)===0)fixed='unveil';   // 새 팀 첫 시즌: 새 유니폼 들고 인사
@@ -5538,6 +5551,7 @@ function resolveMoment(p,i){
 
 /* ---------- 업데이트 노트 (최신이 위, 버전마다 누적) ---------- */
 const UPDATES=[
+  {d:'2026.10.10 00:25',t:'무소속 화면',l:['무소속일 때 픽셀 화면이 벤치가 아니라 해 질 녘 집 앞에서 혼자 리프팅하는 개인 훈련 장면으로 나와요 (경기 화면 · 홈 카드)','무소속 이름표에 예전 팀 경기 수·순위 대신 \u0027개인 훈련 중\u0027이 보여요']},
   {d:'2026.10.09 22:49',t:'픽셀 하이라이트 · 효과음 · 주급 상한 · 기록실',l:['🎬 경기 하이라이트가 짧은 장면으로: 골은 드리블 → 수비 제치기 → 슈팅 → 골망 → 세레머니, 도움은 패스 → 동료 슛 → 함께 환호, 골키퍼는 상대 슛 → 다이빙 선방 → 공 들고 일어서기','🌧️ 경기장 분위기: 폭우·폭설·무더위·강풍이 화면에 보이고, 빅매치는 홍염·깃발, 결승은 불꽃놀이, 관중석에 우리 팀 색이 섞여요','🧔 선수 외형: 나이가 들면 머리가 희끗해지고 수염이 나요 · 주장은 완장, 부상 복귀 직후엔 무릎 테이핑','🎽 새 팀 첫 시즌엔 새 유니폼을 들고 인사, 퇴장당하면 두 팔 들고 항의, 은퇴하면 동료들이 헹가래','⚡ 결정적 순간: 장면이 먼저 재생되고 잠깐 뒤 화면이 흔들리며 결과가 떠요','🔊 효과음·진동: 골·선방·우승·강등 때 짧은 소리와 진동 (홈 맨 아래에서 끄기 · 몰래 모드면 자동으로 꺼짐)','💸 주급 상한: 리그 수준과 구단 체급에 따라 최고 주급이 정해져요 (EPL 최상위 주급 7억 안팎). 발롱도르 수상자·월드 스타는 그보다 더 받을 수 있고, 어디서든 주급 10억을 넘지 않아요. 재계약·협상이 매 시즌 겹쳐 주급이 끝없이 오르던 문제를 고쳤어요 (진행 중인 선수도 다음 시즌부터 적용)','최고 주급에 닿으면 주급 협상·인상 요청이 나오지 않아요','📚 명예의 전당 기록실: 최고 몸값 · 최고 이적료 · 한 시즌 최다 골·도움 · 통산 최다 골·도움·출장·무실점 · 최다 트로피 · A매치 최다 출장 (모두 / 내 선수들)','선수 능력치 화면: 지구력에 따른 피로 설명을 아래 안내 줄로 옮겼어요']},
   {d:'2026.10.09 17:19',t:'주전 경쟁 · 계약 조항 · 시즌 리포트',l:['⚔️ 주전 경쟁자: 팀마다 내 자리를 다투는 선수가 생겨요 (이름·나이·OVR). 경쟁자가 다치면 기회, 폼이 좋으면 밀려요. 해가 지나면 나이 들고, 은퇴·이적하고, 구단이 새로 영입하기도 해요','📈 팀 전력 변동: 여름마다 보강·이탈로 팀 전력이 조금씩 달라지고, 시즌 프리뷰 기사에 예상 순위가 나와요','✍️ 계약 조항 요구: 오퍼에서 출전 보장(첫 시즌 주전 출발 · 쉽게 밀리지 않음)이나 바이아웃 조항을 요구할 수 있어요. 무리하면 오퍼가 철회될 수 있어요','🩹 부상 현실화: 다쳤던 부위는 재발하기 쉽고, 같은 부위를 자주 다치면 고질이 돼요. 큰 부상은 해외 전문의(비용)로 복귀를 앞당길 수 있어요. 장기 부상에서 돌아오면 복귀 소식이 떠요','🔗 이벤트 연쇄: 열애설·라이벌 도발·승부 조작 신고·예능 출연 등 선택한 결과가 몇 경기 뒤나 다음 시즌에 후속 이벤트로 돌아와요','📊 시즌 리포트: 시즌 결산에 경기별 평점 그래프 · 전반기/후반기 비교 · 베스트 경기 · 작년 대비 기록','💼 개인 스태프: 시즌 준비 때 개인 트레이너(훈련 효과↑) · 물리치료사(부상↓) · 영양사(피로↓) 중 한 명을 고용해요. 비용은 리그 수준과 내 OVR로 정해지고, 주급이 비용의 두 배 이상이어야 해요. 성장했는데 예전 계약이면 재계약이나 이적이 필요해요','🤝 팀 케미가 천천히 쌓여요: 이적 직후엔 손발이 안 맞고, 오래 뛸수록 경기력이 더 올라가요','©️ 주장: 주전에서 쉽게 밀리지 않고 이기면 인지도가 더 올라요. 대신 성적이 나쁘면 책임론이 나와요','🩺 해외 전문의 수술: 10경기 이상 큰 부상에만, 3시즌에 한 번 · 결과는 대성공부터 실패까지 운에 달렸어요','🔓 바이아웃: 지금 팀보다 큰 구단이 오면 발동해 소속팀이 막을 수 없어요','📰 이적 확정 연출이 실제 계약 내용(바이아웃 발동 · 자유 이적 · 계약 조항)과 실패 이유에 맞게 나와요','🃏 커리어 카드 새 디자인: 세로형 · 대표 구단 색 · 랜덤 세레머니 픽셀 선수 · 능력치·통산 기록·커리어·트로피','🎉 우승·해트트릭 세레머니 포즈 17가지 (랜덤)','골키퍼 OVR 비중 재정리: 반응·다이빙·핸들링·위치선정·공중볼 중심, 민첩성 비중은 줄임 (진행 중인 골키퍼는 OVR이 떨어지지 않게 자동 보정)','골키퍼는 피로가 덜 쌓이고, 나이에 따른 피로·하락이 몇 년 늦게 와요 (더 오래 뛸 수 있어요)','🕶️ 몰래 모드 (홈 맨 아래): 흑백·반투명 화면, 움직이는 연출 끄기, 탭 제목 변경 · 왼쪽 작은 탭(PC는 Esc)을 누르면 업무 문서 화면으로 바로 숨겨요 · 흐림 정도 3단계','경기 화면 픽셀 경기장을 세로로 키우고, 팀 이름·경기 수 글자가 선수와 겹치지 않게 옮겼어요','시즌 베팅 한 줄이 픽셀 경기장 바로 아래에 보여요','커리어 점수: 은퇴 화면·내 선수·명예의 전당 랭킹 점수가 서로 다르게 나오던 문제 수정 (모두 같은 기준)']},
   {d:'2026.10.09 13:46',t:'픽셀 경기장 · 홈 정리 · 버그 수정',l:['홈 화면에 픽셀 경기장 · 커리어에서 입었던 유니폼으로 번갈아 갈아입으며 공을 몰아요','경기 화면 맨 위 픽셀 하이라이트: 지난 경기들을 한 장면씩 · 실제 기록대로 골(슈팅·헤딩·무릎 슬라이딩) · 도움 · 드리블 · 태클 · 선방 · 경고·퇴장 · 부상 · 벤치 · 교체 워밍업 · 승리 환호 · 패배','결정적 순간: 고른 선택지 그대로 픽셀 장면 · 슈팅은 고른 방향 구석으로 날아가 골망(실패면 골대 위로·골키퍼 캐치) · 패스는 동료가 받아 골(실패면 끊김) · 골키퍼는 고른 쪽으로 몸을 날려 선방(실패면 반대쪽 실점) · 태클·몸싸움도','골키퍼는 평소에 골문 앞에서 자리를 잡는 동작','최근 소식 글씨 작게 · 베팅 찬스 켜기·끄기 스위치 더 잘 보이게','홈 화면 정리: 선수 카드가 맨 위 · 메뉴는 아이콘 9칸 · 받을 보상은 빨간 점 · 공유·설정은 맨 아래 한 줄','해트트릭 · 우승 때 픽셀 선수가 두 팔 들고 뛰어요','겨울 이적 · 임대 시 이전 팀 기록이 새 팀으로 넘어가던 문제 수정 (경력·최고의 팀에 나눠서 반영)','컵·대륙대회 결승 출전 기록이 시즌 기록에 들어가요','40세 이후 보스만 사전 계약이 무시되던 문제 수정','이벤트 조건 정리: 고참 주급 삭감은 베테랑만 · 페널티킥 이벤트 골이 리그 기록에도 반영','십자인대·아킬레스건 수술 이력으로 병역 면제 판정을 받기도 해요','병역 면제 기회에는 입대 기한 전 대회만 표시','발롱도르에 월드컵 성적 비중 상향']},
@@ -5737,7 +5751,7 @@ function homeView(){
   if(G.auth)h+=otherPsHtml();
   if(G.confirmNew)h+=`<section class="panel"><div class="warn small">진행 중인 <b>${esc(p.name)}</b> 선수의 기록이 지워집니다. 은퇴하지 않은 선수는 명예의 전당에 남지 않아요.</div>
     <div class="grid2"><button class="btn danger" data-act="${G.confirmNew==='ch'?'challenge-force':'new-force'}">지우고 ${G.confirmNew==='ch'?'챌린지 ':''}시작</button><button class="btn alt" data-act="cancel-new">취소</button></div></section>`;
-  if(p)h+=`<section class="panel homecard"><div class="pxhome">${pixScene(careerKits(p))}<div class="pxover"><span class="jersey">${p.num}</span><span class="who"><b>${esc(p.name)}</b><span>${p.year}년 · ${p.age}세 · ${p.fa?'무소속':esc(teamName(p.club,p.u21))}</span></span><span class="ovr"><span class="v">${ovr(p)}</span><span class="k">OVR</span></span></div></div>
+  if(p)h+=`<section class="panel homecard"><div class="pxhome">${p.fa&&p.phase!=='retired'?pixScene([['#9aa3b2','#4b5563']],{mode:'fa',w:96}):pixScene(careerKits(p))}<div class="pxover"><span class="jersey">${p.num}</span><span class="who"><b>${esc(p.name)}</b><span>${p.year}년 · ${p.age}세 · ${p.fa?'무소속':esc(teamName(p.club,p.u21))}</span></span><span class="ovr"><span class="v">${ovr(p)}</span><span class="k">OVR</span></span></div></div>
       <div class="homebtns"><button class="btn${live?'':' alt'}" data-act="continue">${live?'이어하기':'은퇴 기록 보기'} <span class="arr">→</span></button>${live?'<button class="btn alt" data-act="new">새 인생</button>':''}</div></section>`;
   // 아이콘 메뉴: 받을 보상이 있으면 빨간 점
   const it=(act,ic,title,st,dot)=>`<button class="itile" data-act="${act}">${dot?'<i class="idot"></i>':''}<span class="ic">${ic}</span><b>${title}</b><span class="st">${st}</span></button>`;
