@@ -1958,10 +1958,32 @@ function gameBanner(p){
   const keys=N>1?`<style>@keyframes pxshow${N}{0%{opacity:1}${(100/N).toFixed(3)}%,100%{opacity:0}}</style>`:'';
   return `<div class="pxgame reel">${keys}${layers}${head}</div>`;
 }
+/* 엠블럼 겹침 방지: 모든 구단의 (모양 · 무늬 · 상징) 조합이 서로 다르게 정한다
+   실제 엠블럼을 본뜬 구단(CREST_FIX)과 큰 리그·강팀이 원래 모양을 먼저 갖고, 겹치는 구단은 상징 → 모양 → 무늬 순서로 비어 있는 조합으로 옮긴다
+   같은 색 구단끼리는 모양·무늬까지 달라지게 한다 · 유스팀은 모구단을 그대로 따른다 */
+const CREST_SYMN=26,CREST_PATN=14;let CREST_PLAN=null;
+function crestPlan(){if(CREST_PLAN)return CREST_PLAN;
+  const P={},used=new Set(),usedCol=new Set(),S=CREST_SHAPES.length,seen=new Set(),order=[];
+  const colOf=n=>{if(TEAM_COL[n])return TEAM_COL[n];const h=hashStr(n),hue=h%360;return [`hsl(${hue} 52% 34%)`,`hsl(${(hue+50+(h>>9)%120)%360} 62% 56%)`]};
+  CLUB_DEF.map((c,i)=>i).filter(i=>!CLUBS[i].custom&&!(CLUBS[i].parentName&&!CREST_FIX[CLUB_DEF[i].name]))
+    .sort((a,b)=>(CREST_FIX[CLUB_DEF[b].name]?1:0)-(CREST_FIX[CLUB_DEF[a].name]?1:0)||LG[CLUB_DEF[b].lg].lv-LG[CLUB_DEF[a].lg].lv||CLUB_DEF[b].str-CLUB_DEF[a].str||a-b)
+    .forEach(i=>{const n=CLUB_DEF[i].name;if(!seen.has(n)){seen.add(n);order.push(n)}});
+  Object.keys(CREST_FIX).concat(Object.keys(TEAM_COL)).forEach(n=>{if(!seen.has(n)){seen.add(n);order.push(n)}});
+  order.forEach(n=>{const h=hashStr(n),fx=CREST_FIX[n],[c1,c2]=colOf(n);
+    let s=fx?fx[0]:h%S,p=fx?fx[1]:(h>>>4)%CREST_PATN,y=fx?fx[2]:(h>>>12)%CREST_SYMN;
+    const free=(s,p,y)=>!used.has(s+'/'+p+'/'+y)&&!usedCol.has(s+'/'+p+'/'+c1+'/'+c2);
+    const tryS=(s,p)=>{if(free(s,p,y))return y;for(let d=1;d<CREST_SYMN;d++){const y2=(y+d*7)%CREST_SYMN;if(free(s,p,y2))return y2}return null};
+    let r=usedCol.has(s+'/'+p+'/'+c1+'/'+c2)?null:tryS(s,p);
+    if(r==null)for(let d=1;d<S&&r==null;d++){const s2=(s+d)%S;r=tryS(s2,p);if(r!=null)s=s2}
+    if(r==null)for(let d=1;d<=CREST_PATN&&r==null;d++){const p2=((p+1+d)%(CREST_PATN+1))-1;r=tryS(s,p2);if(r!=null)p=p2}
+    if(r==null)r=y;
+    used.add(s+'/'+p+'/'+r);usedCol.add(s+'/'+p+'/'+c1+'/'+c2);P[n]=[s,p,r]});
+  return CREST_PLAN=P}
 function crest(ci,size){
   if(ci==null||ci==='')return `<span class="crest blank" style="width:${size||22}px"></span>`;
   size=size||22;const byName=typeof ci==='string',n=byName?ci:CLUBS[ci].name,h=hashStr(n),ini=crestInitial(n),[c1,c2]=byName?(TEAM_COL[n]||(()=>{const hue=h%360;return [`hsl(${hue} 52% 34%)`,`hsl(${(hue+50+(h>>9)%120)%360} 62% 56%)`]})()):teamCol(ci);
-  const fx=CREST_FIX[n]||(!byName&&CLUBS[ci].parent!=null&&CLUBS[CLUBS[ci].parent]&&CREST_FIX[CLUBS[CLUBS[ci].parent].name])||null;   // 유스팀은 모구단 엠블럼을 따른다
+  const PL=crestPlan(),par=!byName&&CLUBS[ci].parent!=null&&CLUBS[CLUBS[ci].parent]?CLUB_DEF[CLUBS[ci].parent].name:null;
+  const fx=PL[byName?n:CLUB_DEF[ci].name]||(par&&PL[par])||CREST_FIX[n]||null;   // 겹치지 않게 정한 조합 · 유스팀은 모구단 엠블럼을 따른다
   const shape=CREST_SHAPES[fx?fx[0]:h%CREST_SHAPES.length],pat=fx?fx[1]:(h>>>4)%14,star=(h>>>8)%5===0;   // >>> : 부호 없는 이동 (음수가 나와 무늬가 빠지던 문제)
   const deco=[
     `<rect x="0" y="12" width="32" height="8" fill="${c2}"/>`,                                                   // 가로 띠
@@ -5551,6 +5573,7 @@ function resolveMoment(p,i){
 
 /* ---------- 업데이트 노트 (최신이 위, 버전마다 누적) ---------- */
 const UPDATES=[
+  {d:'2026.10.10 00:41',t:'엠블럼 겹침 정리',l:['모든 구단 엠블럼이 서로 다르게: 모양·무늬·가운데 상징 조합이 같은 구단이 없어요','색이 같은 구단끼리는 모양까지 달라요 · 실제 엠블럼을 본뜬 구단과 큰 리그 구단은 원래 모양 그대로 · 유스팀은 모구단 엠블럼을 따라요']},
   {d:'2026.10.10 00:25',t:'무소속 화면',l:['무소속일 때 픽셀 화면이 벤치가 아니라 해 질 녘 집 앞에서 혼자 리프팅하는 개인 훈련 장면으로 나와요 (경기 화면 · 홈 카드)','무소속 이름표에 예전 팀 경기 수·순위 대신 \u0027개인 훈련 중\u0027이 보여요']},
   {d:'2026.10.09 22:49',t:'픽셀 하이라이트 · 효과음 · 주급 상한 · 기록실',l:['🎬 경기 하이라이트가 짧은 장면으로: 골은 드리블 → 수비 제치기 → 슈팅 → 골망 → 세레머니, 도움은 패스 → 동료 슛 → 함께 환호, 골키퍼는 상대 슛 → 다이빙 선방 → 공 들고 일어서기','🌧️ 경기장 분위기: 폭우·폭설·무더위·강풍이 화면에 보이고, 빅매치는 홍염·깃발, 결승은 불꽃놀이, 관중석에 우리 팀 색이 섞여요','🧔 선수 외형: 나이가 들면 머리가 희끗해지고 수염이 나요 · 주장은 완장, 부상 복귀 직후엔 무릎 테이핑','🎽 새 팀 첫 시즌엔 새 유니폼을 들고 인사, 퇴장당하면 두 팔 들고 항의, 은퇴하면 동료들이 헹가래','⚡ 결정적 순간: 장면이 먼저 재생되고 잠깐 뒤 화면이 흔들리며 결과가 떠요','🔊 효과음·진동: 골·선방·우승·강등 때 짧은 소리와 진동 (홈 맨 아래에서 끄기 · 몰래 모드면 자동으로 꺼짐)','💸 주급 상한: 리그 수준과 구단 체급에 따라 최고 주급이 정해져요 (EPL 최상위 주급 7억 안팎). 발롱도르 수상자·월드 스타는 그보다 더 받을 수 있고, 어디서든 주급 10억을 넘지 않아요. 재계약·협상이 매 시즌 겹쳐 주급이 끝없이 오르던 문제를 고쳤어요 (진행 중인 선수도 다음 시즌부터 적용)','최고 주급에 닿으면 주급 협상·인상 요청이 나오지 않아요','📚 명예의 전당 기록실: 최고 몸값 · 최고 이적료 · 한 시즌 최다 골·도움 · 통산 최다 골·도움·출장·무실점 · 최다 트로피 · A매치 최다 출장 (모두 / 내 선수들)','선수 능력치 화면: 지구력에 따른 피로 설명을 아래 안내 줄로 옮겼어요']},
   {d:'2026.10.09 17:19',t:'주전 경쟁 · 계약 조항 · 시즌 리포트',l:['⚔️ 주전 경쟁자: 팀마다 내 자리를 다투는 선수가 생겨요 (이름·나이·OVR). 경쟁자가 다치면 기회, 폼이 좋으면 밀려요. 해가 지나면 나이 들고, 은퇴·이적하고, 구단이 새로 영입하기도 해요','📈 팀 전력 변동: 여름마다 보강·이탈로 팀 전력이 조금씩 달라지고, 시즌 프리뷰 기사에 예상 순위가 나와요','✍️ 계약 조항 요구: 오퍼에서 출전 보장(첫 시즌 주전 출발 · 쉽게 밀리지 않음)이나 바이아웃 조항을 요구할 수 있어요. 무리하면 오퍼가 철회될 수 있어요','🩹 부상 현실화: 다쳤던 부위는 재발하기 쉽고, 같은 부위를 자주 다치면 고질이 돼요. 큰 부상은 해외 전문의(비용)로 복귀를 앞당길 수 있어요. 장기 부상에서 돌아오면 복귀 소식이 떠요','🔗 이벤트 연쇄: 열애설·라이벌 도발·승부 조작 신고·예능 출연 등 선택한 결과가 몇 경기 뒤나 다음 시즌에 후속 이벤트로 돌아와요','📊 시즌 리포트: 시즌 결산에 경기별 평점 그래프 · 전반기/후반기 비교 · 베스트 경기 · 작년 대비 기록','💼 개인 스태프: 시즌 준비 때 개인 트레이너(훈련 효과↑) · 물리치료사(부상↓) · 영양사(피로↓) 중 한 명을 고용해요. 비용은 리그 수준과 내 OVR로 정해지고, 주급이 비용의 두 배 이상이어야 해요. 성장했는데 예전 계약이면 재계약이나 이적이 필요해요','🤝 팀 케미가 천천히 쌓여요: 이적 직후엔 손발이 안 맞고, 오래 뛸수록 경기력이 더 올라가요','©️ 주장: 주전에서 쉽게 밀리지 않고 이기면 인지도가 더 올라요. 대신 성적이 나쁘면 책임론이 나와요','🩺 해외 전문의 수술: 10경기 이상 큰 부상에만, 3시즌에 한 번 · 결과는 대성공부터 실패까지 운에 달렸어요','🔓 바이아웃: 지금 팀보다 큰 구단이 오면 발동해 소속팀이 막을 수 없어요','📰 이적 확정 연출이 실제 계약 내용(바이아웃 발동 · 자유 이적 · 계약 조항)과 실패 이유에 맞게 나와요','🃏 커리어 카드 새 디자인: 세로형 · 대표 구단 색 · 랜덤 세레머니 픽셀 선수 · 능력치·통산 기록·커리어·트로피','🎉 우승·해트트릭 세레머니 포즈 17가지 (랜덤)','골키퍼 OVR 비중 재정리: 반응·다이빙·핸들링·위치선정·공중볼 중심, 민첩성 비중은 줄임 (진행 중인 골키퍼는 OVR이 떨어지지 않게 자동 보정)','골키퍼는 피로가 덜 쌓이고, 나이에 따른 피로·하락이 몇 년 늦게 와요 (더 오래 뛸 수 있어요)','🕶️ 몰래 모드 (홈 맨 아래): 흑백·반투명 화면, 움직이는 연출 끄기, 탭 제목 변경 · 왼쪽 작은 탭(PC는 Esc)을 누르면 업무 문서 화면으로 바로 숨겨요 · 흐림 정도 3단계','경기 화면 픽셀 경기장을 세로로 키우고, 팀 이름·경기 수 글자가 선수와 겹치지 않게 옮겼어요','시즌 베팅 한 줄이 픽셀 경기장 바로 아래에 보여요','커리어 점수: 은퇴 화면·내 선수·명예의 전당 랭킹 점수가 서로 다르게 나오던 문제 수정 (모두 같은 기준)']},
