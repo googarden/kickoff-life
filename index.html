@@ -580,6 +580,7 @@ details.panel summary .res{margin-left:0}
 .newsp .nw{font-size:12px;line-height:1.38;padding:6px 9px;gap:6px;margin-top:4px}.newsp .nw .ntag{font-size:10px;padding:0 5px}.newsp .nw .crest{width:14px}
 .pxgame.reel{height:96px}.pxlayer{position:absolute;inset:0}.pxlayer:first-of-type{position:relative}.pxcap{position:absolute;left:6px;top:28px;padding:2px 8px;border-radius:999px;background:rgba(10,16,32,.66);color:#fff;font-size:11px;font-weight:700;max-width:calc(100% - 12px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rchart{display:block;width:100%;height:46px;margin:4px 0 2px}
+.buyg{display:flex;flex-direction:column;gap:4px;flex:none}.buyg .sbtn{white-space:nowrap}
 /* 결정적 순간 긴장 연출: 장면이 먼저 재생되고(살짝 확대) 1.2초 뒤 화면이 흔들리며 결과가 뜬다 */
 .suspov .achbox{animation:suspShake .35s 1.15s both}.suspov .achbox>*:not(.pxcel){animation:suspIn .35s 1.25s both}.suspov .pxcel{animation:suspZoom 1.25s ease-out both}
 .suspov .fxlayer,.suspov .cerp,.suspov .flashfx{animation:suspVis 0s 1.25s both}
@@ -4945,7 +4946,7 @@ const potFloor=x=>POT_G(x.pot-(x.scoutOff||6));
 function shopView(){
   const bal=lpBal(),eq=G.lp.eq;
   const buyBtn=(k,c,dis,label)=>`<button class="sbtn" data-act="lp-buy" data-v="${k}" ${dis||bal<c?'disabled':''}>${label||`${c} LP`}</button>`;
-  const item=x=>`<div class="shop-i"><span class="shop-ic">${x.i}</span><span class="shop-t"><b>${x.n}</b><span class="small muted">${x.d}</span><span class="small">보유 <b>${lpItem(x.k)}</b></span></span>${buyBtn(x.k,x.c)}</div>`;
+  const item=x=>`<div class="shop-i"><span class="shop-ic">${x.i}</span><span class="shop-t"><b>${x.n}</b><span class="small muted">${x.d}</span><span class="small">보유 <b>${lpItem(x.k)}</b></span></span><span class="buyg">${buyBtn(x.k,x.c)}<button class="sbtn alt" data-act="lp-buy10" data-v="${x.k}" ${bal<x.c*10?'disabled':''}>×10 · ${x.c*10} LP</button></span></div>`;
   const skin=(grp,x)=>{const key=`skin:${grp}:${x.k}`,own=lpOwns(key),on=eq[grp]===x.k,lock=x.req&&!x.req();
     return `<div class="shop-i"><span class="shop-ic">${grp==='frame'?`<span class="fprev frame-${x.k}"></span>`:{petals:'🌸',clap:'👏',fireworks:'🎆',jersey:'🎽',stars:'✨',scarf:'🧣',trophyrain:'🏆'}[x.k]}</span><span class="shop-t"><b>${x.n}</b><span class="small muted">${x.d}</span></span>
       ${own?`<button class="sbtn${on?'':' alt'}" data-act="lp-eq" data-v="${grp}:${on?'':x.k}">${on?'장착 중':'장착'}</button>`:buyBtn(key,x.c,lock,lock?'잠김':`${x.c} LP`)}</div>`};
@@ -4957,6 +4958,9 @@ function shopView(){
     <section class="panel"><span class="eyebrow">은퇴식 연출</span>${SKINS.cer.map(x=>skin('cer',x)).join('')}</section>
     <button class="btn alt" data-act="home">홈으로 <span class="arr">←</span></button>`;
 }
+// 소모품 10개 묶음 구매: LP가 10개 값만큼 있어야 한다
+function lpBuy10(k){const it=SHOP_ITEMS.find(x=>x.k===k);if(!it||lpBal()<it.c*10)return;
+  for(let i=0;i<10;i++)G.lp.buy.push({id:newPid(),k,c:it.c});lpSave();toast(`${it.n} 10개 구매 ✓ (-${it.c*10} LP)`)}
 function lpBuy(k){
   const it=SHOP_ITEMS.find(x=>x.k===k);let cost=it?it.c:0;
   if(k.startsWith('skin:')){const [,grp,id]=k.split(':'),s=(SKINS[grp]||[]).find(x=>x.k===id);if(!s||lpOwns(k)||(s.req&&!s.req()))return;cost=s.c}
@@ -5122,6 +5126,12 @@ function xferSteps(p,o,ok){const dest=esc(teamName(o.club,o.u21)),nm=esc(p.name)
 // 이적 확정 한 줄: 이적료 · 주급 · 기간 · 계약 조항
 const xferTerms=o=>`${o.fee?`${o.buyout?'바이아웃 ':'이적료 '}${money(o.fee)}원 · `:''}${wageTxt(o.salary)} · ${o.years}년 계약${o.promise?' · 주전 보장':''}${o.clause?` · 바이아웃 ${money(o.clause)}원`:''}`;
 function achOverlay(){
+  // 선수 고르기 확인 팝업
+  if(G.screen==='create'&&G.pickAsk!=null){const c=G.create,x=c.cands&&c.cands[G.pickAsk];
+    if(x)return `<div class="achov"><div class="achbox"><span class="eyebrow" style="display:block">선수 확정</span><b class="celebt" style="display:block;margin:4px 0 6px">정말 이 선수로 시작할까요?</b>
+      <p class="small">${c.name?esc(c.name)+' · ':''}후보 ${G.pickAsk+1} · ${DPOS[x.dpos].n} · OVR ${x.ovr}${c.scout&&c.scout[G.pickAsk]!=null?` · 잠재력 최소 ${c.scout[G.pickAsk]}`:''}</p>
+      <p class="hint">시작하면 다시 고를 수 없어요.</p>
+      <div class="grid2"><button class="btn" data-act="pick" data-v="${G.pickAsk}">시작하기</button><button class="btn alt" data-act="pick-cancel">다시 볼래요</button></div></div></div>`;G.pickAsk=null}
   // 마감일 깜짝 오퍼 팝업
   if(G.dlPop&&G.p){const p=G.p,o=G.dlPop==='winter'?p.dlWinter:p.dlOffer;if(o){const L=LG[CLUBS[o.club].lg];
     return `<div class="achov dlov"><div class="achbox dlbox"><span class="eyebrow" style="color:var(--red)">⏰ 이적시장 마감 직전!</span>
@@ -5573,6 +5583,7 @@ function resolveMoment(p,i){
 
 /* ---------- 업데이트 노트 (최신이 위, 버전마다 누적) ---------- */
 const UPDATES=[
+  {d:'2026.10.19 19:26',t:'스카우트 한 번에 · 상점 10개 구매 · 시작 확인',l:['🔍 후보 선수를 한 번에 스카우트: 아직 확인 안 한 후보 모두 (가진 스카우트권만큼)','🛒 LP 상점 소모품을 10개씩 살 수 있어요','✅ 이 선수로 시작을 누르면 정말 시작할지 한 번 더 물어봐요']},
   {d:'2026.10.10 00:41',t:'엠블럼 겹침 정리',l:['모든 구단 엠블럼이 서로 다르게: 모양·무늬·가운데 상징 조합이 같은 구단이 없어요','색이 같은 구단끼리는 모양까지 달라요 · 실제 엠블럼을 본뜬 구단과 큰 리그 구단은 원래 모양 그대로 · 유스팀은 모구단 엠블럼을 따라요']},
   {d:'2026.10.10 00:25',t:'무소속 화면',l:['무소속일 때 픽셀 화면이 벤치가 아니라 해 질 녘 집 앞에서 혼자 리프팅하는 개인 훈련 장면으로 나와요 (경기 화면 · 홈 카드)','무소속 이름표에 예전 팀 경기 수·순위 대신 \u0027개인 훈련 중\u0027이 보여요']},
   {d:'2026.10.09 22:49',t:'픽셀 하이라이트 · 효과음 · 주급 상한 · 기록실',l:['🎬 경기 하이라이트가 짧은 장면으로: 골은 드리블 → 수비 제치기 → 슈팅 → 골망 → 세레머니, 도움은 패스 → 동료 슛 → 함께 환호, 골키퍼는 상대 슛 → 다이빙 선방 → 공 들고 일어서기','🌧️ 경기장 분위기: 폭우·폭설·무더위·강풍이 화면에 보이고, 빅매치는 홍염·깃발, 결승은 불꽃놀이, 관중석에 우리 팀 색이 섞여요','🧔 선수 외형: 나이가 들면 머리가 희끗해지고 수염이 나요 · 주장은 완장, 부상 복귀 직후엔 무릎 테이핑','🎽 새 팀 첫 시즌엔 새 유니폼을 들고 인사, 퇴장당하면 두 팔 들고 항의, 은퇴하면 동료들이 헹가래','⚡ 결정적 순간: 장면이 먼저 재생되고 잠깐 뒤 화면이 흔들리며 결과가 떠요','🔊 효과음·진동: 골·선방·우승·강등 때 짧은 소리와 진동 (홈 맨 아래에서 끄기 · 몰래 모드면 자동으로 꺼짐)','💸 주급 상한: 리그 수준과 구단 체급에 따라 최고 주급이 정해져요 (EPL 최상위 주급 7억 안팎). 발롱도르 수상자·월드 스타는 그보다 더 받을 수 있고, 어디서든 주급 10억을 넘지 않아요. 재계약·협상이 매 시즌 겹쳐 주급이 끝없이 오르던 문제를 고쳤어요 (진행 중인 선수도 다음 시즌부터 적용)','최고 주급에 닿으면 주급 협상·인상 요청이 나오지 않아요','📚 명예의 전당 기록실: 최고 몸값 · 최고 이적료 · 한 시즌 최다 골·도움 · 통산 최다 골·도움·출장·무실점 · 최다 트로피 · A매치 최다 출장 (모두 / 내 선수들)','선수 능력치 화면: 지구력에 따른 피로 설명을 아래 안내 줄로 옮겼어요']},
@@ -5818,7 +5829,7 @@ function homeView(){
       ${c.challenge?'':(()=>{const R=lpItem('reroll'),S=lpItem('scout'),T=lpItem('trait');
         // 상점 아이템: 리롤권 · 스카우트권 · 특성 선택권
         const D=lpItem('dual'),E=lpItem('euy');
-        return `<div class="useb">${R?`<button class="sbtn alt" data-act="use-reroll">🎲 리롤권 쓰기 · ${R}</button>`:''}${D?`<button class="sbtn${c.useDual?'':' alt'}" data-act="use-dual">🛂 이중국적 ${c.useDual?'적용 ✓':'쓰기 · '+D}</button>`:''}${E?`<button class="sbtn${c.useEuY?'':' alt'}" data-act="use-euy">🇪🇺 유럽 유스 ${c.useEuY?'시작 ✓':'시작권 쓰기 · '+E}</button>`:''}<span class="scoutchip${S?'':' none'}">🔍 스카우트권 <b>${S}장</b>${S?'':' · 상점 3 LP'}</span>
+        return `<div class="useb">${R?`<button class="sbtn alt" data-act="use-reroll">🎲 리롤권 쓰기 · ${R}</button>`:''}${D?`<button class="sbtn${c.useDual?'':' alt'}" data-act="use-dual">🛂 이중국적 ${c.useDual?'적용 ✓':'쓰기 · '+D}</button>`:''}${E?`<button class="sbtn${c.useEuY?'':' alt'}" data-act="use-euy">🇪🇺 유럽 유스 ${c.useEuY?'시작 ✓':'시작권 쓰기 · '+E}</button>`:''}<span class="scoutchip${S?'':' none'}">🔍 스카우트권 <b>${S}장</b>${S?'':' · 상점 3 LP'}</span>${(()=>{const left=(c.cands||[]).filter((x,i)=>!(c.scout&&c.scout[i]!=null)).length,use=Math.min(S,left);return S&&left>=2?`<button class="sbtn alt" data-act="scout-all">🔍 ${use===left?`${left}명 모두`:`${use}명`} 스카우트 · ${use}장</button>`:''})()}
           ${c.traitPaid||T?`<button class="sbtn alt" data-act="trait-open">🎭 ${c.forceTrait?`특성: ${TRAITS[c.forceTrait].n} (바꾸기)`:`특성 선택권 쓰기 · ${T}`}</button>`:''}${!R&&!T&&!D&&!E?'<span class="small muted">🛒 LP 상점 · 리롤권·특성 선택권·이중국적·유럽 유스 시작권</span>':''}</div>
           ${c.traitOpen?`<div class="traitpick">${TRAIT_KEYS.map(k=>`<button class="dbtn${c.forceTrait===k?' pri':''}" data-act="trait-pick" data-v="${k}"><b>${TRAITS[k].i} ${TRAITS[k].n}</b><span>${TRAITS[k].s}</span></button>`).join('')}<p class="small muted">${c.traitPaid?'이미 선택권을 썼어요. 선수를 고르기 전까지 자유롭게 바꿀 수 있어요.':'고르면 선택권 1장을 써요.'}</p></div>`:''}`})()}
       ${c.cands.map((x,i)=>`<div class="cand"><div class="row" style="justify-content:space-between;align-items:center">
@@ -5826,7 +5837,7 @@ function homeView(){
         <span class="row" style="gap:6px"><span class="chip">총합 ${STATS.reduce((a,k)=>a+x.stats[k],0)}</span><span class="chip good">OVR ${x.ovr}</span></span></div>
         <div class="mini">${STATS.map(k=>`<span>${lb[k]}<b>${x.stats[k]}</b></span>`).join('')}</div>
         ${c.challenge?'':c.scout&&c.scout[i]!=null?`<div class="potg"><span class="pg pg-${c.scout[i]}">${c.scout[i]}</span><span class="small">🔍 잠재력 <b>최소 ${c.scout[i]}</b> <span class="muted">· 실제로는 이보다 높을 수 있어요</span></span></div>`:lpItem('scout')>0?`<button class="sbtn alt" data-act="scout" data-v="${i}" style="align-self:flex-start">🔍 이 후보 스카우트하기 <span class="muted">· ${lpItem('scout')}장</span></button>`:''}
-        <button class="btn" data-act="pick" data-v="${i}">이 선수로 시작 <span class="arr">→</span></button></div>`).join('')}</section>`;
+        <button class="btn" data-act="pick-ask" data-v="${i}">이 선수로 시작 <span class="arr">→</span></button></div>`).join('')}</section>`;
   }
   return h;
 }
@@ -6636,7 +6647,7 @@ const detOpen=(k,def)=>G.det&&k in G.det?G.det[k]:def;function act(a,v){
     case 'foot':if(c.challenge)break;c.foot=v;if(c.cands)makeCands(c);break;
     case 'gen':makeCands(c);c.scout={};break;
     case 'reroll':if(c.rerolls>0&&!c.challenge){c.rerolls--;c.seed=newSeed();makeCands(c);c.scout={}}break;
-    case 'pick':{c.num=clamp(parseInt(c.num)||10,1,99);c.used=true;G.p=newPlayer(c,c.forceTrait&&!c.challenge?{...c.cands[+v],trait:c.forceTrait}:c.cands[+v]);c.forceTrait=null;c.traitPaid=false;c.traitOpen=false;c.scout={};if(!c.challenge){if(c.useDual&&lpUse('dual'))G.p.dual=true;if(c.useEuY&&lpUse('euy'))euYouthStart(G.p)}c.useDual=c.useEuY=false;if(c.challenge){G.p.challenge=c.challenge;c.challenge=null}else if(Math.random()<CBET_P)G.p.cbet={offer:true};G.train=[];G.screen='game';G.tab='season';G.toTop=true;break}
+    case 'pick':{G.pickAsk=null;c.num=clamp(parseInt(c.num)||10,1,99);c.used=true;G.p=newPlayer(c,c.forceTrait&&!c.challenge?{...c.cands[+v],trait:c.forceTrait}:c.cands[+v]);c.forceTrait=null;c.traitPaid=false;c.traitOpen=false;c.scout={};if(!c.challenge){if(c.useDual&&lpUse('dual'))G.p.dual=true;if(c.useEuY&&lpUse('euy'))euYouthStart(G.p)}c.useDual=c.useEuY=false;if(c.challenge){G.p.challenge=c.challenge;c.challenge=null}else if(Math.random()<CBET_P)G.p.cbet={offer:true};G.train=[];G.screen='game';G.tab='season';G.toTop=true;break}
     case 'tab':G.tab=v;break;
     case 'nat-play':natPlay(p);G.toTop=true;break;
     case 'nat-mo':natMoment(p,v);G.toTop=true;break;
@@ -6678,9 +6689,14 @@ const detOpen=(k,def)=>G.det&&k in G.det?G.det[k]:def;function act(a,v){
     case 'card-close':G.cardImg=null;break;
     case 'dex-eq':G.dex.eq=v||null;dexSave();break;
     case 'lp-buy':lpBuy(v);break;
+    case 'lp-buy10':lpBuy10(v);break;
     case 'lp-eq':{const [g,k]=v.split(':');G.lp.eq[g]=k||null;lpSave();break}
     case 'use-reroll':if(!c.challenge&&lpUse('reroll')){c.rerolls++;toast('리롤권을 썼어요 (+1회)')}break;
     case 'scout':if(!c.challenge&&c.cands&&!(c.scout&&c.scout[v]!=null)&&lpUse('scout')){c.scout=c.scout||{};c.scout[v]=potFloor(c.cands[+v])}break;
+    // 아직 안 본 후보를 한 번에 스카우트 (가진 장 수만큼, 앞 후보부터)
+    case 'scout-all':if(!c.challenge&&c.cands){c.scout=c.scout||{};let n=0;c.cands.forEach((x,i)=>{if(c.scout[i]==null&&lpUse('scout')){c.scout[i]=potFloor(x);n++}});if(n)toast(`스카우트권 ${n}장 사용`)}break;
+    case 'pick-ask':G.pickAsk=+v;break;
+    case 'pick-cancel':G.pickAsk=null;break;
     case 'use-dual':if(!c.challenge&&lpItem('dual')>0)c.useDual=!c.useDual;break;
     case 'use-euy':if(!c.challenge&&lpItem('euy')>0)c.useEuY=!c.useEuY;break;
     case 'trait-open':if(!c.challenge&&(c.traitPaid||lpItem('trait')>0))c.traitOpen=!c.traitOpen;break;
