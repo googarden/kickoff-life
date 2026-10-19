@@ -2134,7 +2134,7 @@ function tryMove(p,of){
     return fail('구단 간 이적료 협상이 결렬됐습니다.',`이적료 합의 실패 · ${iga(dest)} 영입을 포기했습니다.`);
   // 메디컬 테스트: 부상 중이거나 최근 큰 부상이 있으면 떨어질 수 있다
   const bigInj=p.injuries.some(x=>x.year>=p.year-1&&x.g>=8);
-  if(of.club!==p.club&&!of.binding&&(p.injury>0||bigInj)&&Math.random()<(p.injury>0?.45:.2))
+  if(of.club!==p.club&&!of.binding&&(p.injury>0||bigInj)&&Math.random()<(p.injury>0?.25:.08))
     return fail('메디컬 테스트에서 탈락했습니다.',`메디컬 탈락 · ${iga(dest)} 몸 상태를 이유로 계약을 취소했습니다.`);
   if(of.label==='1군 승격')p.promotedFromU21=p.year+1;
   const moved=of.club!==p.club||of.u21!==p.u21||p.fa;
@@ -5317,8 +5317,11 @@ function ccPlay(p,ap,o,label,ko){
   m.ccRound=`${COMP[cc.cp].s} ${label}`;m.oci=o.ci;m.ko=!!ko;return m;
 }
 // 결과가 정해진 단계를 정리한다: 조별리그 순위 확정·추첨, 토너먼트 승자·다음 추첨, 결승
+// 시즌 중 이적·임대로 팀이 바뀌면 이전 소속팀의 대륙대회는 더 뛰지 않는다 (유럽 팀으로 가서 AFC 대회를 우승하는 일이 없게)
+function ccGone(p){const s=p.season,cc=s&&s.cc;if(!cc||(cc.ci===p.club&&!p.u21))return false;
+  addNews(p,`[대륙대회] 이적으로 ${COMP[cc.cp]?COMP[cc.cp].n:'대륙대회'} 출전이 끝났다 (이전 소속팀의 대회)`,'');s.cc=null;return true}
 function ccSettle(p){
-  const s=p.season,cc=s&&s.cc;if(!cc)return;const tag=ccTag(cc),mine=ccMine(p,cc);
+  const s=p.season,cc=s&&s.cc;if(!cc||ccGone(p))return;const tag=ccTag(cc),mine=ccMine(p,cc);
   if(cc.stage==='group'&&cc.md>=6){
     cc.stage='ko';const sorted=cc.groups.map(g=>g.slice().sort(tabCmp));cc.sorted=sorted.map(g=>g.map(t=>t.n));
     const pos=sorted[cc.mg].findIndex(t=>t.ci===cc.ci)+1;cc.alive=pos<=2;
@@ -5347,7 +5350,7 @@ function ccSettle(p){
 }
 // 리그 경기 뒤 그 시점까지 잡혀 있던 대륙대회 경기를 치른다 (내 경기는 결과 목록에 더해 돌려준다)
 function ccStep(p,ap,max){
-  const s=p.season,cc=s&&s.cc;if(!cc)return [];const out=[];max=max||9;
+  const s=p.season,cc=s&&s.cc;if(!cc||ccGone(p))return [];const out=[];max=max||9;
   ccSettle(p);
   while(cc.q<cc.sched.length&&cc.sched[cc.q].at<=s.mi&&out.length<max){
     const ev=cc.sched[cc.q],mine=ccMine(p,cc);
@@ -5583,6 +5586,7 @@ function resolveMoment(p,i){
 
 /* ---------- 업데이트 노트 (최신이 위, 버전마다 누적) ---------- */
 const UPDATES=[
+  {d:'2026.10.19 22:13',t:'메디컬 테스트 완화 · 대륙대회 이적 버그',l:['🩺 이적 메디컬 테스트에서 떨어지는 일이 줄었어요 (부상 중이거나 최근 큰 부상이 있을 때)','🐞 시즌 중 이적하면 이전 소속팀의 대륙대회는 더 뛰지 않아요 (유럽 팀으로 이적했는데 AFC 대회를 이어서 뛰고 우승하던 문제 수정)']},
   {d:'2026.10.19 19:26',t:'스카우트 한 번에 · 상점 10개 구매 · 시작 확인',l:['🔍 후보 선수를 한 번에 스카우트: 아직 확인 안 한 후보 모두 (가진 스카우트권만큼)','🛒 LP 상점 소모품을 10개씩 살 수 있어요','✅ 이 선수로 시작을 누르면 정말 시작할지 한 번 더 물어봐요']},
   {d:'2026.10.10 00:41',t:'엠블럼 겹침 정리',l:['모든 구단 엠블럼이 서로 다르게: 모양·무늬·가운데 상징 조합이 같은 구단이 없어요','색이 같은 구단끼리는 모양까지 달라요 · 실제 엠블럼을 본뜬 구단과 큰 리그 구단은 원래 모양 그대로 · 유스팀은 모구단 엠블럼을 따라요']},
   {d:'2026.10.10 00:25',t:'무소속 화면',l:['무소속일 때 픽셀 화면이 벤치가 아니라 해 질 녘 집 앞에서 혼자 리프팅하는 개인 훈련 장면으로 나와요 (경기 화면 · 홈 카드)','무소속 이름표에 예전 팀 경기 수·순위 대신 \u0027개인 훈련 중\u0027이 보여요']},
