@@ -580,18 +580,30 @@ details.panel summary .res{margin-left:0}
 .newsp .nw{font-size:12px;line-height:1.38;padding:6px 9px;gap:6px;margin-top:4px}.newsp .nw .ntag{font-size:10px;padding:0 5px}.newsp .nw .crest{width:14px}
 .pxgame.reel{height:96px}.pxlayer{position:absolute;inset:0}.pxlayer:first-of-type{position:relative}.pxcap{position:absolute;left:6px;top:28px;padding:2px 8px;border-radius:999px;background:rgba(10,16,32,.66);color:#fff;font-size:11px;font-weight:700;max-width:calc(100% - 12px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rchart{display:block;width:100%;height:46px;margin:4px 0 2px}
+.rolex{display:flex;gap:8px;align-items:flex-start;margin-top:4px}.rmini{flex:none;width:30px;height:44px;border-radius:3px}
 /* 꾸미기 */
 .avsvg{display:block;width:100%;height:100%}
 .pxhome{position:relative}.homeav{position:absolute;left:50%;top:2px;width:132px;height:126px;transform:translateX(-50%);pointer-events:none}
-.cosstage{position:relative;border-radius:16px;overflow:hidden;background:radial-gradient(ellipse at 50% 30%,#2a3f7a,#0d1530 70%);height:260px;margin:6px 0 8px;box-shadow:inset 0 -40px 60px rgba(0,0,0,.35)}
+.cosstage{position:relative;border-radius:16px;overflow:hidden;background:radial-gradient(ellipse at 50% 30%,#2a3f7a,#0d1530 70%);height:210px;margin:6px 0 8px;box-shadow:inset 0 -40px 60px rgba(0,0,0,.35)}
 .cosstage::after{content:'';position:absolute;left:0;right:0;bottom:0;height:46px;background:linear-gradient(180deg,#2f8f4e,#226b3a)}
-.cosstage .avsvg{position:absolute;left:50%;top:6px;width:250px;height:250px;transform:translateX(-50%);z-index:1}
+.cosstage .avsvg{position:absolute;left:50%;top:4px;width:200px;height:200px;transform:translateX(-50%);z-index:1}
 .cospose{position:absolute;right:8px;top:8px;z-index:2;display:flex;flex-direction:column;gap:4px}.cospose button{border:0;border-radius:999px;padding:3px 9px;font-size:11px;background:rgba(255,255,255,.14);color:#fff}.cospose button[aria-pressed="true"]{background:#f2c14e;color:#3a2a00;font-weight:800}
-.cosbar{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:44px;margin-bottom:8px}.cosbar .btn{width:auto;padding:9px 14px;font-size:14px}.cosst{font-weight:800;color:var(--pitch);font-size:13px}.cosst.lock{color:var(--red)}.rar{font-size:11px;font-weight:800}
-.coscats{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:6px;scrollbar-width:none}.coscats button{flex:none;border:1px solid var(--line);background:var(--surface-2);border-radius:999px;padding:5px 10px;font-size:12px;white-space:nowrap}.coscats button[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
-.cosgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.cositem{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:9px 8px 8px;border-radius:12px;border:1px solid var(--line);background:var(--surface);text-align:left;overflow:hidden;min-height:58px}
-.cositem .rbar{position:absolute;left:0;top:0;right:0;height:3px;background:var(--rc)}.cositem b{font-size:12px;line-height:1.25}.cositem .cs{font-size:11px;color:var(--muted)}
-.cositem.eq{border-color:var(--pitch);box-shadow:0 0 0 2px rgba(47,143,78,.25)}.cositem.eq .cs{color:var(--pitch);font-weight:800}.cositem.try{border-color:var(--rc);box-shadow:0 0 0 2px var(--rc)}
+.cosbar{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:48px;margin-bottom:10px;padding:8px 10px;border-radius:12px;background:var(--surface-2)}.cosbar .btn{width:auto;padding:9px 14px;font-size:14px;flex:none}
+.cosnm{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;min-width:0}.cosnm b{font-size:15px}.cosst{font-weight:800;color:var(--pitch);font-size:14px;flex:none}.cosst.lock{color:var(--red);font-size:12px;text-align:right}
+.rar{display:inline-block;font-size:10px;font-weight:800;color:#fff;padding:1px 6px;border-radius:999px;line-height:1.5}
+.coscats{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:10px}.coscats button{display:flex;flex-direction:column;align-items:center;gap:1px;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:6px 2px;font-size:11.5px;font-weight:700;line-height:1.2;word-break:keep-all}.coscats button span{font-size:17px}
+.coscats button[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.cosgrps{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:6px}
+.cosgrps button{display:flex;align-items:center;justify-content:center;gap:4px;border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:9px 2px;font-size:13px;font-weight:800;word-break:keep-all}
+.cosgrps button span{font-size:16px}
+.cosgrps button[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.coscats.sub{padding:6px;border-radius:12px;background:var(--surface-2,rgba(127,127,127,.08))}
+.coscats.sub button{padding:5px 2px}
+.coscats.sub button[aria-pressed="true"]{background:var(--surface);color:var(--ink);border:2px solid var(--ink)}
+.cosgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}.cositem{display:flex;flex-direction:column;align-items:stretch;gap:6px;padding:10px;border-radius:12px;border:1px solid var(--line);border-left:4px solid var(--rc);background:var(--surface);text-align:left}
+.cositem .cin{display:flex;align-items:flex-start;justify-content:space-between;gap:6px}.cositem b{font-size:14px;line-height:1.3;word-break:keep-all}
+.cositem .cs{align-self:flex-start;font-size:12px;font-weight:800;padding:3px 9px;border-radius:999px;background:var(--surface-2);color:var(--ink)}.cositem .cs.on{background:var(--pitch);color:#fff}.cositem .cs.own{background:rgba(47,143,78,.14);color:var(--pitch)}.cositem .cs.lock{background:rgba(239,68,68,.12);color:var(--red)}
+.cositem.eq{border-color:var(--pitch);border-left-color:var(--rc);box-shadow:0 0 0 2px rgba(47,143,78,.25)}.cositem.try{box-shadow:0 0 0 2px var(--rc)}
 .avTw{animation:avTw 1.6s ease-in-out infinite}@keyframes avTw{0%,100%{opacity:.15}50%{opacity:1}}
 .avUp{animation:avUp 1.4s linear infinite}@keyframes avUp{0%{transform:translateY(0);opacity:0}20%{opacity:1}100%{transform:translateY(-34px);opacity:0}}
 .avFlash{animation:avFlash 1.2s steps(1,end) infinite}@keyframes avFlash{0%,60%,100%{opacity:0}62%,80%{opacity:1}}
@@ -1196,6 +1208,8 @@ function fatigueAfter(f,ap,streak,p){
 }
 /* ---------- team & player math ---------- */
 const isEuro=ci=>!!LG[CLUBS[ci].lg].euro;
+// 지금 유럽에 있거나(임대 포함) 유럽 팀과 이미 계약했거나, 유럽에서 뛰어 본 선수 → '유럽의 꿈' 이야기는 나오지 않는다
+const inEurope=p=>isEuro(p.club)||!!(p.loan&&p.loan.club!=null&&isEuro(p.loan.club))||!!(p.precontract&&isEuro(p.precontract.club))||p.history.some(h=>h.pro&&h.ci!=null&&CLUBS[h.ci]&&isEuro(h.ci));
 /* 사기: 평점에 직접 반영되고(±0.8), 훈련 효율과 이적 의지에도 영향 */
 const moraleBonus=m=>(m-55)/125;   // 사기는 평점에 ±0.35 정도 (경기 감각이 따로 있으니 조금 줄임)
 /* 경기력(경기 감각): 화면에 숫자로 보이지 않는다. 뛴 시간만큼 오르고, 벤치·부상·휴식이면 식는다.
@@ -1231,6 +1245,16 @@ function leagueOf(ci,u21){const l=LG[CLUBS[ci].lg];if(!u21)return l;
 const curLg=p=>leagueOf(p.club,p.u21);
 const lab=(p,k)=>LABELS[p.pos==='GK'?'gk':'field'][k];
 /* 세부 포지션: 능력치 가중치(w)가 그 역할의 OVR, goal/ast는 팀 득점 중 관여 비율 */
+// 역할 설명 보강: 경기장 위치(작은 그림) · 비슷한 역할과의 차이
+const ROLE_ZONE={ST:[15,7],TM:[15,9],WG:[4,11],IF:[25,12],SS:[15,15],CAM:[15,18],CM:[15,24],DLP:[15,30],DM:[15,32],WM:[4,23],CB:[15,38],BPD:[10,37],FB:[4,35],WB:[4,27],GK:[15,42],SK:[15,39]};
+const ROLE_TIP={ST:'골문 앞 마무리 전담 · 수비 가담은 거의 없음',TM:'등지고 공을 지켜 동료에게 연결 · 속도보다 몸싸움·공중볼',WG:'터치라인 쪽을 속도로 돌파해 크로스 · 인사이드 포워드보다 도움이 많음',
+  IF:'측면에서 안쪽으로 파고들어 직접 슈팅 · 윙어보다 골이 많음',SS:'최전방과 미드필드 사이에서 연계 · 골과 도움을 반반',CAM:'상대 수비 바로 앞에서 마지막 패스 · 도움 1순위, 수비 부담 적음',
+  CM:'공격과 수비를 모두 오가는 엔진 · 지구력과 패스가 고르게 필요',DLP:'수비 라인 바로 앞에서 공을 받아 앞으로 뿌리는 지휘자 · 수비형 미드필더가 공을 끊는다면, 레지스타는 공을 배급',
+  DM:'포백 앞에서 공을 끊고 막는 방패 · 레지스타보다 수비가 우선, 공격 포인트는 적음',WM:'측면 전체를 오가며 크로스 · 측면 공격수보다 수비 가담이 많음',CB:'골문 앞 최후의 벽 · 대인 방어·공중볼, 무실점이 평가 기준',
+  BPD:'센터백이지만 후방에서 전진 패스로 공격 시작 · 패스가 좋은 수비수',FB:'측면 수비가 먼저 · 기회가 날 때만 오버래핑',WB:'측면 공격수처럼 오르내리는 수비수 · 도움이 많지만 지구력이 필요',
+  GK:'골문을 지키는 정통파 · 반응·다이빙·위치선정',SK:'수비 뒷공간까지 나와 커버하고 발로 빌드업 · 킥이 중요'};
+function roleMini(d){const z=ROLE_ZONE[d]||[15,22];return `<svg class="rmini" viewBox="0 0 30 44" aria-hidden="true"><rect width="30" height="44" rx="2" fill="#2f8f4e"/><g fill="none" stroke="#e8f5e9" stroke-width=".6" opacity=".8"><rect x="1" y="1" width="28" height="42"/><line x1="1" y1="22" x2="29" y2="22"/><circle cx="15" cy="22" r="4"/><rect x="8" y="1" width="14" height="6"/><rect x="8" y="37" width="14" height="6"/></g><circle cx="${z[0]}" cy="${z[1]}" r="3.2" fill="#f2c14e" stroke="#3a2a00" stroke-width=".6"/></svg>`}
+const roleKeys3=(p,d)=>Object.entries(DPOS[d].w).filter(([k,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k,v])=>`${lab(p,k)} ${Math.round(v*100)}%`).join(' · ');
 const DPOS={
   // 8개 능력치 비중 (합 100%, 한 능력치 최대 30%): 실제 역할에서 무엇이 경기력을 가르는지 기준
   ST:{g:'FW',n:'스트라이커',w:{pac:.15,sho:.3,pas:.05,dri:.1,def:0,agi:.1,sta:.1,psn:.2},goal:.34,ast:.1,d:'박스 안에서 마무리하는 골잡이'},
@@ -1764,18 +1788,15 @@ const PX_POSES=[PX_UP,
 // 포즈마다 폭·높이가 달라도 발끝이 같은 자리에 오도록 맞춰 그린다 (기준: 12×16)
 const pxPose=(i,c1,c2,x,y,lk)=>{const m=PX_POSES[((i%PX_POSES.length)+PX_POSES.length)%PX_POSES.length];return pxSprite(m,c1,c2,x-Math.floor((m[0].length-12)/2),y+16-m.length,lk)};
 /* 내 선수 외형: 나이가 들면 머리가 희끗해지고 수염이 나고, 주장은 완장(노란 팔), 부상 복귀 직후는 무릎 테이핑 */
-function pxLookOf(p){if(!p||p.age==null)return null;const L={};
+function pxAge(p){const L={};if(!p||p.age==null)return L;
   if(p.age>=37)L.h='#9ca3af';else if(p.age>=33)L.h='#5b4a3c';
-  // 꾸미기 아이템 (계정 공통): 피부·머리·축구화·장갑·양말·머리 장식·오라·마스코트·공
-  if(typeof cosLook==='function'){const C=cosLook();if(C.skin!=='fair')L.s=COS_SKIN[C.skin];if(C.hcol!=='black')L.h=COS_HCOL[C.hcol];if(C.hair!=='short')L.hs=C.hair;
-    if(C.boots!=='black')L.boot=COS_BOOT[C.boots][0];if(C.gloves!=='none')L.glove=COS_GLOVE[C.gloves];if(C.socks==='neon')L.sock='#c6ff1a';
-    if(C.head!=='none'){L.hk=C.head;L.hat={band:'#ef4444',sport:'#f8fafc',beanie:'#2d3e8f',cap:'#1f2937',goggles:'#38bdf8',phones:'#ef4444',horns:'#b91c1c',crown:'#f2c230',halo:'#facc15',taeguk:'#f8fafc'}[C.head]}
-    if(C.aura!=='none')L.aura=C.aura;if(C.pet!=='none')L.pet=C.pet;if(C.ball!=='classic')L.ball=C.ball}
   if(p.age>=34||(p.age>=27&&hashStr(p.name||'')%3===0)){L.b=1;L.bc=p.age>=37?'#9ca3af':'#3b2a1e'}
   if(p.captain)L.band=1;if(p.fragile>0||p.injBack)L.tape=1;
-  return Object.keys(L).length?L:null}
+  return L}
+// 내 선수 그리기 옵션 = 나이에 따른 모습 + 꾸미기 아이템 (계정 공통)
+function pxLookOf(p){if(!p||p.age==null)return null;const L=Object.assign(pxAge(p),typeof cosLook==='function'?lkFromLook(cosLook()):{});return Object.keys(L).length?L:null}
 function lookMap(m,lk){const r=m.slice();
-  if(lk.b){const e=r.findIndex(s=>s.includes('E'));if(e>=0&&r[e+1]){const s=r[e+1],i=s.indexOf('SSSS');if(i>=0)r[e+1]=s.slice(0,i)+'SDDS'+s.slice(i+4)}}
+  if(lk.b){const e=r.findIndex(s=>s.includes('E')),t=r[e+2]&&!/J/.test(r[e+2])&&/SSSS/.test(r[e+2])?e+2:e+1;if(e>=0&&r[t]){const s=r[t],a=s.indexOf('S'),b=s.lastIndexOf('S'),c=(a+b+1)>>1;if(b-a>=3)r[t]=s.slice(0,c-2)+'SDDS'+s.slice(c+2)}}
   if(lk.band){const j=r.findIndex(s=>s.includes('AJ'));if(j>=0)r[j]=r[j].replace('AJ','YJ')}
   if(lk.tape){const k=r.findIndex((s,i)=>i>9&&s.includes('SS')&&!s.includes('J'));if(k>=0)r[k]=r[k].replace('SS','TT')}
   // 헤어스타일 · 머리 장식 · 장갑 (작은 선수에도 보이게)
@@ -1790,10 +1811,89 @@ function lookMap(m,lk){const r=m.slice();
     if(hs==='spiky'){const s=r[hr].split('');for(let i=0;i<s.length;i++)if(s[i]==='H'&&i%2)s[i]='.';r[hr]=s.join('')}}
   if(hr>=0&&lk.hk){const k=lk.hk;if(['crown','beanie','cap','horns','halo'].includes(k))r[hr]=r[hr].replace(/[HZ]/g,'C');if(k==='beanie'||k==='cap')r[hr+1]=r[hr+1].replace(/[HZ]/g,'C');
     if(['band','sport','taguk','taeguk','goggles'].includes(k))r[hr+1]=r[hr+1].replace(/[HZ]/g,'C');if(k==='phones')edge(hr+2,'C')}
-  if(lk.glove){const sr=r.findIndex(s=>/AAAA/.test(s)),lim=sr<0?r.length:sr;for(let i=0;i<lim;i++){const s=r[i].split('');let ch=false;s.forEach((c,j)=>{if(c==='S'&&(j<=2||j>=s.length-3)){s[j]='G';ch=true}});if(ch)r[i]=s.join('')}}
+  if(lk.glove){const sr=r.findIndex(s=>/AAAA/.test(s)),lim=sr<0?r.length:sr;for(let i=0;i<lim;i++){const s=r[i].split(''),fq=/J/.test(r[i])?null:cRun(r[i]);let ch=false;s.forEach((c,j)=>{if(c==='S'&&(j<=2||j>=s.length-3)&&!(fq&&j>=fq[0]&&j<=fq[1])){s[j]='G';ch=true}});if(ch)r[i]=s.join('')}}
   return r}
-function pxSprite(map,c1,c2,x,y,lk){const sk=(lk&&lk.s)||'#f1c29b',hh=(lk&&lk.h)||'#2b1d14',col={H:hh,S:sk,E:'#1b1b1b',B:(lk&&lk.boot)||'#111',J:c1,K:(lk&&lk.sock)||c1,A:c2,D:(lk&&lk.bc)||'#3b2a1e',Y:'#facc15',T:'#f8fafc',Z:typeof cmix==='function'?cmix(hh,sk,.5):hh,G:(lk&&lk.glove)||sk,C:(lk&&lk.hat)||hh};let r='';if(lk)map=lookMap(map,lk);
-  map.forEach((row,j)=>{for(let i=0;i<row.length;i++){const ch=row[i];if(ch!=='.')r+=`<rect x="${x+i}" y="${y+j}" width="1.02" height="1.02" fill="${col[ch]}"/>`}});return r}
+/* ---------- 고화질 도트: 기존 12×16 캐릭터를 그대로 두고 2배 해상도로 다시 칠한다 ----------
+   같은 색 덩어리마다 왼쪽·위는 밝게, 오른쪽·아래는 어둡게(도트 게임식 입체감) + 바깥 윤곽선 + 눈 하이라이트 · 얼굴·장비 디테일
+   만든 그림은 PNG 한 장으로 구워 두고(4배 크기) 장면에 이미지로 붙인다: 사각형 수백 개보다 가볍다 */
+const PX_STAND=['....HHHH....','...HHHHHH...','...SSSSSS...','...SESSES...','....SSSS....','..AJJJJJJA..','..AJJJJJJA..','..SJJJJJJS..','..SJJJJJJS..','...JJJJJJ...','...AAAAAA...','...AA..AA...','...SS..SS...','...KK..KK...','...KK..KK...','..BBB..BBB..'];
+const HQ_CACHE={};
+function hqGrid(map,col,lk){lk=lk||{};
+  const w=Math.max(...map.map(r=>r.length)),h=map.length,W=w*2+2,H=h*2+2,N=W*H,ch=new Array(N).fill('.'),px=new Array(N).fill(null),mid=W/2;
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const c=map[y][x]||'.';if(c==='.')continue;for(let a=0;a<2;a++)for(let b=0;b<2;b++)ch[(y*2+1+a)*W+(x*2+1+b)]=c}
+  const at=(x,y)=>x<0||y<0||x>=W||y>=H?'.':ch[y*W+x],put=(x,y,c)=>{if(x>=0&&y>=0&&x<W&&y<H&&ch[y*W+x]!=='.')px[y*W+x]=c};
+  // 덩어리 음영 (가로로 이어진 같은 색: 왼쪽 밝게 → 오른쪽 어둡게 · 윗면 하이라이트 · 아랫면 그림자)
+  for(let y=0;y<H;y++){let x=0;while(x<W){const c=ch[y*W+x];if(c==='.'){x++;continue}let e=x;while(e+1<W&&ch[y*W+e+1]===c)e++;const len=e-x+1;
+    for(let i=x;i<=e;i++){let t=.56+(len>2?(.5-(i-x)/(len-1))*.36:0);if(at(i,y-1)!==c)t+=.17;if(at(i,y+1)!==c)t-=.15;px[y*W+i]=c==='E'?'#17141c':tone(ramp(col[c]||'#888888'),t)}x=e+1}}
+  const sk=col.S,skS=cmix(sk,'#5a2a1a',.3),ink='#17141c',dk='#5a2626';
+  // 얼굴: 눈 줄과 그 아래 턱 줄
+  const ey=map.findIndex(r=>r.includes('E'));
+  if(ey>=0){const y0=ey*2+1,y2=y0+2,y3=y0+3,eyes=[];for(let x=0;x<w;x++)if(map[ey][x]==='E')eyes.push(x*2+1);
+    eyes.forEach((bx,i)=>{const L=i===0,st=lk.eyes||'basic',W2='#ffffff',bl='#2f6fe0';
+      const pat={basic:[W2,ink,ink,ink],big:[W2,ink,ink,ink],sharp:L?[ink,ink,sk,ink]:[ink,ink,ink,sk],sleepy:[sk,sk,ink,ink],smile:[ink,ink,sk,sk],fierce:[W2,ink,ink,ink],sparkle:[W2,bl,bl,'#1e3a8a']}[st]||[W2,ink,ink,ink];
+      put(bx,y0,pat[0]);put(bx+1,y0,pat[1]);put(bx,y0+1,pat[2]);put(bx+1,y0+1,pat[3]);
+      if(st==='big'){put(bx,y0-1,ink);put(bx+1,y0-1,ink)}if(st==='fierce')put(L?bx+1:bx,y0-1,ink)});
+    const nose={basic:[[-1,y2,skS]],dot:[[-1,y2,cmix(sk,'#5a2a1a',.18)]],wide:[[-2,y2,skS],[0,y2,skS]],tall:[[-1,y0+1,cmix(sk,'#fff4e0',.35)],[-1,y2,skS]],button:[[-1,y2,cmix(sk,'#fff4e0',.35)],[-2,y2,skS],[0,y2,skS]],hook:[[0,y0+1,skS],[-1,y2,skS]]}[lk.nose||'basic']||[];
+    nose.forEach(([dx,y,c])=>put(mid+dx,y,c));
+    const m=lk.mouth||'line',M={line:[[-1,y3,dk],[0,y3,dk]],smile:[[-2,y2,dk],[-1,y3,dk],[0,y3,dk],[1,y2,dk]],neutral:[[-1,y3,dk]],grin:[[-2,y3,dk],[-1,y3,'#ffffff'],[0,y3,'#ffffff'],[1,y3,dk]],
+      grit:[[-2,y3,'#ffffff'],[-1,y3,'#ffffff'],[0,y3,'#ffffff'],[1,y3,'#ffffff']],o:[[-1,y3,dk]],smirk:[[-1,y3,dk],[0,y3,dk],[1,y2,dk]],tongue:[[-1,y3,dk],[0,y3,'#e0566c']]}[m]||[];
+    M.forEach(([dx,y,c])=>put(mid+dx,y,c));
+    const bd=cmix(col.H||'#2b231e','#000',.12),cb=lk.cb;
+    if(cb==='stubble')for(const y of [y2,y3])for(let x=0;x<W;x++)if(at(x,y)==='S'&&(x+y)%2&&Math.abs(x+.5-mid)<4.5)put(x,y,cmix(sk,bd,.45));
+    if(cb==='full')for(const y of [y2,y3])for(let x=0;x<W;x++)if(at(x,y)==='S'&&!(y===y3&&Math.abs(x+.5-mid)<1.6))put(x,y,tone(ramp(bd),.5));
+    if(cb==='mus')[-2,-1,0,1].forEach(dx=>put(mid+dx,y2,bd));
+    if(cb==='goatee'){put(mid-2,y3,bd);put(mid+1,y3,bd)}
+    if(cb==='side'){for(const y of [y0,y0+1]){const r=[];for(let x=0;x<W;x++)if(at(x,y)==='S'&&Math.abs(x+.5-mid)<7)r.push(x);if(r.length){put(r[0],y,bd);put(r[r.length-1],y,bd)}}}
+    const pt=lk.paint;if(pt&&pt!=='none'&&eyes.length===2){const [a,b]=eyes;
+      if(pt==='eyeblack'){[a,a+1,b,b+1].forEach(x=>put(x,y2,'#15151a'))}
+      if(pt==='warrior'){put(a-1,y0+1,'#15151a');put(a,y2,'#15151a');put(b+2,y0+1,'#15151a');put(b+1,y2,'#15151a')}
+      if(pt==='kr'){put(a-1,y2,'#d6203a');put(a,y2,'#1b4fb3');put(b+1,y2,'#d6203a');put(b+2,y2,'#1b4fb3')}
+      if(pt==='heart'){put(a-1,y2,'#f0547a');put(b+2,y2,'#f0547a')}
+      if(pt==='star'){put(b+2,y2,'#f5c518');put(b+1,y2,'#f5c518')}}}
+  // 팔(얼굴 밖의 피부): 이너웨어 · 타투 · 손목밴드
+  const sr=map.findIndex(r=>/AAAA/.test(r)),lim=sr<0?h:sr;
+  const face=(r,c)=>{if(ey<0||r<ey-1||r>ey+2)return false;const row=map[r],cm=Math.floor(w/2);let a=cm,b=cm;while(a>0&&row[a-1]!=='.'&&row[a-1]!=='A'&&row[a-1]!=='H'&&a>cm-4)a--;while(b<w-1&&row[b+1]!=='.'&&row[b+1]!=='A'&&row[b+1]!=='H'&&b<cm+3)b++;return c>=a&&c<=b};
+  for(let r=0;r<lim;r++)for(let c=0;c<w;c++){if(map[r][c]!=='S'||face(r,c))continue;const x0=c*2+1,y0=r*2+1;
+    if(lk.under==='lsblack'||lk.under==='lswhite'){const uc=lk.under==='lsblack'?'#1f2430':'#eef1f6';for(let a=0;a<2;a++)for(let b=0;b<2;b++)put(x0+b,y0+a,tone(ramp(uc),.62-b*.2))}
+    else if(lk.tattoo&&lk.tattoo!=='none'&&lk.tattoo!=='neck'){const tc=lk.tattoo==='rose'?'#b91c3c':'#24324f';put(x0+((r+c)%2),y0+1,cmix(px[(y0+1)*W+x0]||sk,tc,.6))}
+    if(lk.wrist&&lk.wrist!=='none'){const wc={white:'#f8fafc',red:'#dc2626',black:'#111827',guard:'#f8fafc',gold:'#e7b52f'}[lk.wrist];put(x0,y0+(map[r+1]&&map[r+1][c]==='S'?1:0),wc);put(x0+1,y0+(map[r+1]&&map[r+1][c]==='S'?1:0),cmix(wc,'#000',.2))}}
+  if(lk.tattoo==='neck'&&ey>=0){const y=(ey+2)*2+1;put(mid-1,y,'#24324f')}
+  if(lk.under==='neck'&&ey>=0){const y=(ey+2)*2+1;for(let x=0;x<W;x++)if(Math.abs(x+.5-mid)<3)put(x,y-1,tone(ramp('#334155'),.6))}
+  // 유니폼 브이넥 · 양말 띠 · 축구화 광택
+  const jr=map.findIndex(r=>/JJJJ/.test(r));if(jr>=0){const y=jr*2+1;put(mid-1,y,col.A);put(mid,y,col.A);put(mid-1,y+1,cmix(col.J,col.A,.5))}
+  const kr=map.findIndex(r=>r.includes('K'));if(kr>=0&&lk.sockStyle!=='low'){const y=kr*2+1;for(let x=0;x<W;x++)if(at(x,y)==='K')put(x,y,lk.sockStyle==='stripe'?tone(ramp(col.A),.6):lk.sockStyle==='tape'?'#f4f6fa':tone(ramp(col.A),.6))}
+  for(let i=0;i<N;i++)if(ch[i]==='B'&&ch[i-W]!=='B'&&(i%W)%3===0)px[i]=cmix(px[i],'#ffffff',.5);
+  // 바깥 윤곽선
+  const out=px.slice();for(let i=0;i<N;i++){if(px[i])continue;const x=i%W,y=(i/W)|0;const nb=(x>0&&px[i-1])||(x<W-1&&px[i+1])||(y>0&&px[i-W])||(y<H-1&&px[i+W]);if(nb)out[i]=cmix(nb,'#0a0e1c',.74)}
+  return {W,H,px:out}}
+function gridURL(g,s){try{const cv=document.createElement('canvas');cv.width=g.W*s;cv.height=g.H*s;const x=cv.getContext('2d');g.px.forEach((c,i)=>{if(c){x.fillStyle=c;x.fillRect((i%g.W)*s,((i/g.W)|0)*s,s,s)}});return cv.toDataURL('image/png')}catch(e){return null}}
+// 꾸미기 아이템 → 그리기 옵션
+function lkFromLook(C){const L={};if(!C)return L;
+  if(C.skin!=='fair')L.s=COS_SKIN[C.skin];if(C.hcol!=='black')L.h=COS_HCOL[C.hcol];if(C.hair!=='short')L.hs=C.hair;
+  if(C.boots!=='black')L.boot=COS_BOOT[C.boots][0];if(C.gloves!=='none')L.glove=COS_GLOVE[C.gloves];if(C.socks==='neon')L.sock='#c6ff1a';if(C.socks!=='kit'&&C.socks!=='neon')L.sockStyle=C.socks;
+  if(C.head!=='none'){L.hk=C.head;L.hat={band:'#ef4444',sport:'#f8fafc',beanie:'#2d3e8f',cap:'#1f2937',goggles:'#38bdf8',phones:'#ef4444',horns:'#b91c1c',crown:'#f2c230',halo:'#facc15',taeguk:'#f8fafc'}[C.head]}
+  ['eyes','mouth','paint','tattoo','under','wrist'].forEach(k=>{const d=COS_BY[k].items[0].k;if(C[k]&&C[k]!==d)L[k]=C[k]});if(C.beard!=='none')L.cb=C.beard;
+  if(C.aura!=='none')L.aura=C.aura;if(C.pet!=='none')L.pet=C.pet;if(C.ball!=='classic')L.ball=C.ball;return L}
+const spriteCol=(c1,c2,lk)=>{const sk=(lk&&lk.s)||'#f1c29b',hh=(lk&&lk.h)||'#2b1d14';return {H:hh,S:sk,E:'#1b1b1b',B:(lk&&lk.boot)||'#22242c',J:c1,K:(lk&&lk.sock)||c1,A:c2,D:(lk&&lk.bc)||'#3b2a1e',Y:'#facc15',T:'#f8fafc',Z:cmix(hh,sk,.5),G:(lk&&lk.glove)||sk,C:(lk&&lk.hat)||hh}};
+// 경기 장면 선수도 큰 캐릭터와 같은 비율로: 머리 · 얼굴은 넓고 길게, 몸통 · 다리는 짧게 (발끝 위치는 그대로)
+const CHB_CACHE=new Map();
+const cRun=s=>{const ok=c=>/[HSEDZCT]/.test(c);let c0=s.length>>1;if(!ok(s[c0]))c0--;if(!ok(s[c0]))return null;let a=c0,b=c0;while(a>0&&ok(s[a-1]))a--;while(b<s.length-1&&ok(s[b+1]))b++;return [a,b]};
+function chibify(m){let r=CHB_CACHE.get(m);if(r)return r;if(CHB_CACHE.size>400)CHB_CACHE.clear();r=m;
+  const ey=m.findIndex(s=>s.includes('E')),j0=m.findIndex(s=>/JJJJ/.test(s));
+  if(ey>=0&&j0>ey){let j1=j0;while(j1+1<m.length&&/JJJJ/.test(m[j1+1]))j1++;
+    const wide=s=>{if(/J/.test(s))return s;const q=cRun(s);if(!q)return s;const a=s.split(''),[x0,x1]=q,fill=x0<=x1?(s[x0]==='E'?'S':s[x0]):'S';
+      const can=i=>i>=0&&i<a.length&&a[i]==='.'&&(i-1<0||i+1>=a.length||(i<x0?a[i-1]==='.':a[i+1]==='.'));
+      if(can(x0-1))a[x0-1]=/[EDT]/.test(s[x0])?'S':s[x0];if(can(x1+1))a[x1+1]=/[EDT]/.test(s[x1])?'S':s[x1];return a.join('')};
+    const out=[];for(let i=0;i<j0;i++){out.push(wide(m[i]));if(i===ey)out.push(wide(m[i].replace(/E/g,'S')))}
+    const n=j1-j0+1;for(let k=0;k<n;k++)if(k===0||k===n-1||k%2===0)out.push(m[j0+k]);
+    for(let i=j1+1;i<m.length;i++){if(/^[.K]+$/.test(m[i])&&m[i+1]&&/^[.K]+$/.test(m[i+1]))continue;out.push(m[i])}
+    const w=m[0].length;while(out.length<m.length)out.unshift('.'.repeat(w));r=out.length===m.length?out:m}
+  CHB_CACHE.set(m,r);return r}
+function pxSprite(map,c1,c2,x,y,lk){const col=spriteCol(c1,c2,lk);map=chibify(map);if(lk)map=lookMap(map,lk);
+  const key=map.join('/')+'|'+c1+'|'+c2+'|'+(lk?JSON.stringify(lk):'');let u=HQ_CACHE[key];
+  if(!u){if(Object.keys(HQ_CACHE).length>500)for(const k in HQ_CACHE)delete HQ_CACHE[k];const g=hqGrid(map,col,lk);u=HQ_CACHE[key]={url:gridURL(g,4),W:g.W,H:g.H,g}}
+  if(!u.url)return `<g transform="translate(${x-.5} ${y-.5}) scale(.5)">${avRects(u.g,0,0)}</g>`;
+  return `<image href="${u.url}" x="${x-.5}" y="${y-.5}" width="${u.W/2}" height="${u.H/2}" preserveAspectRatio="none" style="image-rendering:pixelated"/>`}
 const PX_CACHE={};   // 같은 유니폼·모드 장면은 한 번만 만든다 (화면을 다시 그릴 때마다 수백 개 사각형을 새로 만들지 않게)
 function pixScene(kits,opt){
   // 내 선수 장면이면 지금 내 선수의 외형(머리색·수염·완장·테이핑)을 입힌다
@@ -2656,7 +2756,8 @@ function startSeason(p,picks){
   const ch=updateRole(p);if(ch)lines.push(`역할 변경: ${ch}`);
   if(p.chem==null)p.chem=40;mgrFor(p);ensureRival(p);
   const cmpN=ensureComp(p);
-  p.role=nextRole(p,true);if(promAct(p))p.role='주전';p.standing=ROLE_BASE[p.role];p.standingRole=p.role;
+  p.role=nextRole(p,true);if(promAct(p))p.role='주전';
+  p.standing=ROLE_BASE[p.role];p.standingRole=p.role;
   const l=curLg(p);
   p.season={games:l.games,round:0,done:false,apps:0,goals:0,assists:0,cs:0,ratingSum:0,w:0,d:0,l:0,gf:0,ga:0,last:[],boost:0,
     trainNote:lines.join(' · '),ovrStart:o,motm:0,from:null};
@@ -3172,7 +3273,7 @@ const EVENTS=[
   {t:'라커룸 불화',d:'출전 시간을 두고 동료와 언성이 높아졌다.',c:p=>p.morale<50,o:[
     ['먼저 손을 내민다',p=>{if(Math.random()<.75){mor(p,7);chem(p,5);return '사기 +7, 팀 케미 +5'}mor(p,-2);return '상대가 손을 뿌리쳤다. 사기 -2'}],
     ['내 방식대로 간다',p=>{if(Math.random()<.5){mor(p,-4);p.season.boost=.15;return '사기 -4 · 독기를 품었다(다음 라운드 집중력 상승)'}chem(p,-8);mor(p,-4);return '라커룸 분위기가 싸늘해졌다. 팀 케미 -8, 사기 -4'}]]},
-  {t:'해외 이적설',d:'해외 언론이 당신에 대한 유럽 구단의 관심을 보도했다.',c:p=>p.stage==='pro'&&!isEuro(p.club)&&ovr(p)>=60,o:[
+  {t:'해외 이적설',d:'해외 언론이 당신에 대한 유럽 구단의 관심을 보도했다.',c:p=>p.stage==='pro'&&!inEurope(p)&&ovr(p)>=60,o:[
     ['유럽 무대에 대한 꿈을 말한다',p=>{p.wantsOut=true;addEuroWatch(p,1,'해외 언론 보도');if(Math.random()<.7){mor(p,4);return '사기 +4 · 이적 의사를 밝혀 구단이 오퍼를 덜 막습니다'}chem(p,-6);return '팬들이 배신감을 드러냈다. 팀 케미 -6 · 구단이 오퍼를 덜 막습니다'}],
     ['지금 팀에 집중하겠다고 한다',p=>{mor(p,2);p.wantsOut=false;if(Math.random()<.5){repA(p,1);return '팬들의 지지를 얻었다. 사기 +2, 인지도 +1'}return '사기 +2'}]]},
   {t:'장거리 원정',w:.3,d:'원정 이동이 길어 선수단 전체가 지쳐 있다.',o:[
@@ -3328,7 +3429,7 @@ const EVENTS=[
   {t:'고정 출연 제안',chain:1,d:'예능 반응이 좋아 고정 출연 제안이 왔다. 출연료가 꽤 된다.',c:p=>p.stage==='pro',o:[
     ['고정 출연한다',p=>{const m=Math.round(curLg(p).base*.1/100)*100+800;p.money+=m;repA(p,4);p.fatigue+=8;stand(p,-6);return `수입 +${money(m)}원, 인지도 +4, 피로 +8 · 감독이 축구에 집중하라고 경고했다`}],
     ['정중히 거절한다',p=>{stand(p,2);return '프로다운 선택이라는 평가를 받았다'}]]},
-  {t:'유럽 스카우트 재방문',chain:1,d:'꿈을 밝힌 인터뷰 이후 유럽 구단 스카우트가 직접 경기장을 찾았다.',c:p=>p.stage==='pro'&&!isEuro(p.club),o:[
+  {t:'유럽 스카우트 재방문',chain:1,d:'꿈을 밝힌 인터뷰 이후 유럽 구단 스카우트가 직접 경기장을 찾았다.',c:p=>p.stage==='pro'&&!inEurope(p),o:[
     ['보여줄 때다',p=>{p.season.boost=.25;p.fatigue+=5;addEuroWatch(p,1,'스카우트 재방문');return '다음 라운드 집중력 상승 · 유럽 관심 증가, 피로 +5'}],
     ['평소처럼 뛴다',p=>{mor(p,1);return '사기 +1'}]]},
   {t:'트레이너 재계약',chain:1,d:'지난 시즌 함께한 개인 트레이너가 한 시즌 더 하자고 한다.',c:p=>p.stage==='pro'&&p.money>1000,o:[
@@ -3661,7 +3762,10 @@ function genOffers(p){
   if(p.precontract&&p.stage==='pro'&&p.contract.years<=0){const pc=p.precontract,to=teamName(pc.club,pc.u21);p.offers=[{...pc,label:'보스만 사전 계약 이행 (확정)',block:0,binding:true}];p.forcedWhy=null;takeOffer(p,0);
     if(p.phase==='prep')p.note=`보스만 사전 계약대로 ${to}에 자유 이적으로 합류했습니다 (${wageTxt(pc.salary)}, ${pc.years}년).`+(p.note&&p.note.includes('부상')?' · 비시즌 동안 부상에서 완전히 회복했어요.':'');return}
   // 40세 이후 오퍼 확인은 보스만 사전 계약(이미 확정된 이적) 다음에
-  if(p.age>=40){const v=vetOffers(p,o);p.offers=v||[{kind:'retire',forced:true}];
+  if(p.age>=40){const v=vetOffers(p,o);
+    // 다른 팀 제안이 없어도 계약이 남아 있으면 남아서 뛸 수 있다
+    if(!v&&p.stage==='pro'&&!p.fa&&!p.u21&&p.contract.years>0){p.offers=[{kind:'stay',label:`${teamName(p.club,false)} 잔류 (계약 ${p.contract.years}년 남음)`},{kind:'retire'}];p.note=`${p.age}세 · 다른 팀 제안은 없지만 계약이 남아 있어요`;return}
+    p.offers=v||[{kind:'retire',forced:true}];
     if(!v)p.note=`${p.age}세 · 더 이상 오퍼가 없어요`;return}
   if(p.mil.st==='none'&&p.stage==='pro'){
     const next=p.age+1;
@@ -3863,7 +3967,13 @@ function scoreCore(C){
   // 상한에 딱 걸리지 않고 많이 받을수록 완만하게 오른다 (팀 최대 22 · 개인 최대 18에 가까워질 뿐 닿지 않음)
   const tr=C.trophies,tp=22*(1-Math.exp(-stackPts(tr.filter(t=>t.k!=='indiv'),trophyPts)/22))+18*(1-Math.exp(-stackPts(tr.filter(t=>t.k==='indiv'),indivPts)/16));
   // 엄격한 평가: 전성기 OVR 55 아래는 0점부터 · 클럽 위상: 빅클럽(·5대 리그 중상위)에서 주전급으로 뛴 시즌만큼 가산 (최대 +6)
-  let s=Math.max(0,C.peak-55)*1.1+Math.min(C.apps/600,1)*10+prod*.9+tp+Math.min(C.caps/100,1)*8+(C.pos==='FW'||C.pos==='MF'?Math.min(C.intlGoals/40,1)*4:Math.min(C.euroS/10,1)*4)+Math.min(C.bigS*1.2+C.upS*.4,6);
+  // 10.23 조정: 전성기 OVR 80 위는 덜 쳐서(성과 없는 고OVR 커리어 ↓), 발롱도르·야신상(세계 최고의 상)은 개인상 상한과 별도로 보너스
+  // (발롱도르 1회 +3.5 · 반복할수록 덜 · 최대 +9 / 야신상 1회 +2 · 최대 +5)
+  // 새 기준(v2)은 이번 업데이트 뒤에 은퇴한 커리어에만 (예전 기록은 원래 점수 그대로) · 발롱도르 1회 +1.5 (최대 +4) · 야신상 1회 +1 (최대 +2.5)
+  const old=!C.v2||G.__scoreOld,nB=tr.filter(t=>t.n==='발롱도르').length,nY=tr.filter(t=>t.n==='야신상').length;
+  const wb=old?0:Math.min(4,1.5*(1-Math.pow(.8,nB))/.2)+Math.min(2.5,1*(1-Math.pow(.8,nY))/.2);
+  const pk=old?Math.max(0,C.peak-55)*1.1:Math.max(0,Math.min(C.peak,80)-55)*1.1+Math.max(0,C.peak-80)*.75;   // OVR 80까지는 그대로, 그 위는 조금 덜
+  let s=pk+wb+Math.min(C.apps/600,1)*10+prod*.9+tp+Math.min(C.caps/100,1)*8+(C.pos==='FW'||C.pos==='MF'?Math.min(C.intlGoals/40,1)*4:Math.min(C.euroS/10,1)*4)+Math.min(C.bigS*1.2+C.upS*.4,6);
   // S+(월드 레전드): 빅클럽 주전 5시즌 이상 · 발롱도르·야신상 · 빅클럽에서 챔스 우승 · 5대 리그 주요 개인상(MVP·득점왕·도움왕·올해의 공격수·미드필더·수비수·골키퍼·최소실점 골키퍼) 합계 3회 이상 중 하나
   const big5Ind=tr.filter(t=>/((득점왕|도움왕|MVP|최소실점 골키퍼)$|올해의 )/.test(t.n)&&EURO_LG.some(l=>t.n.startsWith(l+' '))).length,world=tr.some(t=>/^(발롱도르|야신상)$/.test(t.n))||(C.bigS>=1&&tr.some(t=>t.n==='UEFA 챔피언스리그 우승'))||big5Ind>=3;
   // 최상위는 곡선으로 압축한다: 85점 위로는 100점에 가까워질 뿐 닿지 않는다 (엄청난 커리어만 99점대)
@@ -3875,7 +3985,7 @@ function scoreCore(C){
 function careerScore(p){
   const T=totals(p);
   return rescoreRec({pos:p.pos,peak:p.peak,apps:T.apps,goals:T.goals,assists:T.assists,cs:T.cs,caps:p.caps,intlGoals:p.intlGoals||0,
-    tl:p.trophies.slice(0,120).map(t=>({n:t.n,i:t.k==='indiv'?1:0})),detail:{dk:T.dk||0,stints:careerStints(p).map(r=>({ci:r.ci,y1:r.y1,y2:r.y2,a:r.apps})).slice(-30)}},null,true);
+    tl:p.trophies.slice(0,120).map(t=>({n:t.n,i:t.k==='indiv'?1:0})),detail:{sv:2,dk:T.dk||0,stints:careerStints(p).map(r=>({ci:r.ci,y1:r.y1,y2:r.y2,a:r.apps})).slice(-30)}},null,true);
 }
 // 저장된 기록(명예의 전당·랭킹·친구)을 새 기준으로 다시 계산한다. 트로피 목록·경력이 없는 아주 예전 기록은 저장된 점수 그대로
 function rescoreRec(x,j,force){
@@ -3884,7 +3994,7 @@ function rescoreRec(x,j,force){
   let bigS=0,upS=0,euroS=0;
   sts.forEach(s=>{if(s.ci==null||!CLUB_DEF[s.ci])return;const yrs=s.y2-s.y1+1,good=Math.min(yrs,Math.floor((s.a||0)/15)),pr=prestigeDef(s.ci),L=LG[CLUB_DEF[s.ci].lg];
     if(EURO_LG.includes(L.name))euroS+=yrs;if(pr==='빅클럽')bigS+=good;else if(pr==='중상위'&&!L.mid)upS+=good});
-  return scoreCore({pos:x.pos,peak:x.peak||0,apps:x.apps||0,goals:x.goals||0,assists:x.assists||0,cs:(j?j.cs:x.cs)||0,dk:(d&&d.dk)||0,caps:x.caps||0,intlGoals:(j?j.intlGoals:x.intlGoals)||0,
+  return scoreCore({v2:!!(d&&d.sv===2),pos:x.pos,peak:x.peak||0,apps:x.apps||0,goals:x.goals||0,assists:x.assists||0,cs:(j?j.cs:x.cs)||0,dk:(d&&d.dk)||0,caps:x.caps||0,intlGoals:(j?j.intlGoals:x.intlGoals)||0,
     trophies:(tl||[]).map(t=>({n:t.n,k:t.i?'indiv':'team'})),euroS,bigS,upS});
 }
 // 서버에서 받은 기록(랭킹·친구): 트로피 목록이 없는 예전 기록도 최상위 곡선 압축만은 똑같이 적용한다
@@ -3960,7 +4070,7 @@ function retire(p){
   // 기록실용: 최고 몸값 · 최고 이적료 · 한 시즌 최다 골/도움 (프로 1군 시즌)
   {const ps=p.history.filter(h=>h.pro&&!h.u21),bg=ps.reduce((a,h)=>h.goals>(a?a.goals:-1)?h:a,null),ba=ps.reduce((a,h)=>h.assists>(a?a.assists:-1)?h:a,null);
    rec.rk={mv:p.mvPeak?p.mvPeak.v:0,fee:p.maxFee?p.maxFee.v:0,bg:bg?bg.goals:0,bgy:bg?bg.year:null,ba:ba?ba.assists:0,bay:ba?ba.year:null}}
-  rec.detail={dk:t.dk||0,avg:t.avg?Math.round(t.avg*100)/100:0,conc:t.conc||0,
+  rec.detail={sv:2,dk:t.dk||0,avg:t.avg?Math.round(t.avg*100)/100:0,conc:t.conc||0,
     stints:careerStints(p).map(r=>({n:r.mil?'현역 복무':r.fa?'무소속':r.name,ci:r.ci,y1:r.y1,y2:r.y2,a:r.apps,g:r.goals,as:r.assists,cs:r.cs,rt:r.apps?Math.round(r.rs/r.apps*100)/100:0,l:r.loan?1:0})).slice(-30),
     hl:careerHighlights(p).map(x=>({i:x.i,k:x.k,v:x.v,d:x.d})),story:(p.final.story&&p.final.story.lines||[]).map(x=>({i:x.i,t:x.t}))};
   rec.detail.rk=rec.rk;   // 랭킹 서버에도 같이 올라가 모두의 기록실에 쓰인다
@@ -4714,7 +4824,7 @@ G.lp=load(LPKEY,null)||{earn:{},buy:[],use:[],eq:{}};
 G.lp.earn=G.lp.earn||{};G.lp.buy=G.lp.buy||[];G.lp.use=G.lp.use||[];G.lp.eq=G.lp.eq||{};G.lp.cr=G.lp.cr||{};
 G.hof.forEach(h=>{if(h&&h.id&&G.lp.cr[h.id]==null)G.lp.cr[h.id]=(h.grade||gradeOf(h.score))+'|'+(h.tl||[]).filter(t=>/FIFA 월드컵 우승/.test(t.n)).length});
 const lpSave=()=>{try{localStorage.setItem(LPKEY,JSON.stringify(G.lp))}catch(e){}};
-const lpBal=()=>Object.values(G.lp.earn).reduce((a,b)=>a+b,0)-G.lp.buy.reduce((a,b)=>a+(b.c||0),0);
+const lpBal=()=>Object.values(G.lp.earn).reduce((a,b)=>a+b,0)-G.lp.buy.reduce((a,b)=>a+(/^cos:nose:/.test(b.k)?0:b.c||0),0);
 const lpEarn=(key,n)=>{if(n>0&&G.lp.earn[key]==null){G.lp.earn[key]=n;return n}return 0};
 const lpItem=k=>G.lp.buy.filter(b=>b.k===k).length-G.lp.use.filter(u=>u.k===k).length;
 const lpOwns=k=>G.lp.buy.some(b=>b.k===k);
@@ -4738,13 +4848,13 @@ const attToday=()=>G.lp.earn['at:'+kstDay()]!=null;
    여러 항목을 묶으면 배당을 곱하고, 하나라도 틀리면 전부 잃는다 */
 // 설정: 베팅 찬스 표시 (끄면 시즌·커리어 베팅 패널이 뜨지 않는다 · 이미 건 베팅은 그대로 진행)
 G.opt=load('kickoff-life-opt',{});const optBet=()=>G.opt.bet!==false;const optSave=()=>{try{localStorage.setItem('kickoff-life-opt',JSON.stringify(G.opt))}catch(e){}};
-const BET_SHOW=.3,BET_MIN=3,BET_MAX=30,BET_MAX_PAY=9999,BET_EDGE=.84,BET_TGT=[.55,.32,.16,.06],BET_LEGS=2;   // 쉬운 기준선(70%)은 없애고 환급률 80% · 최대 2개 묶음
+const BET_SHOW=.3,BET_MIN=3,BET_MAX=30,BET_MAX_PAY=9999,BET_EDGE=.9,BET_TGT=[.55,.32,.16,.06],BET_LEGS=3;   // 10.23: 최대 3개 묶음 · 배당 소폭 상향
 // 실제 진행(결정적 순간·전술 선택·특성)이 더하는 몫을 자동 플레이 비교로 맞춘 보정값
 const BET_CAL={g:1.1,a:1.1,ga:.9,form:.4,tm:.5};
 const BET_M={g:{n:'리그 골',i:'⚽'},a:{n:'리그 도움',i:'🅰️'},cs:{n:'리그 무실점',i:'🧤'},rk:{n:'팀 최종 순위',i:'📊'}};
 const betOk=p=>{const s=p&&p.season;return !!(s&&p.phase==='round'&&!s.done&&p.stage==='pro'&&!p.u21&&!p.fa&&!LG[CLUBS[p.club].lg].am)};
 // 팀 순위는 내가 잘 뛰면 팀 성적까지 끌어올릴 수 있어 더 엄격하게: 쉬운 선 없이 42% 이하만 · 환급률 72%
-const BET_TGT_RK=[.46,.27,.13,.05],BET_EDGE_RK=.76;
+const BET_TGT_RK=[.46,.27,.13,.05],BET_EDGE_RK=.82;
 const betOdd=(pr,e)=>clamp(Math.floor((e||BET_EDGE)/pr*10)/10,1.4,20);
 const betLbl=(m,x)=>m==='rk'?(x===1?'리그 우승':`${x}위 이내`):`${x}${m==='cs'?'경기':m==='g'?'골':'도움'} 이상`;
 // 이번 시즌 미리 돌려 보기: simMatch와 같은 식(출전 확률·경기력·득점 분배·실점)과 리그 순위표 계산을 그대로 쓴다
@@ -4823,7 +4933,7 @@ function betSettle(p){
    B 1.25배 · A 2배 · S 3배 · S+ 5배 (반올림) · C 이하면 잃는다. 중간에 새 인생을 시작하면 건 LP는 사라진다 */
 G.cbetAmt=10;
 const CBET_P=.4,CBET_MULT={'B':1.25,'A':2,'S':3,'S+':5};
-const cbetOpen=p=>!!(p&&p.cbet&&p.cbet.offer&&!p.cbet.stake&&p.phase==='prep'&&!(p.history||[]).length&&!p.challenge);
+const cbetOpen=p=>!!(p&&p.cbet&&p.cbet.offer&&!p.cbet.stake&&!p.scouted&&p.phase==='prep'&&!(p.history||[]).length&&!p.challenge);
 function cbetPlace(p,v){
   const st=Math.round(+v);if(!cbetOpen(p)||!(st>=BET_MIN&&st<=BET_MAX)||lpBal()<st)return;
   const id=newPid();G.lp.buy.push({id,k:'cbet',c:st});lpSave();betLog('career','bet',st);
@@ -4891,7 +5001,7 @@ function betPanel(p){
   if(!G.bet)return `<button class="betline" data-act="bet-open"><span class="spk">✨</span>🎲 <b>이번 시즌 베팅 가능</b><span class="muted small"> · 첫 경기 전까지${rec?' · '+st.n+'전 '+st.w+'승':''}</span><span class="arr">›</span></button>`;
   const mk=betMarkets(p),legs=betLegs(),odd=betTotOdd(legs),stake=G.bet.stake,pay=Math.min(BET_MAX_PAY,Math.round(stake*odd));
   return `<section class="panel betp open"><div class="row" style="justify-content:space-between;align-items:baseline"><span class="eyebrow">🎲 시즌 베팅 슬립</span><button class="linkb" data-act="bet-close">닫기</button></div>
-    <p class="hint">• 항목마다 기준선 하나 · 최대 2개 묶으면 배당 곱 (하나라도 틀리면 실패)<br>• 배당 = 이번 시즌을 미리 600번 돌려 본 확률 기준 · 리그 경기 기록만</p>
+    <p class="hint">• 항목마다 기준선 하나 · 최대 3개 묶으면 배당 곱 (하나라도 틀리면 실패)<br>• 배당 = 이번 시즌을 미리 600번 돌려 본 확률 기준 · 리그 경기 기록만</p>
     ${Object.entries(mk).map(([m,L])=>`<div class="betmk"><span class="small"><b>${BET_M[m].i} ${BET_M[m].n}</b></span><div class="betopts">${L.map((l,i)=>`<button class="betopt" data-act="bet-pick" data-v="${m}:${i}" aria-pressed="${G.bet.sel[m]===i}"><span>${betLbl(m,l.x)}</span><b>${l.o.toFixed(1)}배</b></button>`).join('')}</div></div>`).join('')}
     <div class="betmk"><span class="small"><b>💰 걸 LP</b> <span class="muted">3~30 직접 입력 · 보유 ${bal} LP</span></span><div class="betopts betamtrow"><input id="bet-amt" class="ainp betamt" type="number" inputmode="numeric" min="${BET_MIN}" max="${BET_MAX}" value="${stake}"><span class="small muted">LP</span>${[5,10,20,30].map(v=>`<button class="betopt sm" data-act="bet-stake" data-v="${v}" aria-pressed="${stake===v}"><b>${v}</b></button>`).join('')}</div></div>
     <div class="betsum"><span>${legs.length?`${legs.length}개 묶음 · <b>${odd}배</b>`:'항목을 골라 주세요'}</span><span>적중 시 <b class="betpay" id="bet-pay">+${legs.length?pay:0} LP</b></span></div>
@@ -5016,14 +5126,13 @@ const COS=[
   {k:'hcol',n:'머리색',i:'🎨',items:[cI('black','흑발','n',0),cI('brown','갈색','n',30),cI('blonde','금발','r',80),cI('red','레드','r',100),cI('platinum','백금발','r',120),cI('silver','은발','r',150),
     cI('blue','블루','e',200),cI('green','그린','e',200),cI('pink','핑크','e',250),cI('rainbow','무지개','l',600),cI('star','별빛','x',0,'L_ucl10')]},
   {k:'eyes',n:'눈',i:'👀',items:[cI('basic','기본','n',0),cI('big','동그란 눈','n',40),cI('sharp','날카로운 눈','n',40),cI('sleepy','졸린 눈','n',30),cI('smile','웃는 눈','r',80),cI('fierce','투지의 눈','r',100),cI('sparkle','반짝이는 눈','e',220)]},
-  {k:'nose',n:'코',i:'👃',items:[cI('basic','기본','n',0),cI('dot','작은 코','n',30),cI('wide','넓은 코','n',30),cI('tall','오뚝한 코','n',40),cI('button','동그란 코','r',80),cI('hook','매부리코','r',90)]},
   {k:'mouth',n:'입',i:'👄',items:[cI('line','기본','n',0),cI('smile','미소','n',30),cI('neutral','무표정','n',30),cI('grin','활짝','n',50),cI('grit','이 악물기','r',80),cI('o','휘파람','r',90),cI('smirk','썩소','r',100),cI('tongue','메롱','e',200)]},
   {k:'beard',n:'수염',i:'🧔',items:[cI('none','없음','n',0),cI('stubble','짧은 수염','n',40),cI('side','구레나룻','r',80),cI('mus','콧수염','r',90),cI('goatee','염소수염','r',100),cI('full','풀 수염','e',250)]},
   {k:'paint',n:'페이스페인팅',i:'🎭',items:[cI('none','없음','n',0),cI('eyeblack','아이 블랙','n',50),cI('warrior','전사의 줄','r',120),cI('kr','태극 페인팅','r',150),cI('heart','하트 볼','e',220),cI('star','별 볼','e',260)]},
   {k:'head',n:'머리 장식',i:'🎩',items:[cI('none','없음','n',0),cI('band','헤어밴드','n',50),cI('sport','스포츠 머리띠','r',100),cI('beanie','비니','r',120),cI('cap','스냅백','r',140),
     cI('goggles','고글','e',260),cI('phones','헤드폰','e',300),cI('horns','악마 뿔','e',350),cI('crown','황금 왕관','x',0,'L_ballon5'),cI('halo','다섯 별 후광','x',0,'L_wc5'),cI('taeguk','태극 머리띠','x',0,'L_cap200')]},
   {k:'under',n:'이너웨어',i:'🧥',items:[cI('none','없음','n',0),cI('lsblack','긴팔 이너 (검정)','n',60),cI('lswhite','긴팔 이너 (흰색)','n',60),cI('tights','타이츠','r',100),cI('neck','넥워머','r',120)]},
-  {k:'tattoo',n:'타투',i:'🐉',items:[cI('none','없음','n',0),cI('star','별 타투','r',100),cI('tribal','트라이벌','r',150),cI('rose','장미','e',250),cI('neck','목 타투','e',280),cI('sleeve','양팔 슬리브','e',320)]},
+  {k:'tattoo',n:'타투',i:'🐉',items:[cI('none','없음','n',0),cI('star','별 타투','r',100),cI('tribal','트라이벌','r',150),cI('rose','장미','e',250),cI('neck','눈가 타투','e',280),cI('sleeve','양팔 슬리브','e',320)]},
   {k:'wrist',n:'손목',i:'⌚',items:[cI('none','없음','n',0),cI('white','흰 손목밴드','n',30),cI('red','빨간 손목밴드','n',40),cI('black','검은 손목밴드','n',40),cI('guard','팔토시','r',100),cI('gold','황금 밴드','l',500)]},
   {k:'gloves',n:'장갑',i:'🧤',items:[cI('none','없음','n',0),cI('winter','겨울 장갑','n',60),cI('white','흰 장갑','r',90),cI('gkgreen','키퍼 장갑 (그린)','r',120),cI('gkorange','키퍼 장갑 (오렌지)','r',120),cI('gkpink','키퍼 장갑 (핑크)','e',220),cI('gold','황금 장갑','x',0,'L_yashin5')]},
   {k:'socks',n:'양말',i:'🧦',items:[cI('kit','팀 양말','n',0),cI('low','내려 신기','n',40),cI('tape','테이핑','r',80),cI('stripe','줄무늬','r',90),cI('neon','형광 양말','e',220)]},
@@ -5057,150 +5166,6 @@ const RAMPC={};
 function ramp(c){if(RAMPC[c])return RAMPC[c];const b=hexOf(rgbOf(c));return RAMPC[c]=[cmix(b,'#fff4dc',.42),cmix(b,'#fff4dc',.18),b,cmix(b,'#1c2550',.28),cmix(b,'#0c1126',.52)]}
 const tone=(R,t)=>R[t>.84?0:t>.66?1:t>.44?2:t>.24?3:4];
 
-/* ---------- 고해상도 픽셀 아바타 (48×64) ----------
-   몸 부위를 구·원기둥으로 보고 왼쪽 위에서 빛이 온다고 계산해 4단계로 칠한 뒤, 겹친 곳 그림자 · 바깥 윤곽선 · 오른쪽 반사광을 더한다 */
-const AV_W=48,AV_H=64;
-const AV_POSE={stand:{L:[-2.6,7.2,-3,15.2],R:[-2.6,7.2,-3,15.2]},cheer:{L:[-3.5,-7,-4.5,-15],R:[-3.5,-7,-4.5,-15]},point:{L:[-2.6,7.2,-3,15.2],R:[2.6,-7.2,2,-15.5]},
-  plane:{L:[-7.5,1.2,-14.5,2.2],R:[-7.5,1.2,-14.5,2.2]},flex:{L:[-7,.8,-6,-6.8],R:[-7,.8,-6,-6.8]}};
-const AV_CACHE={};
-function avGrid(look,kit,pose){
-  const key=JSON.stringify([look,kit,pose]);if(AV_CACHE[key])return AV_CACHE[key];
-  const W=AV_W,H=AV_H,N=W*H,col=new Array(N).fill(null),part=new Array(N).fill(''),z=new Int32Array(N);let zc=0;
-  const set=(x,y,c,pt)=>{x=Math.floor(x);y=Math.floor(y);if(x<0||y<0||x>=W||y>=H)return;const i=y*W+x;col[i]=c;part[i]=pt||'';z[i]=zc};
-  const get=(x,y)=>x<0||y<0||x>=W||y>=H?null:col[y*W+x];
-  const shade=(nx,ny)=>{const d=nx*nx+ny*ny,nz=Math.sqrt(Math.max(0,1-d));return .55+.45*(-.55*nx-.45*ny+.7*nz)};
-  const ell=(cx,cy,rx,ry,R,pt,clip)=>{zc++;for(let y=Math.floor(cy-ry);y<=Math.ceil(cy+ry);y++)for(let x=Math.floor(cx-rx);x<=Math.ceil(cx+rx);x++){
-    const nx=(x+.5-cx)/rx,ny=(y+.5-cy)/ry;if(nx*nx+ny*ny>1)continue;if(clip&&!clip(x,y))continue;const t=shade(nx,ny);set(x,y,typeof R==='function'?R(x,y,t):tone(R,t),pt)}};
-  const cap=(ax,ay,bx,by,r,R,pt)=>{zc++;const dx=bx-ax,dy=by-ay,L2=dx*dx+dy*dy||1;
-    for(let y=Math.floor(Math.min(ay,by)-r);y<=Math.ceil(Math.max(ay,by)+r);y++)for(let x=Math.floor(Math.min(ax,bx)-r);x<=Math.ceil(Math.max(ax,bx)+r);x++){
-      const px=x+.5,py=y+.5,u=Math.max(0,Math.min(1,((px-ax)*dx+(py-ay)*dy)/L2)),qx=ax+u*dx,qy=ay+u*dy,ox=(px-qx)/r,oy=(py-qy)/r;if(ox*ox+oy*oy>1)continue;
-      const t=shade(ox,oy*.6);set(x,y,typeof R==='function'?R(x,y,t,u):tone(R,t),pt)}};
-  const [k1,k2]=kit,J=ramp(k1),T=ramp(k2),SK=ramp(COS_SKIN[look.skin]||COS_SKIN.fair);
-  const hc=COS_HCOL[look.hcol]||COS_HCOL.black,HR=ramp(hc);
-  const hairR=look.hcol==='rainbow'?((x,y,t)=>tone(ramp(['#ef4444','#f59e0b','#facc15','#22c55e','#3b82f6','#a855f7'][Math.floor((y+x*.3)/2.2)%6]),t)):look.hcol==='star'?((x,y,t)=>(x*7+y*13)%23===0?'#fff6c8':tone(HR,t)):HR;
-  const b=look.body==='slim'?-1:look.body==='strong'?1:0,cx=24;
-  const P=AV_POSE[pose]||AV_POSE.stand;
-  const under=look.under,armSkin=under==='lsblack'?ramp('#1f2430'):under==='lswhite'?ramp('#eef1f6'):SK;
-  // 뒷머리 (머리보다 먼저)
-  const hs=look.hair;
-  if(hs==='long')cap(cx,13,cx,24,9.6,hairR,'hairB');
-  if(hs==='afro')ell(cx,11.5,12.6,11.2,hairR,'hairB');
-  if(hs==='dreads')[-8,-5,-2,2,5,8].forEach(o=>cap(cx+o,10,cx+o*1.15,27,1.9,hairR,'hairB'));
-  if(hs==='ponytail')cap(cx+6,9,cx+10,24,2.4,hairR,'hairB');
-  if(hs==='manbun')ell(cx,3.6,3.6,3.1,hairR,'hairB');
-  // 다리 · 양말 · 축구화
-  const sockC=look.socks==='neon'?'#c6ff1a':k1,SO=ramp(sockC),legSkin=under==='tights'?ramp('#20242e'):SK;
-  [[cx-3.7,-1],[cx+3.7,1]].forEach(([lx,s])=>{
-    cap(lx,44,lx,51,3.3+b*.35,legSkin,'leg');
-    const sTop=look.socks==='low'?54.5:50.5;if(look.socks==='low')cap(lx,50.5,lx,54.5,2.7,legSkin,'leg');
-    cap(lx,sTop,lx,57.6,2.8+b*.2,(x,y,t)=>look.socks==='stripe'&&Math.floor(y/2)%2?tone(T,t):look.socks==='tape'&&(y===52||y===53)?tone(ramp('#f4f6fa'),t):tone(SO,t),'sock');
-    const bc=COS_BOOT[look.boots]||COS_BOOT.black,BR=look.boots==='chrome'||look.boots==='diamond'?[ '#ffffff',cmix(bc[0],'#ffffff',.35),bc[0],cmix(bc[0],'#33415c',.4),cmix(bc[0],'#111827',.6)]:ramp(bc[0]);
-    const bootR=look.boots==='aurora'?((x,y,t)=>tone(ramp(cmix('#7c3aed','#22d3ee',Math.min(1,Math.max(0,(x-lx+5)/10)))),t)):look.boots==='twotone'?((x,y,t)=>tone(s*(x+.5-lx)<0?ramp(bc[1]):BR,t)):BR;
-    cap(lx,57.4,lx+s*.4,59.2,2.7,bootR,'boot');ell(lx+s*.9,60.2,4.3,2.3,bootR,'boot');
-    for(let x=Math.floor(lx+s*.9-4);x<=Math.ceil(lx+s*.9+4);x++)if(get(x,61)!=null||get(x,60)!=null)set(x,62,'#16181f','sole');
-    zc++;for(let x=Math.round(lx-2);x<=Math.round(lx+2);x++)set(x+s,59.6,look.boots==='twotone'?'#ffffff':bc[1],'swoosh');
-    if(look.boots==='diamond'||look.boots==='golden'||look.boots==='chrome'){set(lx-1,58.6,'#ffffff','shine');set(lx+s*2,60.2,'#ffffff','shine')}
-  });
-  // 반바지
-  zc++;for(let y=40;y<=46;y++){const hw=8.3+b*.7-(y>=43?(y-43)*.35:0);for(let x=Math.floor(cx-hw);x<=Math.ceil(cx+hw);x++){const px=x+.5;if(Math.abs(px-cx)>hw)continue;if(y>=43&&Math.abs(px-cx)<.6+(y-43)*.45)continue;
-    const nx=(px-cx)/hw,t=shade(nx*.92,(y-43)/9);set(x,y,y===40?tone(T,t-.18):tone(T,t),'shorts')}}
-  // 몸통 (유니폼)
-  zc++;for(let y=24;y<=41;y++){const k=(y-24)/17,hw=(10.4+b*1.1)*(1-k)+(7.9+b*.6)*k-(y<26?(26-y)*1.3:0);
-    for(let x=Math.floor(cx-hw);x<=Math.ceil(cx+hw);x++){const px=x+.5;if(Math.abs(px-cx)>hw)continue;const nx=(px-cx)/hw,t=shade(nx*.95,(y-31)/16);set(x,y,tone(J,t),'torso')}}
-  zc++;for(let y=24;y<=27;y++)for(let x=cx-3+(y-24);x<=cx+2-(y-24);x++)set(x,y,y===24||x===cx-3+(y-24)||x===cx+2-(y-24)?tone(T,.6):tone(SK,.5),'collar');
-  set(cx+4,29,tone(T,.8),'badge');set(cx+5,29,tone(T,.6),'badge');set(cx+4,30,tone(T,.6),'badge');set(cx+5,30,tone(T,.4),'badge');
-  // 팔: 소매 → 위팔 → 아래팔 → 손 (자세에 따라)
-  const arms=[['L',-1],['R',1]];
-  arms.forEach(([side,s])=>{const a=P[side],sx=cx+s*(9.3+b*1.1),sy=26.8;
-    const elx=sx+(s<0?a[0]:-a[0]),ely=sy+a[1],hx=sx+(s<0?a[2]:-a[2]),hy=sy+a[3];
-    const ru=2.8+b*.45,rf=2.35+b*.35;
-    const mx=sx+(elx-sx)*.5,my=sy+(ely-sy)*.5;
-    cap(mx,my,elx,ely,ru,armSkin,'arm'+side);cap(elx,ely,hx,hy,rf,armSkin,'arm'+side);
-    cap(sx,sy,mx,my,ru+.7,(x,y,t,u)=>u>.8?tone(T,t):tone(J,t),'sleeve');
-    if(look.wrist!=='none'){const wc=COS_WRIST[look.wrist],wx=elx+(hx-elx)*.78,wy=ely+(hy-ely)*.78;
-      if(look.wrist==='guard')cap(elx,ely,wx,wy,rf+.35,ramp(wc),'wrist');else cap(wx,wy,elx+(hx-elx)*.88,ely+(hy-ely)*.88,rf+.4,ramp(wc),'wrist')}
-    const gl=COS_GLOVE[look.gloves],gk=/^gk/.test(look.gloves);
-    ell(hx,hy+(hy>sy?.8:-.8),gk?3.2:2.6,gk?3.4:2.8,gl?ramp(gl):SK,'hand');
-    if(gk){zc++;set(hx-1,hy,'#ffffff','gk');set(hx,hy,'#ffffff','gk')}
-  });
-  // 타투 (피부에만)
-  const tat=look.tattoo,ink='#20304f';
-  if(tat&&tat!=='none'&&tat!=='neck'&&under!=='lsblack'&&under!=='lswhite'){zc++;for(let i=0;i<N;i++){const pt=part[i];if(pt!=='armL'&&pt!=='armR')continue;if(tat!=='sleeve'&&tat!=='tribal'&&pt!=='armR')continue;if(tat==='tribal'&&pt!=='armL')continue;
-    const x=i%W,y=(i/W)|0;let on=false,c=ink;
-    if(tat==='sleeve'||tat==='tribal')on=(x*3+y*5)%7<2||(x+y)%5===0&&tat==='sleeve';
-    if(tat==='star')on=(x+y)%9===0||(x-y+90)%9===0;
-    if(tat==='rose'){on=(x*5+y*3)%11<2;c=(x+y)%3?'#b91c3c':'#166534'}
-    if(on)col[i]=cmix(col[i],c,.62)}}
-  // 목 · 넥워머
-  cap(cx,21,cx,25.5,3.3+b*.3,under==='neck'?ramp('#334155'):SK,'neck');
-  if(tat==='neck'){zc++;[[cx-2,23],[cx-1,24],[cx+1,22],[cx+2,24]].forEach(([x,y])=>set(x,y,cmix(get(x,y)||'#c08a65',ink,.6),'neck'))}
-  // 머리 · 귀 · 얼굴
-  ell(cx-8.2,15.6,1.6,2.4,SK,'ear');ell(cx+8.2,15.6,1.6,2.4,SK,'ear');
-  ell(cx,14.5,8.3,9.3,SK,'head');
-  zc++;const fx=(x,y,c)=>set(x,y,c,'face');
-  const EYE={basic:['bbb','...','wpk','wpp'],big:['bbb','wwk','wph','wpp'],sharp:['..b','bb.','wpk','...'],sleepy:['bbb','...','...','kkk'],smile:['bbb','...','.k.','k.k'],fierce:['b..','.bb','wpk','wpp'],sparkle:['bbb','wwk','hph','wpp']};
-  const em=EYE[look.eyes]||EYE.basic,brow=cmix(hc==='#efe5c4'?'#8a7350':hc,'#000',.35),pupil=look.eyes==='sparkle'?'#2457c5':'#1c1a24';
-  const ec=ch=>ch==='b'?brow:ch==='w'?'#fbfbff':ch==='p'?pupil:ch==='k'?'#141218':ch==='h'?'#ffffff':null;
-  em.forEach((row,j)=>{for(let i=0;i<3;i++){const c=ec(row[i]);if(c){fx(cx-6+i,11+j,c);const m=row[2-i];const c2=ec(m);if(c2)fx(cx+3+i,11+j,c2)}}});
-  const sk=COS_SKIN[look.skin]||COS_SKIN.fair,skS=cmix(sk,'#5a2a1a',.32),skH=cmix(sk,'#fff4e0',.35);
-  const NOSE={basic:[[0,16,skS],[0,17,skS],[-1,18,skS]],dot:[[0,17,skS]],wide:[[-1,18,skS],[1,18,skS],[0,17,skH]],tall:[[0,15,skH],[0,16,skH],[1,16,skS],[1,17,skS],[0,18,skS]],button:[[0,16,skH],[-1,17,skS],[1,17,skS],[0,17,skH]],hook:[[1,15,skS],[1,16,skS],[1,17,skS],[0,18,skS]]};
-  (NOSE[look.nose]||NOSE.basic).forEach(([dx,y,c])=>fx(cx+dx,y,c));
-  const lip='#9b3b3b',dk='#3b1d1d';
-  const MOUTH={line:[[-1,20,dk],[0,20,dk],[1,20,dk]],smile:[[-2,19,dk],[-1,20,dk],[0,20,dk],[1,20,dk],[2,19,dk]],neutral:[[-1,20,dk],[0,20,dk]],
-    grin:[[-2,19,dk],[-1,20,'#ffffff'],[0,20,'#ffffff'],[1,20,'#ffffff'],[2,19,dk],[-1,21,dk],[0,21,dk],[1,21,dk]],grit:[[-2,20,dk],[-1,20,'#ffffff'],[0,20,'#ffffff'],[1,20,'#ffffff'],[2,20,dk],[0,21,dk]],
-    o:[[0,19,dk],[-1,20,dk],[1,20,dk],[0,21,dk],[0,20,'#5a2323']],smirk:[[-1,20,dk],[0,20,dk],[1,19,dk],[2,19,dk]],tongue:[[-2,19,dk],[-1,20,dk],[0,20,dk],[1,20,dk],[2,19,dk],[0,21,'#e0566c'],[1,21,'#e0566c']]};
-  (MOUTH[look.mouth]||MOUTH.line).forEach(([dx,y,c])=>fx(cx+dx,y,c));
-  const bd=cmix(hc,'#000',.15);
-  if(look.beard==='stubble')for(let y=18;y<=22;y++)for(let x=cx-6;x<=cx+6;x++){const nx=(x+.5-cx)/8.3,ny=(y+.5-14.5)/9.3;if(nx*nx+ny*ny<=1&&(x+y)%2===0&&get(x,y)&&part[y*W+x]==='head')fx(x,y,cmix(get(x,y),bd,.45))}
-  if(look.beard==='mus')[-2,-1,0,1,2].forEach(dx=>fx(cx+dx,19,bd));
-  if(look.beard==='goatee')[[-1,21],[0,21],[1,21],[-1,22],[0,22],[1,22],[0,23]].forEach(([dx,y])=>fx(cx+dx,y,bd));
-  if(look.beard==='side')for(let y=13;y<=18;y++){fx(cx-7,y,bd);fx(cx+7,y,bd)}
-  if(look.beard==='full')for(let y=17;y<=24;y++)for(let x=cx-8;x<=cx+8;x++){const nx=(x+.5-cx)/8.3,ny=(y+.5-14.5)/9.3;if(nx*nx+ny*ny>1)continue;if(y<=21&&Math.abs(x-cx)<=2&&y>=19)continue;fx(x,y,tone(ramp(bd),.55-(x-cx)*.04))}
-  const PT=look.paint;
-  if(PT==='eyeblack')[-6,-5,-4,3,4,5].forEach(dx=>fx(cx+dx,15,'#15151a'));
-  if(PT==='warrior')[[-6,15],[-5,16],[-4,17],[4,15],[5,16],[6,17],[-6,17],[6,15]].forEach(([dx,y])=>fx(cx+dx,y,'#111827'));
-  if(PT==='kr'){fx(cx-6,17,'#d6203a');fx(cx-5,17,'#1b4fb3');fx(cx+5,17,'#d6203a');fx(cx+6,17,'#1b4fb3')}
-  if(PT==='heart')[[-6,17],[-4,17],[-6,18],[-5,18],[-4,18],[-5,19]].forEach(([dx,y])=>{fx(cx+dx,y,'#f0547a');fx(cx-dx,y,'#f0547a')});
-  if(PT==='star')[[5,16],[4,17],[5,17],[6,17],[5,18]].forEach(([dx,y])=>fx(cx+dx,y,'#f5c518'));
-  // 앞머리
-  const hairCap=(cut,ry)=>ell(cx,11.2,8.9,ry||7.2,hairR,'hair',(x,y)=>y<=cut);
-  if(hs==='short'||hs==='long'||hs==='ponytail'||hs==='manbun'){hairCap(11.5);ell(cx-7.6,12,1.6,3.6,hairR,'hair');ell(cx+7.6,12,1.6,3.6,hairR,'hair')}
-  if(hs==='twoblock'){hairCap(10.5,6.6);ell(cx-7.6,12.5,1.4,3,ramp(cmix(hc,COS_SKIN[look.skin]||sk,.55)),'hair');ell(cx+7.6,12.5,1.4,3,ramp(cmix(hc,sk,.55)),'hair')}
-  if(hs==='buzz')ell(cx,11.4,8.6,7.4,ramp(cmix(hc,sk,.5)),'hair',(x,y)=>y<=10.5);
-  if(hs==='wave'){hairCap(11.8);zc++;for(let y=5;y<=11;y++)set(cx-3,y,tone(HR,.2),'hair');ell(cx+4,9.5,4.5,2.6,hairR,'hair')}
-  if(hs==='curly'){hairCap(10.8);[-7,-4.5,-2,0.5,3,5.5,7.5].forEach((o,i)=>ell(cx+o,10.6+(i%2)*.8,2.1,2,hairR,'hair'))}
-  if(hs==='regent'){hairCap(11);ell(cx-1,4.6,6.8,3.8,hairR,'hair')}
-  if(hs==='spiky'){hairCap(11);zc++;[-7,-4,-1,2,5,8].forEach((o,i)=>{for(let k=0;k<4;k++)for(let w=-1+Math.ceil(k/2);w<=1-Math.ceil(k/2);w++)set(cx+o+w,4-k,tone(HR,.8-k*.12),'hair')})}
-  if(hs==='mohawk'){ell(cx,11.4,8.6,7.4,ramp(cmix(hc,sk,.55)),'hair',(x,y)=>y<=10);cap(cx,1.6,cx,10.5,2.6,hairR,'hair')}
-  if(hs==='cornrow'){ell(cx,11.2,8.8,7.2,(x,y,t)=>tone(x%2?HR:ramp(cmix(hc,sk,.35)),t),'hair',(x,y)=>y<=11)}
-  if(hs==='dreads'){hairCap(10.6)}
-  if(hs==='afro'){ell(cx,9.6,10.4,6.4,hairR,'hair',(x,y)=>y<=10.5)}
-  if(hs==='bald'){zc++;set(cx-3,7,'#ffffff','shine');set(cx-2,7,cmix(sk,'#ffffff',.6),'shine')}
-  // 머리 장식
-  const hd=look.head;
-  if(hd==='band'||hd==='sport'||hd==='taeguk'){zc++;const c=hd==='band'?'#ef4444':hd==='sport'?'#f8fafc':'#f8fafc';for(let x=cx-9;x<=cx+9;x++){const nx=(x+.5-cx)/8.9;if(Math.abs(nx)>1)continue;const t=shade(nx,-.3);
-      set(x,9,tone(ramp(c),t),'hat');set(x,10,tone(ramp(c),t-.15),'hat')}
-    if(hd==='sport'){set(cx-1,9,'#2563eb','hat');set(cx,9,'#2563eb','hat')}
-    if(hd==='taeguk'){set(cx-1,9,'#d6203a','hat');set(cx,9,'#d6203a','hat');set(cx-1,10,'#1b4fb3','hat');set(cx,10,'#1b4fb3','hat');set(cx+6,9,'#111','hat');set(cx-7,10,'#111','hat')}}
-  if(hd==='beanie'){ell(cx,8.4,9.4,6.8,ramp('#2d3e8f'),'hat',(x,y)=>y<=10);zc++;for(let x=cx-9;x<=cx+9;x++)for(let y=10;y<=11;y++){const nx=(x+.5-cx)/9.4;if(Math.abs(nx)<=1)set(x,y,tone(ramp('#f1f5f9'),shade(nx,0)),'hat')}ell(cx,1.6,2.5,2.1,ramp('#f1f5f9'),'hat')}
-  if(hd==='cap'){ell(cx,8.6,9.1,5.8,ramp(k1),'hat',(x,y)=>y<=10);ell(cx-3,10.6,9.4,1.5,ramp(k2),'hat',(x,y)=>y>=10);set(cx,4,tone(T,.8),'hat')}
-  if(hd==='goggles'){zc++;for(let x=cx-9;x<=cx+9;x++){const nx=(x+.5-cx)/8.9;if(Math.abs(nx)<=1)set(x,9,'#1f2937','hat')}ell(cx-3.6,9,2.4,1.8,ramp('#38bdf8'),'hat');ell(cx+3.6,9,2.4,1.8,ramp('#38bdf8'),'hat');set(cx-4,8,'#ffffff','hat');set(cx+3,8,'#ffffff','hat')}
-  if(hd==='phones'){cap(cx-8,13,cx-6,3.5,1.2,ramp('#111827'),'hat');cap(cx+8,13,cx+6,3.5,1.2,ramp('#111827'),'hat');cap(cx-6,3.5,cx+6,3.5,1.2,ramp('#111827'),'hat');ell(cx-8.6,15.4,2.4,3.2,ramp('#ef4444'),'hat');ell(cx+8.6,15.4,2.4,3.2,ramp('#ef4444'),'hat')}
-  if(hd==='horns'){zc++;[-1,1].forEach(s=>{for(let k=0;k<5;k++){set(cx+s*(5+k*.5),5-k,tone(ramp('#b91c1c'),.75-k*.08),'hat');set(cx+s*(4+k*.5),5-k,tone(ramp('#b91c1c'),.5),'hat')}})}
-  if(hd==='crown'){zc++;const GR=ramp('#f2c230');for(let x=cx-6;x<=cx+6;x++){for(let y=3;y<=5;y++)set(x,y,tone(GR,shade((x+.5-cx)/6.5,(y-4)/3)),'hat');if((x-cx+6)%3===0)for(let y=0;y<3;y++)set(x,y,tone(GR,.85-y*.15),'hat')}
-    set(cx,4,'#e11d48','hat');set(cx-4,4,'#2563eb','hat');set(cx+4,4,'#16a34a','hat')}
-  // 후광: 머리 위 고리 + 별 다섯
-  const halo=hd==='halo';
-  // ---- 마무리: 겹친 곳 그림자 · 윤곽선 · 반사광 ----
-  const out=col.slice();
-  for(let i=W;i<N;i++){if(!col[i]||!col[i-W])continue;if(z[i-W]>z[i]&&part[i-W]!==part[i]&&part[i]!=='face')out[i]=cmix(col[i],'#141a35',.22)}
-  for(let i=0;i<N;i++){if(!col[i])continue;const x=i%W;if(x<W-1&&!col[i+1]&&x>0&&col[i-1])out[i]=cmix(out[i],'#d6ecff',.3)}
-  const res=out.slice();
-  for(let i=0;i<N;i++){if(out[i])continue;const x=i%W,y=(i/W)|0;let nb=null;
-    if(x>0&&out[i-1])nb=out[i-1];else if(x<W-1&&out[i+1])nb=out[i+1];else if(y>0&&out[i-W])nb=out[i-W];else if(y<H-1&&out[i+W])nb=out[i+W];
-    if(nb)res[i]=cmix(nb,'#0a0e1c',.72)}
-  return AV_CACHE[key]={W,H,px:res,halo}
-}
 // 픽셀 → svg 사각형 (같은 색이 이어지면 하나로 묶어서 가볍게)
 function avRects(g,ox,oy){let s='';for(let y=0;y<g.H;y++){let x=0;while(x<g.W){const c=g.px[y*g.W+x];if(!c){x++;continue}let e=x+1;while(e<g.W&&g.px[y*g.W+e]===c)e++;s+=`<rect x="${x+ox}" y="${y+oy}" width="${e-x+.02}" height="1.02" fill="${c}"/>`;x=e}}return s}
 // 작은 그림(마스코트·공)용 픽셀 화가: 같은 빛·윤곽선 규칙
@@ -5250,26 +5215,155 @@ function auraSvg(k,cx,cy){if(!k||k==='none')return '';let s='';const rnd=i=>((i*
   if(k==='trophy')[[cx-22,cy-14],[cx+19,cy-20],[cx-20,cy+12],[cx+21,cy+8]].forEach(([x,y],i)=>{s+=`<g class="avFloat" style="animation-delay:${i*.4}s"><rect x="${x}" y="${y}" width="5" height="3" fill="#f2c230"/><rect x="${x+1}" y="${y+3}" width="3" height="1" fill="#d4a017"/><rect x="${x+2}" y="${y+4}" width="1" height="2" fill="#d4a017"/><rect x="${x+1}" y="${y+6}" width="3" height="1" fill="#b8860b"/><rect x="${x-1}" y="${y}" width="1" height="2" fill="#f2c230"/><rect x="${x+5}" y="${y}" width="1" height="2" fill="#f2c230"/></g>`});
   return s}
 // 아바타 한 장 (svg): 오라 · 몸 · 후광 · 마스코트 · 공
-function avatarSvg(look,kit,pose,opt){opt=opt||{};const g=avGrid(look,kit,pose||'stand'),ox=12,oy=5,VW=72,VH=72;
-  let s=auraSvg(look.aura,ox+24,oy+33)+`<ellipse cx="${ox+24}" cy="${oy+63}" rx="13" ry="1.8" fill="#000" opacity=".28"/>`+avRects(g,ox,oy);
-  if(g.halo){s+=`<ellipse cx="${ox+24}" cy="${oy+1.6}" rx="8" ry="1.8" fill="none" stroke="#facc15" stroke-width="1.2"/>`+[-6,-3,0,3,6].map(d=>`<rect class="avTw" x="${ox+24+d-.5}" y="${oy+(d%2?-1.5:-2.5)}" width="1.4" height="1.4" fill="#fff6b0"/>`).join('')}
-  if(look.pet&&look.pet!=='none'&&!opt.noPet){const pg=petGrid(look.pet);s+=`<g class="avBob">${avRects(pg,VW-pg.W-1,VH-pg.H-1)}</g>`}
-  if(opt.ball){const bg=ballGrid(look.ball||'classic');s+=avRects(bg,ox+3,oy+55)}
-  return `<svg class="avsvg" viewBox="0 0 ${VW} ${VH}" shape-rendering="crispEdges" aria-hidden="true">${s}</svg>`}
+// 큰 그림(홈 카드 · 꾸미기 · 커리어 카드): 경기 장면과 같은 캐릭터를 고화질 도트로 크게
+const AV_MAP={stand:()=>PX_STAND,cheer:()=>PX_UP,plane:()=>PX_POSES[1],point:()=>PX_POSES[3],heart:()=>PX_POSES[4],arms:()=>PX_POSES[5],salute:()=>PX_POSES[7],fist:()=>PX_POSES[8],flex:()=>PX_POSES[8]};
+const AV_IMG={};
+function avHq(look,kit,pose){const lk=Object.assign(pxAge(G.p),lkFromLook(look)),m=lookMap((AV_MAP[pose]||AV_MAP.stand)(),lk);return {g:hqGrid(m,spriteCol(kit[0],kit[1],lk),lk),lk}}
+/* ---------- 2D 치비 캐릭터 (꾸미기 · 홈 · 커리어 카드용 큰 그림) ----------
+   큰 머리 · 짧은 몸의 2D 도트 캐릭터 (32×40). 색마다 밝은 면 · 그림자 면 두 단계(셀 셰이딩) + 굵은 윤곽선
+   얼굴(눈·눈썹·코·입·볼)과 머리·장식을 크게 그려 꾸미기 아이템이 또렷하게 보이게 */
+const CB_POSE={stand:{L:[[-1,6],[-1.5,11]],R:[[1,6],[1.5,11]]},cheer:{L:[[-2,-4],[-2,-9]],R:[[2,-4],[2,-9]]},plane:{L:[[-5,1],[-10,1.5]],R:[[5,1],[10,1.5]]},
+  fist:{L:[[-1,6],[-1.5,11]],R:[[3,-3],[2.5,-8]]},heart:{L:[[-3,-4],[-1.2,-9.5]],R:[[3,-4],[1.2,-9.5]]},point:{L:[[-1,6],[-1.5,11]],R:[[2,-4],[1.5,-10]]},arms:{L:[[-1,5],[2.5,6.5]],R:[[1,5],[-2.5,7]]},salute:{L:[[-1,6],[-1.5,11]],R:[[3.5,-3],[-1,-5.5]]}};
+const CB_CACHE={};
+function chibiGrid(look,kit,pose,age){const key=JSON.stringify([look,kit,pose,age]);if(CB_CACHE[key])return CB_CACHE[key];
+  const OY=3,W=32,H=39,TW=[],N=W*H,px=new Array(N).fill(null),part=new Array(N).fill('');
+  const put=(x,y,c,pt)=>{x=Math.floor(x);y=Math.floor(y)+OY;if(x<0||y<0||x>=W||y>=H||!c)return;px[y*W+x]=c;if(pt)part[y*W+x]=pt};
+  const cel=(base)=>[cmix(base,'#fff6e6',.28),base,cmix(base,'#1d2348',.32)];   // 밝은 면 · 기본 · 그림자 면
+  const ell=(cx,cy,rx,ry,col,pt,clip)=>{const C=typeof col==='string'?cel(col):null;for(let y=Math.floor(cy-ry);y<=Math.ceil(cy+ry);y++)for(let x=Math.floor(cx-rx);x<=Math.ceil(cx+rx);x++){
+    const nx=(x+.5-cx)/rx,ny=(y+.5-cy)/ry;if(nx*nx+ny*ny>1||(clip&&!clip(x,y)))continue;const c=C?(nx>.62||ny>.72?C[2]:(nx<-.45&&ny<-.25?C[0]:C[1])):col(x,y,nx,ny);put(x,y,c,pt)}};
+  const rect=(x0,y0,x1,y1,col,pt)=>{const C=cel(col);for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){const nx=(x-x0)/Math.max(1,x1-x0);put(x,y,nx>.72?C[2]:nx<.15&&y===y0?C[0]:C[1],pt)}};
+  const cap=(ax,ay,bx,by,r,col,pt)=>{const C=cel(col),dx=bx-ax,dy=by-ay,L2=dx*dx+dy*dy||1;for(let y=Math.floor(Math.min(ay,by)-r);y<=Math.ceil(Math.max(ay,by)+r);y++)for(let x=Math.floor(Math.min(ax,bx)-r);x<=Math.ceil(Math.max(ax,bx)+r);x++){
+    const px0=x+.5,py0=y+.5,u=Math.max(0,Math.min(1,((px0-ax)*dx+(py0-ay)*dy)/L2)),ox=(px0-ax-u*dx)/r,oy=(py0-ay-u*dy)/r;if(ox*ox+oy*oy>1)continue;put(x,y,ox>.35?C[2]:C[1],pt)}};
+  const [k1,k2]=kit,sk=COS_SKIN[look.skin]||COS_SKIN.fair,hc=age>=37&&look.hcol==='black'?'#a3a9b3':age>=33&&look.hcol==='black'?'#5b4a3c':(COS_HCOL[look.hcol]||COS_HCOL.black);
+  const hairCol=look.hcol==='rainbow'?(x,y)=>['#ef4444','#f59e0b','#facc15','#22c55e','#3b82f6','#a855f7'][Math.floor((y+x*.4)/2)%6]:look.hcol==='star'?(x,y)=>(x*7+y*11)%17===0?'#fff6c8':'#1d2350':null;
+  const HC=hairCol?((x,y,nx,ny)=>{const b=hairCol(x,y);return nx>.45||ny>.6?cmix(b,'#1d2348',.3):b}):hc;
+  const b=look.body==='slim'?-1:look.body==='strong'?1:0,cx=16,P=CB_POSE[pose]||CB_POSE.stand;
+  const under=look.under,armC=under==='lsblack'?'#1f2430':under==='lswhite'?'#eef1f6':sk;
+  // 뒷머리
+  const hs=look.hair;
+  if(hs==='long')rect(cx-11,8,cx+9,20,hc,'hair');if(hs==='afro')ell(cx-.5,8.8,13,10.8,HC,'hair');if(hs==='ponytail')cap(cx+9,7,cx+12,16,1.8,hc,'hair');if(hs==='manbun'){ell(cx-.5,-1.6,3.2,2.7,HC,'hair');rect(cx-2,1,cx+1,1,cmix(hc,'#1d2348',.35),'hair')}
+  if(hs==='dreads')[-7,-4,-1,2,5,8].forEach(o=>cap(cx+o-.5,8,cx+o*1.1-.5,20,1.1,hc,'hair'));
+  // 다리 · 양말 · 축구화
+  const sockC=look.socks==='neon'?'#c6ff1a':k1,legC=under==='tights'?'#20242e':sk,bc=COS_BOOT[look.boots]||COS_BOOT.black;
+  [[cx-5,-1],[cx+1,1]].forEach(([lx,s])=>{rect(lx,28,lx+2,28,legC,'leg');
+    const low=look.socks==='low';rect(lx,low?30:29,lx+2,31,sockC,'sock');if(low)rect(lx,29,lx+2,29,legC,'leg');
+    for(let i=0;i<3;i++){if(look.socks==='stripe')put(lx+i,30,k2);if(look.socks==='tape')put(lx+i,30,'#f4f6fa');if(look.socks==='kit')put(lx+i,29,i===2?cmix(k2,'#1d2348',.3):k2)}
+    const bx0=s<0?lx-2:lx,bx1=s<0?lx+2:lx+4;for(let y=32;y<=33;y++)for(let x=bx0;x<=bx1;x++){const t=(x-bx0)/3,c=look.boots==='aurora'?['#a855f7','#6366f1','#22d3ee','#34d399'][(x-bx0+y)%4]:look.boots==='diamond'?((x+y)%2?'#7dd3fc':'#e0f7ff'):look.boots==='chrome'?cmix('#eef2f7','#8b97a8',t):look.boots==='blackgold'&&y===32?'#e7b52f':look.boots==='golden'?cmix('#ffe27a','#d4a017',t):look.boots==='twotone'&&x>(bx0+bx1)/2?bc[1]:bc[0];put(x,y,y===33?cmix(c,'#1d2348',.35):c,'boot')}
+    put(s<0?bx0+1:bx1-1,32,look.boots==='black'?'#e9edf5':bc[1]);for(let x=bx0;x<=bx1;x++)put(x,34,'#15171e','sole');
+    if(['chrome','diamond','golden'].includes(look.boots))put(s<0?bx0:bx1,32,'#ffffff');if(['aurora','diamond','golden'].includes(look.boots))TW.push([s<0?bx0-1:bx1+1,31,look.boots==='aurora'?'#c4b5fd':look.boots==='golden'?'#fff3b0':'#e0f7ff'])});
+  // 반바지
+  rect(cx-6-(b>0?1:0),25,cx+4+(b>0?1:0),27,k2,'shorts');px[(27+OY)*W+cx-1]=null;
+  // 몸통 (유니폼) · 브이넥 · 엠블럼
+  rect(cx-7-(b>0?1:0)+(b<0?1:0),20,cx+5+(b>0?1:0)-(b<0?1:0),25,k1,'torso');
+  put(cx-2,20,k2);put(cx-1,20,k2);put(cx,20,k2);put(cx-1,21,sk);put(cx+2,22,k2);put(cx+3,22,cmix(k2,'#1d2348',.25));
+  // 팔 (어깨 → 팔꿈치 → 손) · 소매
+  const drawArms=()=>[['L',-1],['R',1]].forEach(([side,s])=>{const a=P[side],sx=cx+(s<0?-7.5:6.5)+s*(b>0?1:0),sy=21,ex=sx+a[0][0]*.72,ey=sy+a[0][1]*.72,hx=sx+a[1][0]*.72,hy=sy+a[1][1]*.72;
+    cap(sx,sy,ex,ey,1.8+b*.25,armC,'arm');cap(ex,ey,hx,hy,1.6+b*.2,armC,'arm');cap(sx,sy,sx+(ex-sx)*.5,sy+(ey-sy)*.5,2.4+b*.2,k1,'sleeve');
+    const g=COS_GLOVE[look.gloves],gk=/^gk/.test(look.gloves);ell(hx,hy,gk?2.4:2,gk?2.4:2,g||sk,'hand');if(gk)put(hx,hy-1,'#ffffff');if(look.gloves==='gold'){put(hx-1,hy-1,'#fff6c8');TW.push([hx+1,hy-2,'#fff3b0'])}
+    const wx=ex+(hx-ex)*.62,wy=ey+(hy-ey)*.62;
+    if(look.tattoo==='sleeve'&&!/^ls/.test(under)){cap(sx,sy,ex,ey,1.5+b*.25,'#26304d','arm');cap(ex,ey,wx,wy,1.3+b*.2,'#26304d','arm');put(ex,ey,'#22d3ee');put(ex+(wx-ex)*.5,ey+(wy-ey)*.5,'#f97316');put(sx+(ex-sx)*.7,sy+(ey-sy)*.7+1,'#e11d48');cap(sx,sy,sx+(ex-sx)*.5,sy+(ey-sy)*.5,2.1+b*.2,k1,'sleeve')}
+    if(look.tattoo==='tribal'&&!/^ls/.test(under))[.1,.55].forEach(k=>{const tx=ex+(wx-ex)*k,ty=ey+(wy-ey)*k;for(let dx=-1;dx<=1;dx++)put(tx+dx,ty,'#141826');put(tx,ty+1,'#141826')});
+    if(look.tattoo==='rose'&&!/^ls/.test(under)&&s>0){const tx=ex+(wx-ex)*.4,ty=ey+(wy-ey)*.4;put(tx,ty,'#e11d48');put(tx+1,ty,'#be123c');put(tx,ty+1,'#be123c');put(tx-1,ty+1,'#16a34a')}
+    if(look.tattoo==='star'&&!/^ls/.test(under)&&s>0){const tx=ex+(wx-ex)*.4,ty=ey+(wy-ey)*.4;put(tx,ty-1,'#283a62');put(tx-1,ty,'#283a62');put(tx,ty,'#283a62');put(tx+1,ty,'#283a62');put(tx,ty+1,'#283a62')}
+    if(look.wrist==='guard')cap(ex,ey,wx,wy+.6,1.5+b*.2,'#f1f5f9','wrist');
+    else if(look.wrist&&look.wrist!=='none'){const wc=COS_WRIST[look.wrist];for(let dx=-1;dx<=1;dx++)for(let dy=0;dy<=1;dy++)put(wx+dx,wy+dy,dx>0?cmix(wc,'#1d2348',.25):wc,'wrist');if(look.wrist==='gold'){put(wx-1,wy,'#fff6c8');TW.push([wx+1,wy-1,'#fff3b0'])}}
+    });
+  const armsUp=P.L[1][1]<0||P.R[1][1]<0;if(!armsUp)drawArms();   // 팔을 든 자세는 머리 앞에 그린다
+  // 머리 (크게) · 귀 · 목
+  rect(cx-2,19,cx,19,under==='neck'?'#334155':sk,'neck');
+  ell(cx-11.1,12.5,1.4,2,sk,'ear');ell(cx+10.1,12.5,1.4,2,sk,'ear');
+  ell(cx-.5,10,10.5,10,sk,'head');if(under==='neck'){rect(cx-5,19,cx+3,21,'#334155','neck');for(let x=cx-5;x<=cx+3;x+=2)put(x,20,'#475569')}
+  // 얼굴: 눈 (크게) · 눈썹 · 코 · 입 · 볼
+  const ink='#1a1622',W2='#ffffff',ey=11,lx=cx-7,rx=cx+3,brow=cmix(look.hcol==='platinum'?'#8a7350':hc,'#000',.3);
+  const EY={basic:['wkk','kkk','.k.'],big:['wkk','kkw','kkk','.k.'],sharp:['kkk','.kk'],sleepy:['...','kkk'],smile:['.k.','k.k'],fierce:['kkk','wkk','kk.'],sparkle:['wbb','bwb','dbd']};
+  const em=EY[look.eyes]||EY.basic,ec=c=>c==='k'?ink:c==='w'?W2:c==='b'?'#2f6fe0':c==='d'?'#1e3a8a':null;
+  const mirror=look.eyes==='sharp'||look.eyes==='fierce';if(look.eyes==='sparkle')TW.push([lx-1,ey-1,'#ffffff'],[rx+3,ey-1,'#bfdbfe']);
+  em.forEach((row,j)=>[...row].forEach((c,i)=>{const cl=ec(c),cr=ec(mirror?row[2-i]:c);if(cl)put(lx+i,ey+j,cl);if(cr)put(rx+i,ey+j,cr)}));
+  // 눈썹
+  if(look.eyes==='fierce'){put(lx,ey-3,brow);put(lx+1,ey-2,brow);put(lx+2,ey-2,brow);put(rx+2,ey-3,brow);put(rx+1,ey-2,brow);put(rx,ey-2,brow)}else for(let i=0;i<3;i++){put(lx+i,ey-2,brow);put(rx+i,ey-2,brow)}
+  const skS=cmix(sk,'#5a2a1a',.3),skH=cmix(sk,'#fff4e0',.4),mid=cx-.5;
+  ({basic:()=>{put(mid,ey+3,skS);put(mid-1,ey+3,cmix(sk,'#5a2a1a',.15))},dot:()=>put(mid,ey+3,cmix(sk,'#5a2a1a',.18)),wide:()=>{put(mid-1,ey+3,skS);put(mid+1,ey+3,skS)},tall:()=>{put(mid,ey+2,skH);put(mid,ey+3,skS)},button:()=>{put(mid,ey+2,skH);put(mid-1,ey+3,skS);put(mid+1,ey+3,skS)},hook:()=>{put(mid+1,ey+2,skS);put(mid,ey+3,skS)}}[look.nose]||(()=>put(mid,ey+3,skS)))();
+  const dk='#6b2a2a',my=ey+5;
+  ({line:()=>{put(mid-1,my,dk);put(mid,my,dk);put(mid+1,my,dk)},smile:()=>{put(mid-2,my-1,dk);put(mid-1,my,dk);put(mid,my,dk);put(mid+1,my,dk);put(mid+2,my-1,dk)},neutral:()=>{put(mid-1,my,dk);put(mid,my,dk)},
+    grin:()=>{put(mid-2,my,dk);put(mid-1,my,W2);put(mid,my,W2);put(mid+1,my,W2);put(mid+2,my,dk);put(mid-1,my+1,dk);put(mid,my+1,'#d9536b');put(mid+1,my+1,dk)},grit:()=>{put(mid-2,my,dk);for(let i=-1;i<=1;i++)put(mid+i,my,W2);put(mid+2,my,dk)},
+    o:()=>{put(mid,my-1,dk);put(mid-1,my,dk);put(mid+1,my,dk);put(mid,my+1,dk);put(mid,my,'#5a2323')},smirk:()=>{put(mid-1,my,dk);put(mid,my,dk);put(mid+1,my-1,dk);put(mid+2,my-1,dk)},tongue:()=>{put(mid-2,my-1,dk);put(mid-1,my,dk);put(mid,my,dk);put(mid+1,my,dk);put(mid+2,my-1,dk);put(mid,my+1,'#e0566c');put(mid+1,my+1,'#e0566c');put(mid,my+2,'#b83a55');put(mid+1,my+2,'#c94763')}}[look.mouth]||(()=>{}))();
+  if(!look.paint||look.paint==='none'){put(lx-1,ey+3,cmix(sk,'#f0607a',.35));put(rx+3,ey+3,cmix(sk,'#f0607a',.35))}   // 볼 홍조
+  // 수염 · 페이스페인팅
+  const bd=cmix(hc,'#000',.12),beard=look.beard!=='none'?look.beard:age>=34?'stubble':'none';
+  if(beard==='stubble')for(let y=my-1;y<=my+3;y++)for(let x=cx-10;x<=cx+9;x++)if(part[(y+OY)*W+x]==='head'&&(x+y)%2&&px[(y+OY)*W+x]&&!(y===my&&Math.abs(x+.5-mid-.5)<2))put(x,y,cmix(sk,bd,.45));
+  if(beard==='full')for(let y=my-1;y<=my+4;y++)for(let x=cx-11;x<=cx+10;x++)if(part[(y+OY)*W+x]==='head'&&!(y===my&&Math.abs(x-mid)<2))put(x,y,y>my+1?cmix(bd,'#1d2348',.25):bd);
+  if(beard==='mus')for(let i=-2;i<=2;i++)put(mid+i,my-1,bd);
+  if(beard==='goatee'){put(mid-1,my+2,bd);put(mid,my+2,bd);put(mid+1,my+2,bd);put(mid,my+3,bd)}
+  if(beard==='side')for(let y=ey-1;y<=ey+4;y++){put(cx-11,y,bd);put(cx+9,y,bd)}
+  const PT=look.paint;
+  if(PT==='eyeblack')for(let i=0;i<3;i++){put(lx+i,ey+4,'#15151a');put(rx+i,ey+4,'#15151a');if(i<2){put(lx+i,ey+5,'#2a2a33');put(rx+1+i,ey+5,'#2a2a33')}}
+  if(PT==='warrior')for(let i=0;i<4;i++){put(lx-2+i,ey+4,'#d6203a');put(lx-2+i,ey+6,'#15151a');put(rx+1+i,ey+4,'#d6203a');put(rx+1+i,ey+6,'#15151a')}
+  if(PT==='kr')[[lx-1,ey+4],[rx+2,ey+4]].forEach(([x,y])=>{put(x,y,'#d6203a');put(x+1,y,'#d6203a');put(x,y+1,'#1b4fb3');put(x+1,y+1,'#1b4fb3');put(x-1,y,'#f4f6fa');put(x+2,y+1,'#f4f6fa')})
+  if(PT==='heart')[lx,rx+2].forEach(x=>{[[-1,0],[1,0],[-1,1],[0,1],[1,1],[0,2]].forEach(([dx,dy])=>put(x+dx,ey+4+dy,'#f0547a'));put(x-1,ey+4,'#ff9ab5')})
+  if(PT==='star'){const x=rx+2,y=ey+5;[[0,-2],[0,-1],[-2,0],[-1,0],[0,0],[1,0],[2,0],[0,1],[0,2]].forEach(([dx,dy])=>put(x+dx,y+dy,dx||dy?'#f5c518':'#fff6c8'));TW.push([x+2,y-2,'#fde68a'])}
+  if(look.tattoo==='neck'){const x=lx+1,y=ey+4;put(x,y,'#283a62');put(x,y+1,'#283a62');put(x-1,y+1,'#3b4f7f');put(x+1,y+1,'#3b4f7f');put(x,y+2,'#283a62')}
+  // 앞머리 (스타일마다 모양이 확실히 다르게)
+  const top=(cut,ry)=>ell(cx-.5,6.8,11,ry?ry+.7:7.4,HC,'hair',(x,y)=>y<=cut);
+  const side=()=>{rect(cx-11,6,cx-10,11,hc,'hair');rect(cx+8,6,cx+9,11,hc,'hair')};
+  if(hs==='short'){top(7.5);side();put(cx-3,8,hc);put(cx-2,8,hc);put(cx+3,8,hc)}
+  if(hs==='twoblock'){top(6.5,6);const sh=cmix(hc,sk,.55);rect(cx-11,6,cx-10,10,sh,'hair');rect(cx+8,6,cx+9,10,sh,'hair');for(let x=cx-6;x<=cx+5;x++)put(x,7,hc)}
+  if(hs==='buzz')top(6.5,6.6),[...Array(N).keys()].forEach(i=>{if(part[i]==='hair'&&px[i])px[i]=cmix(px[i],sk,.45)});
+  if(hs==='bald'){put(cx-4,4,'#ffffff');put(cx-3,4,cmix(sk,'#ffffff',.5));put(cx-4,5,cmix(sk,'#ffffff',.5))}
+  if(hs==='wave'){top(7.5);side();for(let y=2;y<=7;y++)put(cx-3,y,cmix(hc,'#1d2348',.4));ell(cx+3,6.5,4.5,2.4,HC,'hair')}
+  if(hs==='curly'){top(6.5);[-8,-5.5,-3,-.5,2,4.5,7].forEach((o,i)=>ell(cx+o-.5,7+(i%2),1.8,1.8,HC,'hair'));side()}
+  if(hs==='regent'){top(7);side();ell(cx-1.5,1.6,6,2.6,HC,'hair')}
+  if(hs==='long'){top(7.5);side();rect(cx-11,6,cx-10,19,hc,'hair');rect(cx+8,6,cx+9,19,hc,'hair')}
+  if(hs==='manbun'||hs==='ponytail'){top(7.2);side()}
+  if(hs==='spiky'){top(7);side();[-7,-4,-1,2,5].forEach(o=>{put(cx+o,1,hc);put(cx+o,0,hc);put(cx+o+1,1,hc);put(cx+o-1,2,hc);put(cx+o+1,2,hc)})}
+  if(hs==='mohawk'){top(6,6.4);[...Array(N).keys()].forEach(i=>{if(part[i]==='hair'&&px[i]&&Math.abs((i%W)+.5-cx+.5)>2.2)px[i]=cmix(px[i],sk,.55)});rect(cx-2,-1,cx,7,hc,'hair')}
+  if(hs==='cornrow'){top(7.2);for(let x=cx-8;x<=cx+7;x+=2)for(let y=2;y<=7;y++)if(part[(y+OY)*W+x]==='hair')put(x,y,cmix(hc,sk,.4))}
+  if(hs==='dreads'){top(7);side()}
+  if(hs==='afro'){top(7,6.4)}
+  // 머리 장식
+  const hd=look.head;
+  if(hd==='band'||hd==='sport'||hd==='taeguk'){const c=hd==='band'?'#ef4444':'#f8fafc';for(let x=cx-11;x<=cx+10;x++){if(px[(4+OY)*W+x]||px[(5+OY)*W+x]){put(x,4,c);put(x,5,cmix(c,'#1d2348',.15))}}
+    if(hd==='sport'){put(cx-1,4,'#2563eb');put(cx,4,'#2563eb')}if(hd==='taeguk'){put(cx-1,4,'#d6203a');put(cx,4,'#1b4fb3');put(cx-1,5,'#1b4fb3');put(cx,5,'#d6203a')}}
+  if(hd==='beanie'){ell(cx-.5,5,11.4,6.8,'#2d3e8f','hat',(x,y)=>y<=6);rect(cx-12,6,cx+10,7,'#f1f5f9','hat');ell(cx-.5,-1,2.1,1.8,'#f1f5f9','hat')}
+  if(hd==='cap'){ell(cx-.5,5.2,11.1,5.8,k1,'hat',(x,y)=>y<=6);rect(cx-13,7,cx+3,7,k2,'hat');put(cx-1,2,k2);put(cx,2,k2)}
+  if(hd==='goggles'){for(let x=cx-11;x<=cx+10;x++)if(px[(5+OY)*W+x])put(x,5,'#1f2937');ell(cx-4.5,5,2.4,1.9,'#38bdf8','hat');ell(cx+3.5,5,2.4,1.9,'#38bdf8','hat');put(cx-6,4,'#ffffff');put(cx+2,4,'#ffffff')}
+  if(hd==='phones'){for(let x=cx-10;x<=cx+8;x++)put(x,0,'#111827');rect(cx-11,1,cx-11,9,'#111827','hat');rect(cx+9,1,cx+9,9,'#111827','hat');ell(cx-11.2,12,1.9,2.8,'#ef4444','hat');ell(cx+10.2,12,1.9,2.8,'#ef4444','hat')}
+  if(hd==='horns'){[[-6,1],[4,1]].forEach(([o])=>{for(let k=0;k<4;k++){put(cx+o+(o<0?-k*.4:k*.4),3-k,'#c0262d');put(cx+o+1+(o<0?-k*.4:k*.4),3-k,'#8f1b21')}})}
+  if(hd==='crown'){const g='#f2c230';for(let x=cx-6;x<=cx+4;x++){put(x,2,g);put(x,1,cmix(g,'#fff6e6',.3))}[cx-6,cx-3,cx-1,cx+1,cx+4].forEach(x=>{put(x,0,g);put(x,-1,g)});put(cx-5,1,'#e11d48');put(cx-1,1,'#2563eb');put(cx+3,1,'#16a34a');TW.push([cx-1,-2,'#fff3b0'])}
+  if(armsUp)drawArms();
+  // 안쪽 선: 팔 ↔ 몸 · 머리, 턱 ↔ 몸
+  {const grp=p=>/^(head|ear|hair|hat)$/.test(p)?'H':/^(arm|hand|sleeve|wrist)$/.test(p)?'A':/^(torso|shorts|neck)$/.test(p)?'B':'',dk=[];
+   for(let i=0;i<N;i++){if(!px[i])continue;const g0=grp(part[i]),x=i%W;if(!g0)continue;const nbs=[x>0?i-1:-1,x<W-1?i+1:-1,i-W,i+W].filter(j=>j>=0&&j<N&&px[j]);
+     if(g0==='A'&&nbs.some(j=>{const g=grp(part[j]);return g==='B'||g==='H'}))dk.push(i);
+     if(part[i]==='head'&&i+W<N&&px[i+W]&&/^[AB]$/.test(grp(part[i+W])))dk.push(i)}
+   dk.forEach(i=>px[i]=cmix(px[i],'#15131c',.72))}
+  // 바깥 윤곽선 (굵게 · 2D 느낌)
+  const out=px.slice();for(let i=0;i<N;i++){if(px[i])continue;const x=i%W,y=(i/W)|0;const nb=(x>0&&px[i-1])||(x<W-1&&px[i+1])||(y>0&&px[i-W])||(y<H-1&&px[i+W]);if(nb)out[i]=cmix(nb,'#0b0d18',.9)}
+  return CB_CACHE[key]={W,H,px:out,tw:TW.map(([x,y,c])=>[Math.floor(x),Math.floor(y)+OY,c])}}
+function avatarSvg(look,kit,pose,opt){opt=opt||{};const lk=lkFromLook(look),g=chibiGrid(look,kit,pose||'stand',G.p?G.p.age:25),VW=72,VH=72,s=Math.min(66/g.H,64/g.W),gw=g.W*s,gh=g.H*s,gx=36-gw/2,gy=68-gh;
+  const key=JSON.stringify([look,kit,pose,G.p&&G.p.age,G.p&&G.p.captain]);let url=AV_IMG[key];if(url===undefined){if(Object.keys(AV_IMG).length>60)for(const k in AV_IMG)delete AV_IMG[k];url=AV_IMG[key]=avRects(g,0,0)}
+  let s2=auraSvg(look.aura,36,gy+gh*.5)+`<ellipse cx="36" cy="${(gy+gh-.6).toFixed(1)}" rx="${(gw*.42).toFixed(1)}" ry="1.6" fill="#000" opacity=".3"/>`;
+  s2+=`<g transform="translate(${gx.toFixed(2)} ${gy.toFixed(2)}) scale(${s.toFixed(3)})">${url}</g>`;
+  (g.tw||[]).forEach(([x,y,c],i)=>{const X=gx+(x+.5)*s,Y=gy+(y+.5)*s;s2+=`<g class="avTw" style="animation-delay:${(i*.37%1.6).toFixed(2)}s" fill="${c}"><rect x="${(X-1.5).toFixed(1)}" y="${(Y-.4).toFixed(1)}" width="3" height=".8"/><rect x="${(X-.4).toFixed(1)}" y="${(Y-1.5).toFixed(1)}" width=".8" height="3"/></g>`});   // 큰 그림은 사각형으로 (어느 폰에서도 또렷하게)
+  if(lk.hk==='halo')s2+=`<ellipse cx="36" cy="${(gy+1.6).toFixed(1)}" rx="${(gw*.24).toFixed(1)}" ry="1.6" fill="none" stroke="#facc15" stroke-width="1.1"/>`+[-6,-3,0,3,6].map(d=>`<rect class="avTw" x="${36+d-.6}" y="${(gy-1+(d%2?1:0)).toFixed(1)}" width="1.3" height="1.3" fill="#fff6b0"/>`).join('');
+  if(look.pet&&look.pet!=='none'&&!opt.noPet){const pg=petGrid(look.pet);s2+=`<g class="avBob">${avRects(pg,VW-pg.W-1,VH-pg.H-1)}</g>`}
+  if(opt.ball){const bg=ballGrid(look.ball||'classic');s2+=avRects(bg,4,VH-bg.H-2)}
+  return `<svg class="avsvg" viewBox="0 0 ${VW} ${VH}" shape-rendering="crispEdges" aria-hidden="true">${s2}</svg>`}
 const myKit=()=>{const p=G.p;if(!p)return ['#1f4e9e','#f2f4f8'];if(p.fa)return ['#9aa3b2','#4b5563'];if(p.phase!=='retired'&&p.club!=null)return teamCol(p.club);return careerKits(p).slice(-1)[0]||['#1f4e9e','#f2f4f8']};
 
 /* ---------- 꾸미기 화면 (옷장) ---------- */
-function closetView(){const cat=G.cosCat||'hair',C=COS_BY[cat],tr=G.cosTry&&G.cosTry.cat===cat?{[cat]:G.cosTry.k}:null,look=cosLook(tr),pose=G.cosPose||'stand',bal=lpBal();
+const COS_GRP=[{n:'신체',i:'🧍',c:['skin','body','hair','hcol','eyes','mouth','beard']},{n:'장식',i:'🎭',c:['head','paint','tattoo']},{n:'장비',i:'👟',c:['boots','gloves','socks','wrist','under','ball']},{n:'이펙트',i:'✨',c:['aura','pet']}];
+function closetView(){const cat=COS_BY[G.cosCat]?G.cosCat:'hair',C=COS_BY[cat],tr=G.cosTry&&G.cosTry.cat===cat?{[cat]:G.cosTry.k}:null,look=cosLook(tr),pose=G.cosPose||'stand',bal=lpBal();
   const sel=tr?G.cosTry.k:cosEq(cat),si=cosItem(cat,sel),own=cosOwn(cat,sel),on=cosEq(cat)===sel;
   const bar=!si?'':own?(on?`<span class="cosst">✓ 장착 중</span>`:`<button class="btn" data-act="cos-eq" data-v="${cat}:${sel}">장착하기</button>`)
     :si.x?`<span class="cosst lock">🔒 ${esc((ACH.find(a=>a.id===si.x)||{}).n||'전설 업적')} 달성 시 획득</span>`:`<button class="btn" data-act="cos-buy" data-v="${cat}:${sel}" ${bal<si.c?'disabled':''}>${si.c} LP로 구매${bal<si.c?' · LP 부족':''}</button>`;
   return `<section class="panel closet"><div class="row" style="justify-content:space-between;align-items:baseline"><span class="eyebrow">WARDROBE</span><span class="small">보유 <b>${bal}</b> LP</span></div>
     <h2 class="sectionh">꾸미기</h2>
-    <div class="cosstage">${avatarSvg(look,myKit(),pose,{ball:true})}<div class="cospose">${[['stand','서기'],['cheer','만세'],['point','손가락'],['plane','비행기'],['flex','근육']].map(([k,n])=>`<button data-act="cos-pose" data-v="${k}" aria-pressed="${pose===k}">${n}</button>`).join('')}</div></div>
-    <div class="cosbar">${si?`<span><b>${esc(si.n)}</b> <span class="rar" style="color:${RAR[si.r].c}">${RAR[si.r].n}</span>${tr&&!own?' <span class="muted small">· 입혀 보는 중</span>':''}</span>${bar}`:''}</div>
-    <div class="coscats">${COS.map(c=>`<button data-act="cos-cat" data-v="${c.k}" aria-pressed="${c.k===cat}">${c.i} ${c.n}</button>`).join('')}</div>
+    <div class="cosstage">${avatarSvg(look,myKit(),pose,{ball:true})}<div class="cospose">${[['stand','서기'],['cheer','만세'],['plane','비행기'],['heart','하트'],['fist','주먹']].map(([k,n])=>`<button data-act="cos-pose" data-v="${k}" aria-pressed="${pose===k}">${n}</button>`).join('')}</div></div>
+    <div class="cosbar">${si?`<span class="cosnm"><b>${esc(si.n)}</b><span class="rar" style="background:${RAR[si.r].c}">${RAR[si.r].n}</span>${tr&&!own?'<span class="muted small">입혀 보는 중</span>':''}</span>${bar}`:''}</div>
+    <div class="cosgrps">${COS_GRP.map(g=>`<button data-act="cos-cat" data-v="${g.c.includes(cat)?cat:g.c[0]}" aria-pressed="${g.c.includes(cat)}"><span>${g.i}</span>${g.n}</button>`).join('')}</div>
+    <div class="coscats sub">${(COS_GRP.find(g=>g.c.includes(cat))||COS_GRP[0]).c.map(k=>COS_BY[k]).filter(Boolean).map(c=>`<button data-act="cos-cat" data-v="${c.k}" aria-pressed="${c.k===cat}"><span>${c.i}</span>${c.n}</button>`).join('')}</div>
     <div class="cosgrid">${C.items.map(x=>{const o=cosOwn(cat,x.k),e=cosEq(cat)===x.k,t=tr&&G.cosTry.k===x.k;
-      return `<button class="cositem${e?' eq':''}${t?' try':''}" data-act="cos-try" data-v="${cat}:${x.k}" style="--rc:${RAR[x.r].c}"><span class="rbar"></span><b>${esc(x.n)}</b><span class="cs">${e?'✓ 장착':o?'보유':x.x?'🔒 업적':x.c+' LP'}</span></button>`}).join('')}</div>
+      return `<button class="cositem${e?' eq':''}${t?' try':''}" data-act="cos-try" data-v="${cat}:${x.k}" style="--rc:${RAR[x.r].c}"><span class="cin"><b>${esc(x.n)}</b><span class="rar" style="background:${RAR[x.r].c}">${RAR[x.r].n}</span></span><span class="cs${e?' on':o?' own':x.x?' lock':''}">${e?'✓ 장착 중':o?'보유 · 장착':x.x?'🔒 업적 보상':x.c+' LP'}</span></button>`}).join('')}</div>
     <p class="hint">눌러서 입혀 보고, 마음에 들면 구매 · 장착 · 꾸민 모습은 홈 카드 · 경기 장면 · 커리어 카드에 나와요<br>전설 업적 아이템은 상점에서 팔지 않아요 (업적 › 전설)</p></section>`}
 function cosBuy(cat,k){const x=cosItem(cat,k);if(!x||x.x||cosOwn(cat,k)||lpBal()<x.c)return;G.lp.buy.push({id:newPid(),k:cosKey(cat,k),c:x.c});G.lp.eq['c_'+cat]=k;G.cosTry=null;lpSave();toast(`${x.n} 구매 · 장착 ✓ (-${x.c} LP)`);sfx('save')}
 
@@ -5334,12 +5428,12 @@ async function cardImage(x){
   if(ci>=0){const im=await svgImg(crest(ci,64));if(im)g.drawImage(im,W-80-110,58,110,126)}
   // 픽셀 선수 (대표 구단 유니폼 · 환호)
   // 꾸민 내 아바타 (고해상도 · 자세는 랜덤) + 마스코트
-  {const ps=['stand','cheer','point','plane','flex'][Math.floor(Math.random()*5)],lk=cosLook(),ag=avGrid(lk,[k1,k2],ps),S=7,ax=812-24*S,ay=662-62*S;
+  {const ps=['stand','cheer','point','plane','heart','arms','salute','fist'][Math.floor(Math.random()*8)],lk=cosLook(),ag=chibiGrid(lk,[k1,k2],ps,G.p?G.p.age:25),S=Math.min(13,440/ag.H,380/ag.W),ax=812-ag.W*S/2,ay=666-ag.H*S;
    if(lk.aura&&lk.aura!=='none'){const ac={dust:'#fde68a',frost:'#7dd3fc',bolt:'#fde047',flame:'#fb923c',rainbow:'#f472b6',legend:'#facc15',trophy:'#facc15'}[lk.aura]||'#facc15',gr=g.createRadialGradient(812,ay+32*S,8,812,ay+32*S,36*S);gr.addColorStop(0,ac+'77');gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(812-40*S,ay-6*S,80*S,74*S)}
-   g.fillStyle='rgba(0,0,0,.35)';g.beginPath();g.ellipse(812,ay+63*S,13*S,1.8*S,0,0,Math.PI*2);g.fill();
+   g.fillStyle='rgba(0,0,0,.35)';g.beginPath();g.ellipse(812,ay+ag.H*S,ag.W*S*.4,22,0,0,Math.PI*2);g.fill();
    for(let yy=0;yy<ag.H;yy++)for(let xx=0;xx<ag.W;xx++){const c=ag.px[yy*ag.W+xx];if(c){g.fillStyle=c;g.fillRect(ax+xx*S,ay+yy*S,S+.5,S+.5)}}
-   if(ag.halo){g.strokeStyle='#facc15';g.lineWidth=S*1.1;g.beginPath();g.ellipse(812,ay+1.6*S,8*S,1.8*S,0,0,Math.PI*2);g.stroke()}
-   if(lk.pet&&lk.pet!=='none'){const pg=petGrid(lk.pet),Q=6,px0=W-96-pg.W*Q,py0=ay+63*S-pg.H*Q;for(let yy=0;yy<pg.H;yy++)for(let xx=0;xx<pg.W;xx++){const c=pg.px[yy*pg.W+xx];if(c){g.fillStyle=c;g.fillRect(px0+xx*Q,py0+yy*Q,Q+.5,Q+.5)}}}}
+   if(lk.head==='halo'){g.strokeStyle='#facc15';g.lineWidth=S*1.1;g.beginPath();g.ellipse(812,ay+1.6*S,8*S,1.8*S,0,0,Math.PI*2);g.stroke()}
+   if(lk.pet&&lk.pet!=='none'){const pg=petGrid(lk.pet),Q=6,px0=W-96-pg.W*Q,py0=ay+ag.H*S-pg.H*Q;for(let yy=0;yy<pg.H;yy++)for(let xx=0;xx<pg.W;xx++){const c=pg.px[yy*pg.W+xx];if(c){g.fillStyle=c;g.fillRect(px0+xx*Q,py0+yy*Q,Q+.5,Q+.5)}}}}
   // 전성기 OVR · 역할 · 등급
   g.fillStyle='#ffe08a';g.font=`900 230px ${NUM}`;g.fillText(String(x.peak||'-'),74,390);
   const ow=g.measureText(String(x.peak||'-')).width;g.fillStyle='rgba(255,255,255,.85)';g.font=`800 48px ${NUM}`;g.fillText('OVR',86+ow,320);
@@ -5462,7 +5556,7 @@ function achOverlay(){
   if(G.screen==='create'&&G.pickAsk!=null){const c=G.create,x=c.cands&&c.cands[G.pickAsk];
     if(x)return `<div class="achov"><div class="achbox"><span class="eyebrow" style="display:block">선수 확정</span><b class="celebt" style="display:block;margin:4px 0 6px">정말 이 선수로 시작할까요?</b>
       <p class="small">${c.name?esc(c.name)+' · ':''}후보 ${G.pickAsk+1} · ${DPOS[x.dpos].n} · OVR ${x.ovr}${c.scout&&c.scout[G.pickAsk]!=null?` · 잠재력 최소 ${c.scout[G.pickAsk]}`:''}</p>
-      <p class="hint">시작하면 다시 고를 수 없어요.</p>
+      <p class="hint">시작하면 다시 고를 수 없어요.${c.scout&&Object.keys(c.scout).length?'<br>🔍 스카우트로 잠재력을 본 선수는 커리어 베팅을 할 수 없어요.':''}</p>
       <div class="grid2"><button class="btn" data-act="pick" data-v="${G.pickAsk}">시작하기</button><button class="btn alt" data-act="pick-cancel">다시 볼래요</button></div></div></div>`;G.pickAsk=null}
   // 마감일 깜짝 오퍼 팝업
   if(G.dlPop&&G.p){const p=G.p,o=G.dlPop==='winter'?p.dlWinter:p.dlOffer;if(o){const L=LG[CLUBS[o.club].lg];
@@ -5918,6 +6012,7 @@ function resolveMoment(p,i){
 
 /* ---------- 업데이트 노트 (최신이 위, 버전마다 누적) ---------- */
 const UPDATES=[
+  {d:'2026.10.23 02:31',t:'캐릭터 리뉴얼 · 커리어 점수 · 베팅 조정',l:['🎨 경기 장면 캐릭터도 큰 캐릭터와 같은 비율로 (머리·얼굴은 크게, 몸통·다리는 짧게) · 2배 해상도로 음영·윤곽선·눈 하이라이트를 넣어 또렷하게','🧑 꾸미기 · 홈 · 커리어 카드: 얼굴이 큰 도트 캐릭터로 새로 그렸어요 · 굵은 윤곽선 · 짧은 팔다리 · 눈과 입이 커서 표정이 잘 보여요','🏆 커리어 점수 기준 조정 (이번 업데이트 뒤 은퇴한 커리어부터): 전성기 OVR 80 위는 조금 덜 반영하고, 발롱도르·야신상은 작은 별도 보너스 · 예전 명예의 전당 기록은 원래 점수 그대로','🎲 시즌 베팅: 최대 3개까지 묶을 수 있고 배당이 조금 올랐어요 · 스카우트로 잠재력을 본 선수는 커리어 베팅을 할 수 없어요','🧓 40세가 넘어도 계약 기간이 남아 있으면 은퇴 대신 잔류할 수 있어요','👕 꾸미기 화면: 신체 · 장식 · 장비 · 이펙트 4묶음으로 정리 · 다른 부위를 눌러도 목록이 처음으로 돌아가지 않아요 · 아이템 이름·등급·가격을 크게','✨ 꾸미기 아이템 리뉴얼: 페이스페인팅 · 타투 · 손목밴드 · 넥워머 · 맨번을 크게 다시 그려 잘 보여요 · 비싼 아이템(오로라·다이아몬드·황금 축구화, 황금 밴드·장갑, 반짝이는 눈, 별 볼, 왕관)은 반짝이는 효과 · 목 타투는 눈가 타투로 바뀌었어요','👃 잘 안 보이던 코 항목은 없앴어요 · 코를 샀다면 쓴 LP가 자동으로 돌아와요','⚽ 역할 설명: 역할마다 경기장 위치 그림 · 핵심 능력치 · 비슷한 역할과의 차이 (예: 레지스타는 배급, 수비형 미드필더는 볼 탈취)','✈️ 유럽에서 뛰고 있거나 뛰어 본 선수에게는 유럽 진출의 꿈 이벤트가 나오지 않아요']},
   {d:'2026.10.22 23:05',t:'꾸미기 · 전설 업적 · 출석 10 LP',l:['👕 꾸미기 (홈 › 꾸미기): 고해상도 픽셀 아바타를 직접 꾸며요 · 헤어스타일 15종 · 머리색 · 눈 · 코 · 입 · 수염 · 페이스페인팅 · 머리 장식 · 이너웨어 · 타투 · 손목 · 장갑 · 양말 · 축구화 12종 · 축구공 · 오라 · 마스코트까지 19개 부위 120여 종','눌러서 입혀 보고 LP로 구매 · 등급은 일반 · 희귀 · 영웅 · 전설 · 자세 5가지로 미리보기','꾸민 모습은 홈 카드 · 경기 하이라이트 · 세레머니 · 커리어 카드에 나와요 (피부색 · 체형은 무료)','⭐ 전설 업적 10개: 발롱도르 5회 · 득점왕 10회 · 야신상 5회 · 통산 500골 · 트레블 3회 · 챔피언스리그 10회 우승 · A매치 200경기 (한 커리어) · S+ 커리어 100번 · 월드컵 우승 5번 · 은퇴 1,000번 (모든 커리어 합산) → 업적으로만 얻는 전용 아이템 + 50 LP','📅 출석 보상이 하루 10 LP로 올랐어요']},
   {d:'2026.10.19 22:13',t:'메디컬 테스트 완화 · 대륙대회 이적 버그',l:['🩺 이적 메디컬 테스트에서 떨어지는 일이 줄었어요 (부상 중이거나 최근 큰 부상이 있을 때)','🐞 시즌 중 이적하면 이전 소속팀의 대륙대회는 더 뛰지 않아요 (유럽 팀으로 이적했는데 AFC 대회를 이어서 뛰고 우승하던 문제 수정)']},
   {d:'2026.10.19 19:26',t:'스카우트 한 번에 · 상점 10개 구매 · 시작 확인',l:['🔍 후보 선수를 한 번에 스카우트: 아직 확인 안 한 후보 모두 (가진 스카우트권만큼)','🛒 LP 상점 소모품을 10개씩 살 수 있어요','✅ 이 선수로 시작을 누르면 정말 시작할지 한 번 더 물어봐요']},
@@ -6272,7 +6367,7 @@ function guideView(){
     '<b>LP 상점</b> · 리롤권 · 스카우트권 · 특성 선택권 · 이중국적 · 유럽 유스 시작권',
     '<b>꾸미기</b> · 카드 테두리 · 은퇴식 연출 (영구) / 랭킹·친구 화면에도 보임',
     '<b>구단 도감</b> · 뛰어 본 구단 수집 → 휘장 → 닉네임 테두리',
-    '<b>🎲 시즌 베팅</b> · 첫 경기 전 LP 걸기 → 리그 골·도움·무실점·순위 · 묶으면 배당 곱 · 길게 보면 손해 (환급 약 80%) · 최대 2개 묶음',
+    '<b>🎲 시즌 베팅</b> · 첫 경기 전 LP 걸기 → 리그 골·도움·무실점·순위 · 묶으면 배당 곱 · 길게 보면 손해 (환급 약 90%) · 최대 3개 묶음',
     '<b>🎰 커리어 베팅</b> · 새 커리어 40% 확률 · 최대 30 LP · 은퇴 등급 B 1.25 · A 2 · S 3 · S+ 5배'
   ],[
     '출석 체크와 주간 챌린지(B등급+)로 매일 LP 모으기'
@@ -6846,7 +6941,7 @@ function playerTab(p){
   if(t==='role')h+=`<section class="panel"><div class="row" style="justify-content:space-between;align-items:center"><span class="eyebrow">목표 역할</span><span class="chip ${p.dposAuto?'good':''}">${p.dposAuto?'자동':'고정'}</span></div>
     <p class="hint">1부 리그에서 한 역할로 시즌 <b>25경기 · 평균 7.4+</b> → 숙련도 ★ +1 · ★3이면 배지 (시즌 중 바꾸면 그 시즌 미인정)</p>
     ${(()=>{const vs=versatility(p),b=versBonus(p),vc=versCount(p);return `<div class="note small"><b>${vc>=3?'멀티 플레이어':'소화 가능한 역할'} ${vc}개</b> · ${vs.map(d=>DPOS[d].n).join(', ')}${p.foot==='양발'&&p.pos!=='GK'?' + 양발(좌우 측면 모두)':''}${b?` · 주전 경쟁 ${b>=2?'크게 ':''}유리 · 영입 제의 ↑`:''}</div>`})()}
-    <div class="list">${rolesOf(p.pos).map(d=>{const f=fitOf(p.stats,d),cur=dposOf(p)===d;return `<div class="li"><span><b>${DPOS[d].n}</b>${cur?' <span class="chip gold">현재</span>':''} <span class="rst">${stars(mastery(p,d))}</span><br><span class="hint">${DPOS[d].d}${BADGES[d]?` · 배지 ${BADGES[d].i} ${BADGES[d].n}`:''}</span></span>
+    <div class="list">${rolesOf(p.pos).map(d=>{const f=fitOf(p.stats,d),cur=dposOf(p)===d;return `<div class="li"><span><b>${DPOS[d].n}</b>${cur?' <span class="chip gold">현재</span>':''} <span class="rst">${stars(mastery(p,d))}</span><span class="rolex">${roleMini(d)}<span><span class="small">${DPOS[d].d}</span><br><span class="hint">${ROLE_TIP[d]||''}</span><br><span class="hint"><b>핵심</b> ${roleKeys3(p,d)}${BADGES[d]?` · 배지 ${BADGES[d].i} ${BADGES[d].n}`:''}</span></span></span></span>
       <span class="row" style="gap:6px;flex-wrap:nowrap"><span class="num" style="font-size:18px;font-weight:800">${f}</span>${cur&&!p.dposAuto?'':`<button class="ghost" data-act="dpos" data-v="${d}" ${p.phase==='retired'?'disabled':''}>${cur?'이 역할로 고정':'이 역할로 뛰기'}</button>`}</span></div>`}).join('')}</div>
     ${p.dposAuto?'':`<button class="btn alt" data-act="dpos" data-v="auto" ${p.phase==='retired'?'disabled':''}>자동으로 맡기기 <span class="hint">· 매 시즌 가장 잘 맞는 역할로</span></button>`}</section>`+badgePanel(p);
   if(t==='status')h+=teamActs(p)+`<section class="panel"><span class="eyebrow">상태</span>${condBars(p)}<div class="list small">
@@ -6985,7 +7080,7 @@ const detOpen=(k,def)=>G.det&&k in G.det?G.det[k]:def;function act(a,v){
     case 'foot':if(c.challenge)break;c.foot=v;if(c.cands)makeCands(c);break;
     case 'gen':makeCands(c);c.scout={};break;
     case 'reroll':if(c.rerolls>0&&!c.challenge){c.rerolls--;c.seed=newSeed();makeCands(c);c.scout={}}break;
-    case 'pick':{G.pickAsk=null;c.num=clamp(parseInt(c.num)||10,1,99);c.used=true;G.p=newPlayer(c,c.forceTrait&&!c.challenge?{...c.cands[+v],trait:c.forceTrait}:c.cands[+v]);c.forceTrait=null;c.traitPaid=false;c.traitOpen=false;c.scout={};if(!c.challenge){if(c.useDual&&lpUse('dual'))G.p.dual=true;if(c.useEuY&&lpUse('euy'))euYouthStart(G.p)}c.useDual=c.useEuY=false;if(c.challenge){G.p.challenge=c.challenge;c.challenge=null}else if(Math.random()<CBET_P)G.p.cbet={offer:true};G.train=[];G.screen='game';G.tab='season';G.toTop=true;break}
+    case 'pick':{G.pickAsk=null;c.num=clamp(parseInt(c.num)||10,1,99);c.used=true;G.p=newPlayer(c,c.forceTrait&&!c.challenge?{...c.cands[+v],trait:c.forceTrait}:c.cands[+v]);c.forceTrait=null;c.traitPaid=false;c.traitOpen=false;const scouted=!!(c.scout&&Object.keys(c.scout).length);c.scout={};if(scouted)G.p.scouted=true;if(!c.challenge){if(c.useDual&&lpUse('dual'))G.p.dual=true;if(c.useEuY&&lpUse('euy'))euYouthStart(G.p)}c.useDual=c.useEuY=false;if(c.challenge){G.p.challenge=c.challenge;c.challenge=null}else if(!scouted&&Math.random()<CBET_P)G.p.cbet={offer:true};G.train=[];G.screen='game';G.tab='season';G.toTop=true;break}
     case 'tab':G.tab=v;break;
     case 'nat-play':natPlay(p);G.toTop=true;break;
     case 'nat-mo':natMoment(p,v);G.toTop=true;break;
@@ -7163,5 +7258,4 @@ setTimeout(checkVersion,3000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkVersion()});setInterval(checkVersion,5*60*1000);
 setTimeout(rankRewardCheck,6000);
 </script>
-
 </body></html>
