@@ -1,0 +1,16 @@
+{
+  "name": "킥오프 라이프",
+  "short_name": "킥오프 라이프",
+  "description": "열여덟 살, 다시 공을 찬다 · 축구 인생 시뮬레이션",
+  "lang": "ko",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#14213d",
+  "theme_color": "#14213d",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+  ]
+}
